@@ -1,0 +1,378 @@
+"server.ml" 35 970 974 "server.ml" 35 970 977
+type(
+  port:int -> unit Async_core.Deferred.t
+)
+ident(
+  def run "server.ml" 48 1334 1334 "_none_" 1 0 -1
+)
+"server.ml" 35 970 979 "server.ml" 35 970 983
+type(
+  int
+)
+ident(
+  def port "server.ml" 37 1052 1054 "server.ml" 45 1266 1330
+)
+"server.ml" 37 1052 1058 "server.ml" 37 1052 1063
+type(
+  state
+)
+ident(
+  def state "server.ml" 44 1212 1214 "server.ml" 45 1266 1330
+)
+"server.ml" 37 1052 1082 "server.ml" 37 1052 1086
+type(
+  int
+)
+"server.ml" 38 1089 1113 "server.ml" 38 1089 1115
+type(
+  int list
+)
+"server.ml" 39 1117 1130 "server.ml" 39 1117 1134
+type(
+  int option
+)
+"server.ml" 40 1136 1149 "server.ml" 40 1136 1157
+type(
+  role
+)
+"server.ml" 41 1159 1172 "server.ml" 41 1159 1173
+type(
+  int
+)
+"server.ml" 42 1175 1189 "server.ml" 42 1175 1193
+type(
+  int option
+)
+"server.ml" 43 1195 1203 "server.ml" 43 1195 1205
+type(
+  log_entry list
+)
+"server.ml" 37 1052 1066 "server.ml" 43 1195 1208
+type(
+  state
+)
+"server.ml" 44 1212 1214 "server.ml" 44 1212 1225
+type(
+  (Async_extra.Import.Socket.Address.Inet.t Async.Std.Tcp.where_to_connect ->
+   (([ `Active ], Async_extra.Import.Socket.Address.Inet.t)
+    Async_extra.Import.Socket.t * Async_extra.Import.Reader.t *
+    Async_extra.Import.Writer.t)
+   Async_extra.Import.Deferred.t)
+  Async.Std.Tcp.with_connect_options
+)
+ident(
+  ext_ref Async.Std.Tcp.connect
+)
+"server.ml" 44 1212 1227 "server.ml" 44 1212 1247
+type(
+  string ->
+  int ->
+  Async_extra.Import.Socket.Address.Inet.t Async.Std.Tcp.where_to_connect
+)
+ident(
+  ext_ref Async.Std.Tcp.to_host_and_port
+)
+"server.ml" 44 1212 1248 "server.ml" 44 1212 1259
+type(
+  string
+)
+"server.ml" 44 1212 1260 "server.ml" 44 1212 1264
+type(
+  int
+)
+ident(
+  int_ref port "server.ml" 35 970 979 "server.ml" 35 970 983
+)
+"server.ml" 44 1212 1226 "server.ml" 44 1212 1265
+call(
+  stack
+)
+type(
+  Async_extra.Import.Socket.Address.Inet.t Async.Std.Tcp.where_to_connect
+)
+"server.ml" 44 1212 1214 "server.ml" 44 1212 1265
+call(
+  stack
+)
+type(
+  (([ `Active ], Async_extra.Import.Socket.Address.Inet.t)
+   Async_extra.Import.Socket.t * Async_extra.Import.Reader.t *
+   Async_extra.Import.Writer.t)
+  Async_extra.Import.Deferred.t
+)
+"server.ml" 45 1266 1268 "server.ml" 45 1266 1271
+type(
+  (([ `Active ], Async_extra.Import.Socket.Address.Inet.t)
+   Async_extra.Import.Socket.t * Async_extra.Import.Reader.t *
+   Async_extra.Import.Writer.t)
+  Async_core.Deferred.t ->
+  (([ `Active ], Async_extra.Import.Socket.Address.Inet.t)
+   Async_extra.Import.Socket.t * Async_extra.Import.Reader.t *
+   Async_extra.Import.Writer.t -> unit Async_core.Deferred.t) ->
+  unit Async_core.Deferred.t
+)
+ident(
+  ext_ref Async.Std.( >>= )
+)
+"server.ml" 45 1266 1278 "server.ml" 45 1266 1279
+type(
+  ([ `Active ], Async_extra.Import.Socket.Address.Inet.t)
+  Async_extra.Import.Socket.t
+)
+"server.ml" 45 1266 1280 "server.ml" 45 1266 1281
+type(
+  Async_extra.Import.Reader.t
+)
+"server.ml" 45 1266 1282 "server.ml" 45 1266 1283
+type(
+  Async_extra.Import.Writer.t
+)
+ident(
+  def w "server.ml" 45 1266 1288 "server.ml" 45 1266 1328
+)
+"server.ml" 45 1266 1277 "server.ml" 45 1266 1284
+type(
+  ([ `Active ], Async_extra.Import.Socket.Address.Inet.t)
+  Async_extra.Import.Socket.t * Async_extra.Import.Reader.t *
+  Async_extra.Import.Writer.t
+)
+"server.ml" 45 1266 1288 "server.ml" 45 1266 1300
+type(
+  ?pos:int -> ?len:int -> Async.Std.Writer.t -> string -> unit
+)
+ident(
+  ext_ref Async.Std.Writer.write
+)
+"server.ml" 45 1266 1301 "server.ml" 45 1266 1302
+type(
+  Async_extra.Import.Writer.t
+)
+ident(
+  int_ref w "server.ml" 45 1266 1282 "server.ml" 45 1266 1283
+)
+"server.ml" 45 1266 1303 "server.ml" 45 1266 1312
+type(
+  string
+)
+"server.ml" 45 1266 1288 "server.ml" 45 1266 1312
+call(
+  stack
+)
+type(
+  unit
+)
+"server.ml" 45 1266 1314 "server.ml" 45 1266 1326
+type(
+  ?force_close:unit Async_unix.Import.Deferred.t ->
+  Async.Std.Writer.t -> unit Async_unix.Import.Deferred.t
+)
+ident(
+  ext_ref Async.Std.Writer.close
+)
+"server.ml" 45 1266 1327 "server.ml" 45 1266 1328
+type(
+  Async_extra.Import.Writer.t
+)
+ident(
+  int_ref w "server.ml" 45 1266 1282 "server.ml" 45 1266 1283
+)
+"server.ml" 45 1266 1314 "server.ml" 45 1266 1328
+call(
+  tail
+)
+type(
+  unit Async_unix.Import.Deferred.t
+)
+"server.ml" 45 1266 1288 "server.ml" 45 1266 1328
+type(
+  unit Async_unix.Import.Deferred.t
+)
+"server.ml" 45 1266 1272 "server.ml" 45 1266 1330
+type(
+  ([ `Active ], Async_extra.Import.Socket.Address.Inet.t)
+  Async_extra.Import.Socket.t * Async_extra.Import.Reader.t *
+  Async_extra.Import.Writer.t -> unit Async_core.Deferred.t
+)
+"server.ml" 44 1212 1214 "server.ml" 45 1266 1330
+call(
+  tail
+)
+type(
+  unit Async_core.Deferred.t
+)
+"server.ml" 37 1052 1054 "server.ml" 45 1266 1330
+type(
+  unit Async_core.Deferred.t
+)
+"server.ml" 48 1334 1338 "server.ml" 48 1334 1340
+type(
+  unit
+)
+"server.ml" 49 1343 1345 "server.ml" 49 1343 1364
+type(
+  summary:string ->
+  ?readme:(unit -> string) ->
+  (int -> unit -> unit Async_extra.Import.Deferred.t,
+   unit -> unit Async_extra.Import.Deferred.t)
+  Async.Std.Command.Spec.t ->
+  (int -> unit -> unit Async_extra.Import.Deferred.t) -> Async.Std.Command.t
+)
+ident(
+  ext_ref Async.Std.Command.async_basic
+)
+"server.ml" 50 1365 1378 "server.ml" 50 1365 1398
+type(
+  string
+)
+"server.ml" 52 1418 1424 "server.ml" 52 1418 1429
+type(
+  (int -> unit -> unit Async_extra.Import.Deferred.t,
+   int -> unit -> unit Async_extra.Import.Deferred.t)
+  Async.Std.Command.Spec.t
+)
+ident(
+  ext_ref Async.Std.Command.Spec.empty
+)
+"server.ml" 53 1430 1436 "server.ml" 53 1430 1438
+type(
+  (int -> unit -> unit Async_extra.Import.Deferred.t,
+   int -> unit -> unit Async_extra.Import.Deferred.t)
+  Async.Std.Command.Spec.t ->
+  int Async.Std.Command.Spec.param ->
+  (int -> unit -> unit Async_extra.Import.Deferred.t,
+   unit -> unit Async_extra.Import.Deferred.t)
+  Async.Std.Command.Spec.t
+)
+ident(
+  ext_ref Async.Std.Command.Spec.( +> )
+)
+"server.ml" 53 1430 1439 "server.ml" 53 1430 1443
+type(
+  ?aliases:string list ->
+  string ->
+  int Async.Std.Command.Spec.flag ->
+  doc:string -> int Async.Std.Command.Spec.param
+)
+ident(
+  ext_ref Async.Std.Command.Spec.flag
+)
+"server.ml" 53 1430 1444 "server.ml" 53 1430 1451
+type(
+  string
+)
+"server.ml" 53 1430 1453 "server.ml" 53 1430 1474
+type(
+  int ->
+  int Async.Std.Command.Spec.Arg_type.t -> int Async.Std.Command.Spec.flag
+)
+ident(
+  ext_ref Async.Std.Command.Spec.optional_with_default
+)
+"server.ml" 53 1430 1475 "server.ml" 53 1430 1479
+type(
+  int
+)
+"server.ml" 53 1430 1480 "server.ml" 53 1430 1483
+type(
+  int Async.Std.Command.Spec.Arg_type.t
+)
+ident(
+  ext_ref Async.Std.Command.Spec.int
+)
+"server.ml" 53 1430 1452 "server.ml" 53 1430 1484
+call(
+  stack
+)
+type(
+  int Async.Std.Command.Spec.flag
+)
+"server.ml" 54 1485 1498 "server.ml" 54 1485 1533
+type(
+  string
+)
+"server.ml" 53 1430 1439 "server.ml" 54 1485 1533
+call(
+  stack
+)
+type(
+  int Async.Std.Command.Spec.param
+)
+"server.ml" 52 1418 1424 "server.ml" 54 1485 1533
+call(
+  stack
+)
+type(
+  (int -> unit -> unit Async_extra.Import.Deferred.t,
+   unit -> unit Async_extra.Import.Deferred.t)
+  Async.Std.Command.Spec.t
+)
+"server.ml" 56 1540 1549 "server.ml" 56 1540 1553
+type(
+  int
+)
+ident(
+  def port "server.ml" 56 1540 1554 "server.ml" 56 1540 1569
+)
+"server.ml" 56 1540 1554 "server.ml" 56 1540 1556
+type(
+  unit
+)
+"server.ml" 56 1540 1560 "server.ml" 56 1540 1563
+type(
+  port:int -> unit Async_core.Deferred.t
+)
+ident(
+  int_ref run "server.ml" 35 970 974 "server.ml" 35 970 977
+)
+"server.ml" 56 1540 1565 "server.ml" 56 1540 1569
+type(
+  int
+)
+ident(
+  int_ref port "server.ml" 56 1540 1549 "server.ml" 56 1540 1553
+)
+"server.ml" 56 1540 1560 "server.ml" 56 1540 1569
+call(
+  tail
+)
+type(
+  unit Async_core.Deferred.t
+)
+"server.ml" 56 1540 1544 "server.ml" 56 1540 1570
+type(
+  int -> unit -> unit Async_extra.Import.Deferred.t
+)
+"server.ml" 49 1343 1345 "server.ml" 56 1540 1570
+call(
+  stack
+)
+type(
+  Async.Std.Command.t
+)
+"server.ml" 57 1571 1573 "server.ml" 57 1571 1575
+type(
+  Async.Std.Command.t -> (Async.Std.Command.t -> unit) -> unit
+)
+ident(
+  ext_ref Core.Std.( |> )
+)
+"server.ml" 57 1571 1576 "server.ml" 57 1571 1587
+call(
+  tail
+)
+type(
+  ?version:string ->
+  ?build_info:string ->
+  ?argv:string list ->
+  ?extend:(string list -> string list) -> Async.Std.Command.t -> unit
+)
+ident(
+  ext_ref Async.Std.Command.run
+)
+"server.ml" 49 1343 1345 "server.ml" 57 1571 1587
+call(
+  stack
+)
+type(
+  unit
+)

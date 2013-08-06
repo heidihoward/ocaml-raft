@@ -1,0 +1,15 @@
+### Starting build.
+# Target: server.ml.depends, tags: { annot, debugging, extension:ml, file:server.ml, ocaml, ocamldep, package(async), package(core), package(core_extended), quiet, thread, traverse }
+/auto/homes/hh360/.opam/4.00.1/bin/ocamlfind ocamldep -package core -package core_extended -package async -modules server.ml > server.ml.depends
+# Target: server.mli.depends, tags: { annot, debugging, extension:mli, file:server.mli, ocaml, ocamldep, package(async), package(core), package(core_extended), quiet, thread, traverse }
+/auto/homes/hh360/.opam/4.00.1/bin/ocamlfind ocamldep -package core -package core_extended -package async -modules server.mli > server.mli.depends
+# Target: server.cmi, tags: { annot, byte, compile, debugging, extension:mli, file:server.mli, interf, ocaml, package(async), package(core), package(core_extended), quiet, thread, traverse }
+/auto/homes/hh360/.opam/4.00.1/bin/ocamlfind ocamlc -c -annot -thread -package core -package core_extended -package async -o server.cmi server.mli
+# Target: server.cmx, tags: { annot, compile, debugging, extension:cmx, extension:ml, file:server.cmx, file:server.ml, implem, native, ocaml, package(async), package(core), package(core_extended), quiet, thread, traverse }
+/auto/homes/hh360/.opam/4.00.1/bin/ocamlfind ocamlopt -c -annot -thread -package core -package core_extended -package async -o server.cmx server.ml
++ /auto/homes/hh360/.opam/4.00.1/bin/ocamlfind ocamlopt -c -annot -thread -package core -package core_extended -package async -o server.cmx server.ml
+File "server.ml", line 37, characters 6-11:
+Warning 26: unused variable state.
+# Target: server.native, tags: { annot, debugging, dont_link_with, extension:native, file:server.native, link, native, ocaml, package(async), package(core), package(core_extended), program, quiet, thread, traverse }
+/auto/homes/hh360/.opam/4.00.1/bin/ocamlfind ocamlopt -linkpkg -thread -package core -package core_extended -package async server.cmx -o server.native
+# Compilation successful.

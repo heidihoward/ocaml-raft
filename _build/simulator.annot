@@ -1,0 +1,312 @@
+"simulator.ml" 5 53 57 "simulator.ml" 5 53 64
+type(
+  'a -> Async.Std.Reader.t -> 'b -> unit Async_core.Deferred.t
+)
+ident(
+  def handler "simulator.ml" 10 192 192 "_none_" 1 0 -1
+)
+"simulator.ml" 5 53 65 "simulator.ml" 5 53 72
+type(
+  'a
+)
+ident(
+  def address "simulator.ml" 5 53 73 "simulator.ml" 8 155 190
+)
+"simulator.ml" 5 53 73 "simulator.ml" 5 53 74
+type(
+  Async.Std.Reader.t
+)
+ident(
+  def r "simulator.ml" 5 53 75 "simulator.ml" 8 155 190
+)
+"simulator.ml" 5 53 75 "simulator.ml" 5 53 76
+type(
+  'b
+)
+ident(
+  def w "simulator.ml" 6 79 81 "simulator.ml" 8 155 190
+)
+"simulator.ml" 6 79 81 "simulator.ml" 6 79 97
+type(
+  Async.Std.Reader.t ->
+  string Async.Std.Reader.Read_result.t Async_unix.Import.Deferred.t
+)
+ident(
+  ext_ref Async.Std.Reader.read_line
+)
+"simulator.ml" 6 79 98 "simulator.ml" 6 79 99
+type(
+  Async.Std.Reader.t
+)
+ident(
+  int_ref r "simulator.ml" 5 53 73 "simulator.ml" 5 53 74
+)
+"simulator.ml" 6 79 81 "simulator.ml" 6 79 99
+call(
+  stack
+)
+type(
+  string Async.Std.Reader.Read_result.t Async_unix.Import.Deferred.t
+)
+"simulator.ml" 7 101 103 "simulator.ml" 7 101 106
+type(
+  string Async.Std.Reader.Read_result.t Async_core.Deferred.t ->
+  (string Async.Std.Reader.Read_result.t -> unit) ->
+  unit Async_core.Deferred.t
+)
+ident(
+  ext_ref Async.Std.( >>| )
+)
+"simulator.ml" 7 101 123 "simulator.ml" 7 101 130
+type(
+  string
+)
+"simulator.ml" 7 101 119 "simulator.ml" 7 101 130
+type(
+  string Async.Std.Reader.Read_result.t
+)
+"simulator.ml" 7 101 134 "simulator.ml" 7 101 140
+type(
+  (unit, unit, string, unit) format4 -> unit
+)
+ident(
+  ext_ref Async.Std.printf
+)
+"simulator.ml" 7 101 141 "simulator.ml" 7 101 154
+type(
+  (unit, unit, string, unit) format4
+)
+"simulator.ml" 7 101 134 "simulator.ml" 7 101 154
+call(
+  tail
+)
+type(
+  unit
+)
+"simulator.ml" 8 155 159 "simulator.ml" 8 155 163
+type(
+  string Async.Std.Reader.Read_result.t
+)
+"simulator.ml" 8 155 167 "simulator.ml" 8 155 173
+type(
+  (unit, unit, string, unit) format4 -> unit
+)
+ident(
+  ext_ref Async.Std.printf
+)
+"simulator.ml" 8 155 174 "simulator.ml" 8 155 189
+type(
+  (unit, unit, string, unit) format4
+)
+"simulator.ml" 8 155 167 "simulator.ml" 8 155 189
+call(
+  tail
+)
+type(
+  unit
+)
+"simulator.ml" 7 101 107 "simulator.ml" 8 155 190
+type(
+  string Async.Std.Reader.Read_result.t -> unit
+)
+"simulator.ml" 6 79 81 "simulator.ml" 8 155 190
+call(
+  tail
+)
+type(
+  unit Async_core.Deferred.t
+)
+"simulator.ml" 10 192 196 "simulator.ml" 10 192 199
+type(
+  unit -> unit
+)
+ident(
+  def run "simulator.ml" 17 346 346 "_none_" 1 0 -1
+)
+"simulator.ml" 10 192 200 "simulator.ml" 10 192 202
+type(
+  unit
+)
+"simulator.ml" 11 205 211 "simulator.ml" 11 205 224
+type(
+  (Async_extra.Import.Socket.Address.Inet.t, int) Async.Std.Tcp.Server.t
+  Async_extra.Import.Deferred.t
+)
+ident(
+  def host_and_port "simulator.ml" 14 281 283 "simulator.ml" 15 297 344
+)
+"simulator.ml" 12 227 231 "simulator.ml" 12 227 248
+type(
+  ?max_connections:int ->
+  ?max_pending_connections:int ->
+  ?buffer_age_limit:Async_extra.Import.Writer.buffer_age_limit ->
+  ?on_handler_error:[ `Call of
+                        Async_extra.Import.Socket.Address.Inet.t ->
+                        exn -> unit
+                    | `Ignore
+                    | `Raise ] ->
+  (Async_extra.Import.Socket.Address.Inet.t, int)
+  Async.Std.Tcp.Where_to_listen.t ->
+  (Async_extra.Import.Socket.Address.Inet.t ->
+   Async_extra.Import.Reader.t ->
+   Async_extra.Import.Writer.t -> unit Async_extra.Import.Deferred.t) ->
+  (Async_extra.Import.Socket.Address.Inet.t, int) Async.Std.Tcp.Server.t
+  Async_extra.Import.Deferred.t
+)
+ident(
+  ext_ref Async.Std.Tcp.Server.create
+)
+"simulator.ml" 12 227 250 "simulator.ml" 12 227 261
+type(
+  int -> Async.Std.Tcp.Where_to_listen.inet
+)
+ident(
+  ext_ref Async.Std.Tcp.on_port
+)
+"simulator.ml" 12 227 262 "simulator.ml" 12 227 266
+type(
+  int
+)
+"simulator.ml" 12 227 249 "simulator.ml" 12 227 267
+call(
+  stack
+)
+type(
+  Async.Std.Tcp.Where_to_listen.inet
+)
+"simulator.ml" 12 227 268 "simulator.ml" 12 227 275
+type(
+  Async_extra.Import.Socket.Address.Inet.t ->
+  Async_extra.Import.Reader.t ->
+  Async_extra.Import.Writer.t -> unit Async_extra.Import.Deferred.t
+)
+ident(
+  int_ref handler "simulator.ml" 5 53 57 "simulator.ml" 5 53 64
+)
+"simulator.ml" 12 227 231 "simulator.ml" 12 227 275
+call(
+  stack
+)
+type(
+  (Async_extra.Import.Socket.Address.Inet.t, int) Async.Std.Tcp.Server.t
+  Async_extra.Import.Deferred.t
+)
+"simulator.ml" 14 281 283 "simulator.ml" 14 281 296
+type(
+  (Async_extra.Import.Socket.Address.Inet.t, int) Async.Std.Tcp.Server.t
+  Async_extra.Import.Deferred.t
+)
+ident(
+  int_ref host_and_port "simulator.ml" 11 205 211 "simulator.ml" 11 205 224
+)
+"simulator.ml" 15 297 299 "simulator.ml" 15 297 302
+type(
+  (Async_extra.Import.Socket.Address.Inet.t, int) Async.Std.Tcp.Server.t
+  Async_core.Deferred.t ->
+  ((Async_extra.Import.Socket.Address.Inet.t, int) Async.Std.Tcp.Server.t ->
+   unit) ->
+  unit
+)
+ident(
+  ext_ref Async.Std.( >>> )
+)
+"simulator.ml" 15 297 308 "simulator.ml" 15 297 309
+type(
+  (Async_extra.Import.Socket.Address.Inet.t, int) Async.Std.Tcp.Server.t
+)
+"simulator.ml" 15 297 313 "simulator.ml" 15 297 322
+type(
+  unit Core_extended.Std.Shell.cmd Core_extended.Std.Shell.with_run_flags
+)
+ident(
+  ext_ref Core_extended.Std.Shell.run
+)
+"simulator.ml" 15 297 323 "simulator.ml" 15 297 340
+type(
+  string
+)
+"simulator.ml" 15 297 341 "simulator.ml" 15 297 343
+type(
+  string list
+)
+"simulator.ml" 15 297 313 "simulator.ml" 15 297 343
+call(
+  stack
+)
+type(
+  unit
+)
+"simulator.ml" 15 297 303 "simulator.ml" 15 297 344
+type(
+  (Async_extra.Import.Socket.Address.Inet.t, int) Async.Std.Tcp.Server.t ->
+  unit
+)
+"simulator.ml" 14 281 283 "simulator.ml" 15 297 344
+call(
+  tail
+)
+type(
+  unit
+)
+"simulator.ml" 11 205 207 "simulator.ml" 15 297 344
+type(
+  unit
+)
+"simulator.ml" 17 346 350 "simulator.ml" 17 346 352
+type(
+  unit
+)
+"simulator.ml" 18 355 357 "simulator.ml" 18 355 360
+type(
+  unit -> unit
+)
+ident(
+  int_ref run "simulator.ml" 10 192 196 "simulator.ml" 10 192 199
+)
+"simulator.ml" 18 355 361 "simulator.ml" 18 355 363
+type(
+  unit
+)
+"simulator.ml" 18 355 357 "simulator.ml" 18 355 363
+call(
+  stack
+)
+type(
+  unit
+)
+"simulator.ml" 19 365 367 "simulator.ml" 19 365 380
+type(
+  Core.Std.never_returns -> unit
+)
+ident(
+  ext_ref Core.Std.never_returns
+)
+"simulator.ml" 19 365 382 "simulator.ml" 19 365 394
+type(
+  ?raise_unhandled_exn:bool -> unit -> Core.Std.never_returns
+)
+ident(
+  ext_ref Async.Std.Scheduler.go
+)
+"simulator.ml" 19 365 395 "simulator.ml" 19 365 397
+type(
+  unit
+)
+"simulator.ml" 19 365 381 "simulator.ml" 19 365 398
+call(
+  stack
+)
+type(
+  Core.Std.never_returns
+)
+"simulator.ml" 19 365 367 "simulator.ml" 19 365 398
+call(
+  stack
+)
+type(
+  unit
+)
+"simulator.ml" 18 355 357 "simulator.ml" 19 365 398
+type(
+  unit
+)
