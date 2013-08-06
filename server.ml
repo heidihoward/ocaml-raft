@@ -17,6 +17,11 @@ type state =
     mutable voted_for: int option;
     mutable log: log_entry list }
 
+let create_persistent state {
+   let file_des = Fd.create File (Std.Unix [O_WRONLY; O_CREAT] "~/log.log") in 
+   
+
+
 (*
 let run_leader state = 
   (* this node has just won a eletion *) 
