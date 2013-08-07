@@ -17,10 +17,11 @@ type state =
     mutable voted_for: int option;
     mutable log: log_entry list }
 
-let create_persistent state {
-   let file_des = Fd.create File (Std.Unix [O_WRONLY; O_CREAT] "~/log.log") in 
+let create_persistent state =
+   let file = (string_of_int state.candidate_id)^"log.log" in
+   Writer.open_file file
+   >>= (fun w -> Writer.write_line w (string_of_int state.cnt_term); Writer.close w)
    
-
 
 (*
 let run_leader state = 
@@ -28,7 +29,7 @@ let run_leader state =
   send all appendEntries term:int leader_id:int prev_log_index:int prev_log_term:int (entries: log_entry list) commitIndex:int 
 
 let requestVote term:int candidate_id:int last_log_index:int last_log_term:int = 
-
+ >>= (fun w -> Writer.write_line w (string_of_int state.cnt_term); Writer.close w
 let appendEntries term:int leader_id:int prev_log_index:int prev_log_term:int (entries: log_entry list) commitIndex:int =
 
 let clientrequest command:string =
@@ -37,9 +38,18 @@ let clientrequest command:string =
   |Candidate -> return "Failure: try again later"
   |Leader -> *)
 
-let run ~port = 
+let rec msg_rcv state r = 
+ Reader.read_line r 
+  >>|(function | `Ok msg -> (let file = (string_of_int state.candidate_id)^"msg.log" in
+			Writer.open_file file
+			>>= (fun w -> Writer.write_line w msg; Writer.close w));
+			 ignore(msg_rcv state r)
+	       | `Eof -> ignore(msg_rcv state r) )
+
+
+let run ~id ~port = 
   (* assume this the first time candidate has been started up *)
-  let state = { candidate_id =1000; 
+  let state = { candidate_id =id; 
                 all_ids=[];
 		leader_id= None;
 		cnt_role = Follower;
@@ -47,17 +57,19 @@ let run ~port =
 		voted_for = None;
 		log = []; } in
   Tcp.connect (Tcp.to_host_and_port "localhost" port)
-  >>= (fun (_,_,w) -> Writer.write w "hello\n"; Writer.close w )
-
+  >>| (fun (_,r,w) -> msg_rcv state r; Writer.write w ("SIM:"^(string_of_int state.candidate_id)^":hello\n") ;(if (state.candidate_id=1) then Writer.write w ("2:"^(string_of_int state.candidate_id)^":hello\n")) (* ;Writer.close w *))
+  >>= (fun _ -> create_persistent state)
  
 let () =
   Command.async_basic
     ~summary:"Start an raft node"
     Command.Spec.(
       empty
+      +> flag "-id" (required int)
+        ~doc:" candidate ID"
       +> flag "-port" (optional_with_default 8888 int)
         ~doc:" Port to listen on (default 8888)"
     )
-    (fun port () -> run ~port)
+    (fun id port () -> run ~id ~port)
   |> Command.run
 
