@@ -40,12 +40,20 @@ let clientrequest command:string =
 
 let rec msg_rcv state r = 
  Reader.read_line r 
-  >>|(function | `Ok msg -> (let file = (string_of_int state.candidate_id)^"msg.log" in
-			Writer.open_file file
-			>>= (fun w -> Writer.write_line w msg; Writer.close w));
-			 ignore(msg_rcv state r)
-	       | `Eof -> ignore(msg_rcv state r) ) 
+  >>> (function 
+    |`Ok msg -> ignore(msg_rcv state r);
+      let log_w = Msg.msg_log (string_of_int state.candidate_id) in
+      Msg.append_log log_w msg    
+    |`Eof -> ignore(msg_rcv state r) ) 
 
+let test_msgs state w = 
+  let timephase = Time.Span.create ~ms:20 () in 
+  Clock.after timephase
+  >>> (fun _ -> 
+    if (state.candidate_id=1) then 
+    Writer.write w ("2:1:hello to number 2\n")
+    else if (state.candidate_id=3) then 
+    Writer.write w ("0:3:hello also to zero\n") )
 
 let run ~id ~port = 
   (* assume this the first time candidate has been started up *)
@@ -58,8 +66,8 @@ let run ~id ~port =
 		log = []; } in 
   Tcp.connect (Tcp.to_host_and_port "localhost" port)
   >>| (fun (_,r,w) ->  msg_rcv state r;  
-    Writer.write w ("SIM:"^(string_of_int state.candidate_id)^":hello\n")
-    (* ;(if (state.candidate_id=1) then Writer.write w ("2:"^(string_of_int state.candidate_id)^":hello\n"))  ;Writer.close w *))
+    Writer.write w ("SIM:"^(string_of_int state.candidate_id)^":hello\n");
+    test_msgs state w )
   >>= (fun _ -> create_persistent state) 
  
 let () =
