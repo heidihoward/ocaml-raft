@@ -20,7 +20,7 @@ type state =
 let create_persistent state =
    let file = (string_of_int state.candidate_id)^"log.log" in
    Writer.open_file file
-   >>= (fun w -> Writer.write_line w (string_of_int state.cnt_term); Writer.close w)
+   >>= (fun w -> Writer.write_line w (string_of_int state.cnt_term); Writer.close w) 
    
 
 (*
@@ -44,21 +44,23 @@ let rec msg_rcv state r =
 			Writer.open_file file
 			>>= (fun w -> Writer.write_line w msg; Writer.close w));
 			 ignore(msg_rcv state r)
-	       | `Eof -> ignore(msg_rcv state r) )
+	       | `Eof -> ignore(msg_rcv state r) ) 
 
 
 let run ~id ~port = 
   (* assume this the first time candidate has been started up *)
-  let state = { candidate_id =id; 
+   let state = { candidate_id =id; 
                 all_ids=[];
 		leader_id= None;
 		cnt_role = Follower;
 		cnt_term = 0;
 		voted_for = None;
-		log = []; } in
+		log = []; } in 
   Tcp.connect (Tcp.to_host_and_port "localhost" port)
-  >>| (fun (_,r,w) -> msg_rcv state r; Writer.write w ("SIM:"^(string_of_int state.candidate_id)^":hello\n") ;(if (state.candidate_id=1) then Writer.write w ("2:"^(string_of_int state.candidate_id)^":hello\n")) (* ;Writer.close w *))
-  >>= (fun _ -> create_persistent state)
+  >>| (fun (_,r,w) ->  msg_rcv state r;  
+    Writer.write w ("SIM:"^(string_of_int state.candidate_id)^":hello\n")
+    (* ;(if (state.candidate_id=1) then Writer.write w ("2:"^(string_of_int state.candidate_id)^":hello\n"))  ;Writer.close w *))
+  >>= (fun _ -> create_persistent state) 
  
 let () =
   Command.async_basic
@@ -67,8 +69,8 @@ let () =
       empty
       +> flag "-id" (required int)
         ~doc:" candidate ID"
-      +> flag "-port" (optional_with_default 8888 int)
-        ~doc:" Port to listen on (default 8888)"
+      +> flag "-port" (optional_with_default 8889 int)
+        ~doc:" Port to listen on (default 8889)"
     )
     (fun id port () -> run ~id ~port)
   |> Command.run

@@ -1,1 +1,1 @@
-true:package(core),package(core_extended),package(async),thread,annot,debugging
+true:package(core),package(core_extended),package(async),thread,annot,debug
