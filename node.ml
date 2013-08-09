@@ -39,21 +39,23 @@ let clientrequest command:string =
   |Leader -> *)
 
 let rec msg_rcv state r = 
- Reader.read_line r 
-  >>> (function 
-    |`Ok msg -> ignore(msg_rcv state r);
-      let log_w = Msg.msg_log (string_of_int state.candidate_id) in
+  let log_w = Msg.msg_log (string_of_int state.candidate_id) in
+  Reader.read_line r 
+  >>> (fun _ -> Msg.append_log log_w "got my first msg" )
+
+(* (function 
+    |`Ok msg ->  ignore(msg_rcv state r); 
       Msg.append_log log_w msg    
-    |`Eof -> ignore(msg_rcv state r) ) 
+    |`Eof -> printf "oo"  ignore(msg_rcv state r) ) *)
 
 let test_msgs state w = 
-  let timephase = Time.Span.create ~ms:20 () in 
+  (*let timephase = Time.Span.create ~ms:20 () in 
   Clock.after timephase
-  >>> (fun _ -> 
+  >>> (fun _ -> *)
     if (state.candidate_id=1) then 
     Writer.write w ("2:1:hello to number 2\n")
     else if (state.candidate_id=3) then 
-    Writer.write w ("0:3:hello also to zero\n") )
+    Writer.write w ("0:3:hello also to zero\n") 
 
 let run ~id ~port = 
   (* assume this the first time candidate has been started up *)
