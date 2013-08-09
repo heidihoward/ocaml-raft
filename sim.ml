@@ -1,5 +1,6 @@
 open Core.Std
 open Core_extended.Std (* used for Shell scripting, could be replaced with async shell *)
+open Async_shell 
 open Async.Std
 open Msg
 
@@ -49,7 +50,7 @@ let run ~nodes =
   >>| (fun _ -> 
     for i=0 to nodes-1 do 
       let id = (string_of_int i) in
-      Shell.run "./node.byte" ["-id";id];
+      Async_shell.run "./node.byte" ["-id";id];
       printf "starting up node %x \n %!" i 
     done ));
     Deferred.never ()
