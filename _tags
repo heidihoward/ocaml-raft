@@ -1,2 +1,2 @@
-true:package(core),package(core_extended),package(async),package(async_shell),thread,annot,debug
+true:package(core),package(core_extended),package(async),package(async_shell),camlp4o,thread,annot,debugging
 

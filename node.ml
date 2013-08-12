@@ -48,19 +48,28 @@ let clientrequest command:string =
   |Leader -> *)
 (*  >>= (fun _ -> create_persistent state) *)
 
+
+let debug_active = ref true
+
+let debug x = if !debug_active then 
+  let time = Time.Ofday.to_sec_string (Time.Ofday.now()) in
+  (printf "[%s] %s \n %!" time x)
+
+
 let rec msg_rcv  r log_w = 
   Reader.read_line r 
   >>> (function 
-    |`Ok msg ->  Msg.append_log log_w msg; msg_rcv  r log_w 
-    |`Eof -> msg_rcv r log_w ) 
+    |`Ok msg ->  debug ("MSG incoming: "^(Msg.to_string msg)); Msg.append_log log_w msg; msg_rcv  r log_w 
+    |`Eof -> debug "EoF has been read from socket"; msg_rcv r log_w ) 
 
 let msg_snd id pkt_w log_w too msg =
   let msg_pkt = too^":"^(string_of_int id)^":"^msg in
+  debug ("MSG outgoing: "^(Msg.to_string msg_pkt));
   Msg.append_log log_w msg_pkt; 
   Writer.write_line pkt_w msg_pkt
 
 let rec test_msgs id pkt_w log_w= 
-  let timephase = Time.Span.randomize (Time.Span.create ~ms:50 ()) ~percent:0.75 in 
+  let timephase = Time.Span.randomize (Time.Span.create ~sec:3 ()) ~percent:0.75 in 
   let rcv = string_of_int (Random.int 10) in
   Clock.after timephase
   >>> (fun _ -> 
@@ -68,9 +77,11 @@ let rec test_msgs id pkt_w log_w=
   test_msgs id pkt_w log_w )
 
 let run ~id ~port = 
+  debug "starting up";
   Random.self_init ();
   Tcp.connect (Tcp.to_host_and_port "localhost" port)
   >>| (fun (_,pkt_r,pkt_w) ->  
+    debug "connected to simulator";
     let log_w = Msg.msg_log (string_of_int id) in
     msg_rcv pkt_r log_w;  
     msg_snd id pkt_w log_w "SIM" "hello";
