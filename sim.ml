@@ -52,13 +52,13 @@ let handler address r w =
 				nodes.(id)  <- Some (w) ;
 				debug ("connected to "^from);
 				msg_snd w from "SIM""your now connected";
-	| _ -> debug "unsuccessfull connection \n %!") 
-    | _ -> debug "unsuccessfull connection \n %!" ) 
+	| _ -> debug "unsuccessfull connection") 
+    | _ -> debug "unsuccessfull connection" ) 
   (* handle all other msgs *)
   >>> (fun _ -> msg_rcv r ));
   Deferred.never ()
 
-let run ~nodes ~debugon ~droprate =
+let run ~nodes ~debugon ~droprate ~port =
   Random.self_init ();
   drop_rate := droprate;
   (* enable/disable debugging *)
@@ -66,7 +66,7 @@ let run ~nodes ~debugon ~droprate =
   (* starting tcp server *)
   (debug "starting tcp server" ;
   let timephase = Time.Span.create ~sec:2 () in
-  let host_and_port = Tcp.Server.create (Tcp.on_port 8888) handler in
+  let host_and_port = Tcp.Server.create (Tcp.on_port port) handler in
   host_and_port
   (* starting nodes *)
   >>= (fun _ -> Clock.after timephase)
@@ -74,7 +74,8 @@ let run ~nodes ~debugon ~droprate =
     if (nodes > 0) then
       for i=0 to nodes-1 do 
         let id = (string_of_int i) in
-        ignore (Async_shell.run "./node.byte" ["-id";id]);
+        let port = (string_of_int port) in
+        ignore (Async_shell.run "./node.byte" ["-id";id;"-port";port]);
         debug ("starting up node ID:"^id)
       done )  );
     Deferred.never ()
@@ -89,8 +90,11 @@ let run ~nodes ~debugon ~droprate =
       +> flag "-debugon" (no_arg) 
       ~doc:" add to enabled debuging" 
       +> flag "-droprate" (optional_with_default 0.0 float) 
-      ~doc:" set packet drop rate between 0 and 1" )
-    (fun nodes debugon droprate () -> run ~nodes ~debugon ~droprate)
+      ~doc:" set packet drop rate between 0 and 1" 
+      +> flag "-port" (optional_with_default 8888 int)
+        ~doc:" Port to start simulator on (default 8888)" 
+    )
+    (fun nodes debugon droprate port () -> run ~nodes ~debugon ~droprate ~port)
   |> Command.run 
 
 (* let () =
