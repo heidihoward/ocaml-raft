@@ -95,8 +95,8 @@ let () =
       empty
       +> flag "-id" (required int)
         ~doc:" candidate ID"
-      +> flag "-port" (optional_with_default 8889 int)
-        ~doc:" Port to listen on (default 8889)"
+      +> flag "-port" (optional_with_default 8888 int)
+        ~doc:" Port to listen on (default 8888)"
     )
     (fun id port () -> run ~id ~port)
   |> Command.run

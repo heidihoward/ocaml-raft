@@ -66,7 +66,7 @@ let run ~nodes ~debugon ~droprate =
   (* starting tcp server *)
   (debug "starting tcp server" ;
   let timephase = Time.Span.create ~sec:2 () in
-  let host_and_port = Tcp.Server.create (Tcp.on_port 8889) handler in
+  let host_and_port = Tcp.Server.create (Tcp.on_port 8888) handler in
   host_and_port
   (* starting nodes *)
   >>= (fun _ -> Clock.after timephase)
