@@ -1,0 +1,2 @@
+true:package(core),package(core_extended),package(async),camlp4o,thread,annot,debugging
+
