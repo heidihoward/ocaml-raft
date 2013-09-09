@@ -1,4 +1,5 @@
 S .
+B ./_build
 PKG core
 PKG core_extended
 PKG async

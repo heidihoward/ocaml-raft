@@ -3,6 +3,8 @@ open Async.Std
 
 let state :State.t  = State.empty
 
+(*___RPC Specification and Implementations___*)
+
 (*Specification for the RPC method called myrpc *)
 let myrpc_spec = Rpc.Rpc.create
   ~name:"my-little-rpc"
@@ -13,14 +15,31 @@ let myrpc_spec = Rpc.Rpc.create
 (*Implementation for the RPC method called myrpc *)
 let myrpc_impl () x = printf "%s"x; return "hello World"
 
+(*___Role Transitions__ *)
+
+
+let rec start_election () =
+  let timeout =  Time.Span.create ~sec:10 () in
+  State.trans state Candidate;
+  State.self_vote state;
+  Deferred.any 
+  [Clock.after timeout >>> (fun _ -> State.election_timeout state) ;
+  List.iter (State.get_addr_all state) ~f:(fun (_,(host,port)) -> dispatch requestvote_spec host port) ]
+  match State.election_status state with
+    | None ->
+    | Timeout -> start_election()
+    | Step_up -> 
+    | Step_down -> 
+
+
 (* Connect to TCP server at port [peer] and dispatch myrpc request *)
-let start_client host port =
+let dispatch rpc_spec host port =
   ignore (
     Tcp.with_connection (Tcp.to_host_and_port host port) (fun _ r w ->
     Rpc.Connection.create ~connection_state:() r w
     >>= function
     | Error exn -> raise exn
-    | Ok conn -> Rpc.Rpc.dispatch myrpc_spec conn "good morning jon"))
+    | Ok conn -> Rpc.Rpc.dispatch rpc_spec conn "good morning jon"))
 
 (*Start a RPC server on [port] *)
 let start_server ~port =
