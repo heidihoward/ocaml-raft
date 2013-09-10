@@ -1,2 +1,3 @@
-true:package(core),package(core_extended),package(async),camlp4o,thread,annot,debugging
-
+true: syntax(camlp4o)
+true: package(core,sexplib.syntax,bin_prot.syntax,comparelib.syntax,fieldslib.syntax,variantslib.syntax,async,core_extended)
+true: thread,debug,annot

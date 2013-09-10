@@ -10,11 +10,12 @@ type t =
    mutable voted_for: int option;
    log: Lg.t }
 
-let empty = 
+let init () =
+  let time = Time.Ofday.now() in 
   {id=None;
    all_ids=Int.Table.create ~size:10 () ;
    leader_id=None;
-   role=Role.start_up;
+   role=(Role.Follower time) ;
    term=0;
    voted_for= None; 
    log=Lg.start }
@@ -34,11 +35,17 @@ let get_addr_by_id t id = Hashtbl.find t.all_ids id
 
 let get_addr_all t = Hashtbl.to_alist t.all_ids
 
-let election_timeout t = match t.role with
-  | Candidate None -> (t.role <- Candidate Timeout)
-  | x -> return unit
+let election_timeout t = 
+  Role.( match t.role with
+  | Candidate In_progress -> (t.role <- Candidate Timeout)
+  | _ -> () )
 
-let election_status t = match t.role with
-  | Candidate x -> x
+let election_status t = 
+  Role.( match t.role with
+  | Candidate x -> x )
 
+let get_term t = t.term
 
+let get_lastlogindex t = Lg.getlastindex t.log
+
+let get_lastlogterm t = Lg.getlastterm t.log

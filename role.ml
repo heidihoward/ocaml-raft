@@ -1,24 +1,19 @@
 open Core.Std
 open Async.Std
 
-type electon_outcome = 
-   None
+type election_outcome = 
+   In_progress 
  | Timeout
  | Step_up
  | Step_down
 
 type t = 
-   Follower 
- | Candidate of electon_outcome 
+   Follower of Time.Ofday.t 
+ | Candidate of election_outcome 
  | Leader
 
 let to_string = function
-  | Follower -> "Follower"
+  | Follower _ -> "Follower"
   | Candidate _ -> "Candidate"
   | Leader -> "Leader"
 
-let start_up = Follower
-
-let electon_timeout t = match t with
-  | Candidate None -> Candidate Timeout
-  | x -> x
