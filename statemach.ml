@@ -21,7 +21,7 @@ module KeyVal : Machine = struct
     | Add (key,data) -> ignore(Hashtbl.add store ~key ~data)
     | Find key -> "hello"
 
-  let cmd_of_string str = 
+  let cmd_of_string (str:string) :_ cmd  = 
     match String.split str ~on:' ' with
     | ["add";key;value] -> Add (int_of_string key, value)
     | ["remove";key] -> Remove (int_of_string key)
