@@ -82,7 +82,7 @@ let update tk =  state := State.tick !state tk
 
 (* -- all the events, can probably be moved into own module --*)
 
-type event =  E: unit -> (MonoTime.t * event) list 
+(* type event =  E: unit -> (MonoTime.t * event) list *)
 
 let incrTime () = update IncrementTime; []
 let checkTimer () = printf "hello"; []
@@ -103,7 +103,7 @@ let AppendEntriesRq
 let AppendEntriesRs
 *)
 
-let eventlist = [startFollow]
+let eventlist = [(MonoTime.init(),startFollow)]
 
 let rec run events = 
   let f (t,_) = MonoTime.comp !state.time t in 
