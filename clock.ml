@@ -11,8 +11,10 @@ module type TIME = sig
   val init : unit -> t
   val compare : t -> t -> int
   val add : t -> span -> t
+  val succ: t -> t
   val diff : t -> t -> span
-  val of_int : int -> t
+  val t_of_int : int -> t
+  val span_of_int : int -> span
   val to_string: t -> string
   val wait : t -> span -> t
 end 
@@ -24,7 +26,9 @@ module FakeTime : TIME = struct
   let compare a b = compare a b
   let add a b = a + b
   let diff a b = a - b
-  let of_int t = t
+  let t_of_int t = t
+  let span_of_int s = s
+  let succ t = t+1
   let to_string t = string_of_int t
   let wait t span = 
     Printf.printf "fake wait %s\n%!" (to_string t); 
@@ -37,7 +41,9 @@ module RealTime : TIME = struct
   let init () = Time.now ()
   let compare = Time.compare
   let add a b = Time.add a b
-  let of_int _t = Time.now () (* TODO fixme *)
+  let t_of_int _t = Time.now () (* TODO fixme *)
+  let span_of_int s = Time.Span.create ~sec:s ()
+  let succ a = add a (span_of_int 1)
   let to_string t = Time.to_string t
   let diff a b = Time.diff a b
 

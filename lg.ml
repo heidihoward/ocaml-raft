@@ -1,5 +1,25 @@
 open Core.Std
-open Async.Std
+
+module type INDEX = sig
+  type t
+  val succ: t -> t
+  val init: unit -> t
+end
+
+module Index : INDEX = struct
+  type t = int with compare
+  let succ = succ
+  let init () = 0
+end 
+
+module type LOG =  functor (I: INDEX) -> functor (M:MACHINE) -> sig
+  type entry
+  type t
+  val init: unit -> t
+  val append: I.t -> M.cmd -> t -> t
+end
+
+module ListLog(I:Index)(M:Machine) : LOG  = struct
 
 type entry = 
  { term: int;
@@ -26,3 +46,5 @@ let getlastterm log =
   match List.hd log with
   | Some entry -> entry.term
   | None -> 0
+
+end

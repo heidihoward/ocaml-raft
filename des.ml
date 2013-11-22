@@ -100,13 +100,13 @@ module State = struct
   let tick s tk =
   match tk with
     | IncrementTime -> 
-        let t = MonoTime.iter s.time in
+        let t = MonoTime.succ s.time in
        { s with time=t }
     | Reset -> 
        {s with heartbeat=false}
     | IncrementTerm -> 
-        let t = Index.succ s.time in
-       { s with time=t }
+        let t = Index.succ s.term in
+       { s with term=t }
     | Vote id -> 
         { s with votedFor = Some id}
     | VoteFrom id ->
@@ -122,7 +122,7 @@ module State = struct
 
 end
 
-let timeout = MonoTime.create 5
+let timeout = MonoTime.span_of_int 5
 
 (*state is the global information, readable by all and only modified by
  * statecalls via State.tick, the mutablity here should be handled better *)
@@ -186,11 +186,11 @@ let AppendEntriesRs
 *)
 
 let eventlist = Next [(MonoTime.init(), startFollow);
-                 (MonoTime.create 30, incrTime)]
+                 (MonoTime.t_of_int 30, incrTime)]
 
 let rec run (s:State.t) = function 
   | Next events -> 
-  let f (t,_) = MonoTime.comp s.time t in 
+  let f (t,_) = ( s.time = t) in 
   match (List.partition_tf events ~f) with
   | ([],[]) -> debug "finished all events"
     (* if no more events for this time then increment time and try again *)
