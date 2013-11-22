@@ -1,16 +1,27 @@
 open Core.Std
 
+module MonoTime = Clock.FakeTime
+
+module Index = struct
+  type t = int with compare
+  let succ = succ
+  let init () = 0
+end 
+(*
 module MonoTime = struct
+  (*TODO split MonoTime into a seperate module for terms, indexs etc *)
+  (*TODO define the sig *)
   type t = int
   let init () = 0
   let diff t1 t2 = abs(t1-t2)
+  (* Implement comparitor operators *)
   let comp t1 t2 = phys_equal t1 t2
   let iter t = t+1
   let add t1 t2 = t1+t2
   let create x = x
   let print t = string_of_int t
 end
-
+*)
 module ID = struct
   type t = int
   let from_int x = x
@@ -20,6 +31,7 @@ module ID = struct
 end
 
 module LogEntry = struct
+  (*TODO copy over proper application from other .mls *)
   type t = A | B | C
 end
 
@@ -34,20 +46,21 @@ module State = struct
 
   type role = Follower | Candidate | Leader
   
+  (* Split this record down into sections, seperating general statem *)
   type t = 
-    { term : MonoTime.t;
+    { term : Index.t;
       mode: role;
       time: MonoTime.t;
       heartbeat: bool; (*if there's been a heartbeat since last check *)
       votedFor: ID.t option;
       log: Log.t;
-      lastlogIndex: MonoTime.t;
-      lastlogTerm: MonoTime.t;
-      lastApplied: MonoTime.t;
+      lastlogIndex: Index.t;
+      lastlogTerm: Index.t;
+      lastApplied: Index.t;
       votesResponded: ID.t list;
       votesGranted: ID.t list;
-      nextIndex: MonoTime.t;
-      lastAgreeIndex: MonoTime.t;
+      nextIndex: Index.t;
+      lastAgreeIndex: Index.t;
       id: ID.t;
       allNodes: ID.t list; 
     }
@@ -60,22 +73,24 @@ module State = struct
    | IncrementTerm
    | Reset 
    | Vote of ID.t
+   | StepDown of Index.t
+   | VoteFrom of ID.t
 
 
   let init =
-    { term = MonoTime.init();
+    { term = Index.init();
       mode = Follower;
       time = MonoTime.init();
       heartbeat = false;
       votedFor = None;
       log = Log.init(); 
-      lastlogIndex = MonoTime.init();
-      lastlogTerm = MonoTime.init();
-      lastApplied = MonoTime.init();
+      lastlogIndex = Index.init();
+      lastlogTerm = Index.init();
+      lastApplied = Index.init();
       votesResponded = [];
       votesGranted = [];
-      nextIndex = MonoTime.init();
-      lastAgreeIndex = MonoTime.init(); 
+      nextIndex = Index.init();
+      lastAgreeIndex = Index.init(); 
       id = ID.from_int 1;
       allNodes = [ID.from_int 2; ID.from_int 3];
     } 
@@ -89,11 +104,19 @@ module State = struct
        { s with time=t }
     | Reset -> 
        {s with heartbeat=false}
-    | IncrementTerm-> 
-        let t = MonoTime.iter s.time in
+    | IncrementTerm -> 
+        let t = Index.succ s.time in
        { s with time=t }
     | Vote id -> 
         { s with votedFor = Some id}
+    | VoteFrom id ->
+        { s with votesGranted = id::s.votesGranted }
+    | StepDown term ->
+        { s with mode=Follower; 
+        heartbeat = false; 
+        votedFor = None;
+        votesResponded=[];
+        votesGranted=[] }
 
 
 
@@ -114,6 +137,8 @@ let debug x = if !debug_active then
 (* type event =  E: unit -> (MonoTime.t * event) list *)
 type 'a e = Next of ('a *(State.t -> State.t * 'a e)) list
 
+type checker = Timeout | Vote (*what event triggered a check of electron outcome *)
+
 let rec incrTime s = (State.tick s IncrementTime, Next [])
 
 and startCand s = debug "Entering Candidate Mode";
@@ -122,9 +147,9 @@ and startCand s = debug "Entering Candidate Mode";
     ~f:(fun rcv -> (snew.time, requestVoteRq snew.term snew.id snew.lastlogIndex
     snew.lastlogTerm rcv)) in
   let t = MonoTime.add snew.time timeout in
-  (snew, Next ((t, checkTimer)::reqs))
+  (snew, Next ((t, checkElection Timeout)::reqs))
 
-and checkTimer s = debug "Checking heartbeat timer"; 
+and checkTimer (s:State.t) = debug "Checking heartbeat timer"; 
   if (s.mode = Follower) then
     (* if heartbeat is true, we have rec a packet in the last election timeout*)
     if s.heartbeat then 
@@ -141,10 +166,20 @@ and startFollow (s:State.t) = debug "Entering Follower mode";
 and requestVoteRq term cand_id lst_index last_term rvc s =
   debug ("Dispatch request to"^ ID.print rvc );
   (s,Next [])
+  
+and requestVoteRs term voteGranted id (s:State.t) = 
+  if (term > s.term) 
+  then (State.tick s (StepDown term) ,Next [(s.time,startFollow)]) 
+  else if (voteGranted) 
+  then (State.tick s (VoteFrom id), Next [(s.time,checkElection Timeout)])
+  else (s, Next [])
 
-  (*
-let RequestVoteRs
+and checkElection c s = 
+  match c with 
+  | Timeout -> (*TODO: check electon outcome *) (s,Next [])
+  | Vote -> (* TODO:check election outcome *) (s,Next [])
 
+(*
 let AppendEntriesRq
 
 let AppendEntriesRs
