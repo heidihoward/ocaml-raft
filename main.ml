@@ -114,7 +114,7 @@ let debug x = if !debug_active then
 (* wrappers around ugly mutable state *)
 let update tk =  state := State.tick !state tk
 
-(* -- all the events, can probably be moved into own module --*)
+(* ----- all the events, can probably be moved into own module -----*)
 
 (* type event =  E: unit -> (MonoTime.t * event) list *)
 type 'a e = Next of ('a * (unit ->  'a e)) list
