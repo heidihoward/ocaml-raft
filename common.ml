@@ -1,5 +1,11 @@
 open Core.Std
 
+let debug_active = ref true
+
+let debug x = if !debug_active then
+    (printf " %s \n"  x)
+
+
 module type INDEX = sig
   type t
   val succ: t -> t

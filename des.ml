@@ -127,12 +127,12 @@ let timeout = MonoTime.span_of_int 5
 
 (*state is the global information, readable by all and only modified by
  * statecalls via State.tick, the mutablity here should be handled better *)
-
+(*
 let debug_active = ref true
 
 let debug x = if !debug_active then 
   (printf " %s \n"  x)
-
+*)
 (* ----- all the events, can probably be moved into own module -----*)
 
 (* type event =  E: unit -> (MonoTime.t * event) list *)
