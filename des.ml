@@ -1,8 +1,9 @@
 open Core.Std
+open Common
 
 module MonoTime = Clock.FakeTime
-
-module Index = struct
+module State = Env.PureState(IntID)(MonoTime)(Index)(LogEntry)(ListLog)
+(*module Index = struct
   type t = int with compare
   let succ = succ
   let init () = 0
@@ -41,7 +42,7 @@ module Log = struct
   let append t x = t::x
 
 end
-
+(*
 module State = struct
 
   type role = Follower | Candidate | Leader
@@ -120,7 +121,7 @@ module State = struct
 
 
 
-end
+end *)*)
 
 let timeout = MonoTime.span_of_int 5
 
@@ -164,7 +165,7 @@ and startFollow (s:State.t) = debug "Entering Follower mode";
   (s,Next [(t, checkTimer)])
 
 and requestVoteRq term cand_id lst_index last_term rvc s =
-  debug ("Dispatch request to"^ ID.print rvc );
+  debug ("Dispatch request to"^ IntID.print rvc );
   (s,Next [])
   
 and requestVoteRs term voteGranted id (s:State.t) = 
@@ -203,7 +204,7 @@ let rec run (s:State.t) = function
     (* will return any new events to add to event list so add to list*)
   run snew (Next (enew @ thn @ later)) 
 
-let main = run State.init eventlist 
+let main = run (State.init()) eventlist 
 
 
   
