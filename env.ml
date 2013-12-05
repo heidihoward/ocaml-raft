@@ -11,6 +11,8 @@ module type STATE =
 
 
   type role = Follower | Candidate | Leader
+  val string_of_role: role -> string
+
   type t = 
     { term : Index.t;
       mode: role;
@@ -44,6 +46,7 @@ module type STATE =
 
   val init: unit -> t
   val tick: t -> statecall -> t
+  val print: t -> unit
 
 end  
 
@@ -56,6 +59,11 @@ module PureState : STATE  =
 
   module Log = L(Entry)
   type role = Follower | Candidate | Leader
+
+  let string_of_role = function
+    | Follower -> "Follower"
+    | Candidate -> "Candidate"
+    | Leader -> "Leader"
   
   (* Split this record down into sections, seperating general statem *)
   type t = 
@@ -106,7 +114,13 @@ module PureState : STATE  =
       allNodes = [Id.from_int 2; Id.from_int 3];
     } 
 
-(*  let print s :state -> unit = *)
+  let print s = 
+    printf "Term: %s | Mode: %s | Time: %s \n" 
+    (Index.to_string s.term) 
+    (string_of_role s.mode)
+    (MonoTime.to_string s.time)
+
+  
 
   let tick s tk =
   match tk with

@@ -1,210 +1,102 @@
 open Core.Std
 open Common
+open Clock
+open Env
 
 module MonoTime = Clock.FakeTime
 module State = Env.PureState(IntID)(MonoTime)(Index)(LogEntry)(ListLog)
-(*module Index = struct
-  type t = int with compare
-  let succ = succ
-  let init () = 0
-end 
-(*
-module MonoTime = struct
-  (*TODO split MonoTime into a seperate module for terms, indexs etc *)
-  (*TODO define the sig *)
-  type t = int
-  let init () = 0
-  let diff t1 t2 = abs(t1-t2)
-  (* Implement comparitor operators *)
-  let comp t1 t2 = phys_equal t1 t2
-  let iter t = t+1
-  let add t1 t2 = t1+t2
-  let create x = x
-  let print t = string_of_int t
-end
-*)
-module ID = struct
-  type t = int
-  let from_int x = x
-  let to_int x  = x
-  let comp t1 t2 = phys_equal t1 t2
-  let print x = string_of_int x
-end
 
-module LogEntry = struct
-  (*TODO copy over proper application from other .mls *)
-  type t = A | B | C
+  module Event = struct 
+  type ('a,'b) t = E of ('a * ('a,'b) event)
+  and ('a,'b) event = ('b -> ('b * ('a,'b) t list))
+  end 
+
+module type EVENTLIST = sig
+  type ('a,'b) t
+  val from_list: ('a,'b) Event.t list -> ('a,'b) t
+  val to_list: ('a,'b) t -> ('a,'b) Event.t list
+  val find: 'a -> ('a,'b) t -> ('b * ('a,'b) t ) option
+  val add: ('a,'b) Event.t -> ('a,'b) t -> ('a,'b) t
 end
-
-module Log = struct
-  let init () = []
-  type t = LogEntry.t list
-  let append t x = t::x
-
-end
-(*
-module State = struct
-
-  type role = Follower | Candidate | Leader
   
-  (* Split this record down into sections, seperating general statem *)
-  type t = 
-    { term : Index.t;
-      mode: role;
-      time: MonoTime.t;
-      heartbeat: bool; (*if there's been a heartbeat since last check *)
-      votedFor: ID.t option;
-      log: Log.t;
-      lastlogIndex: Index.t;
-      lastlogTerm: Index.t;
-      lastApplied: Index.t;
-      votesResponded: ID.t list;
-      votesGranted: ID.t list;
-      nextIndex: Index.t;
-      lastAgreeIndex: Index.t;
-      id: ID.t;
-      allNodes: ID.t list; 
-    }
-   
-  type statecall = 
-(*    | Apply  (* now safe to apply LastAppled to the state machine*)
-    | StepDown of MonoTime.t (* you are out of date, become follower in this new  term *)
-    | StepUp *)
-   | IncrementTime 
-   | IncrementTerm
-   | Reset 
-   | Vote of ID.t
-   | StepDown of Index.t
-   | VoteFrom of ID.t
 
+module EventList = struct
 
-  let init =
-    { term = Index.init();
-      mode = Follower;
-      time = MonoTime.init();
-      heartbeat = false;
-      votedFor = None;
-      log = Log.init(); 
-      lastlogIndex = Index.init();
-      lastlogTerm = Index.init();
-      lastApplied = Index.init();
-      votesResponded = [];
-      votesGranted = [];
-      nextIndex = Index.init();
-      lastAgreeIndex = Index.init(); 
-      id = ID.from_int 1;
-      allNodes = [ID.from_int 2; ID.from_int 3];
-    } 
+  type ('a,'b) t = ('a,'b) Event.t  list
 
-(*  let print s :state -> unit = *)
+  let from_list x = x
+  let to_list x = x
 
-  let tick s tk =
-  match tk with
-    | IncrementTime -> 
-        let t = MonoTime.succ s.time in
-       { s with time=t }
-    | Reset -> 
-       {s with heartbeat=false}
-    | IncrementTerm -> 
-        let t = Index.succ s.term in
-       { s with term=t }
-    | Vote id -> 
-        { s with votedFor = Some id}
-    | VoteFrom id ->
-        { s with votesGranted = id::s.votesGranted }
-    | StepDown term ->
-        { s with mode=Follower; 
-        heartbeat = false; 
-        votedFor = None;
-        votesResponded=[];
-        votesGranted=[] }
+  let find x l =  
+    let open Event in
+    let f = function | E (t,e) -> (x=t) in
+    (* TODO write better implementation of find which returns list *)
+    match (List.partition_tf l ~f) with
+  | (E (_,e)::_,ls) -> Some (e,ls)
+  | ([],_) -> None 
 
+  let add a l = a@l
+end
 
-
-end *)*)
+open EventList
+open Event
 
 let timeout = MonoTime.span_of_int 5
 
-(*state is the global information, readable by all and only modified by
- * statecalls via State.tick, the mutablity here should be handled better *)
-(*
-let debug_active = ref true
-
-let debug x = if !debug_active then 
-  (printf " %s \n"  x)
-*)
-(* ----- all the events, can probably be moved into own module -----*)
-
-(* type event =  E: unit -> (MonoTime.t * event) list *)
-type 'a e = Next of ('a *(State.t -> State.t * 'a e)) list
-
 type checker = Timeout | Vote (*what event triggered a check of electron outcome *)
 
-let rec incrTime s = (State.tick s IncrementTime, Next [])
+let rec incrTime s = (State.tick s IncrementTime, [])
 
 and startCand s = debug "Entering Candidate Mode";
   let snew = State.tick (State.tick s IncrementTerm) (Vote s.id ) in
   let reqs = List.map snew.allNodes 
-    ~f:(fun rcv -> (snew.time, requestVoteRq snew.term snew.id snew.lastlogIndex
+    ~f:(fun rcv -> E (snew.time, requestVoteRq snew.term snew.id snew.lastlogIndex
     snew.lastlogTerm rcv)) in
   let t = MonoTime.add snew.time timeout in
-  (snew, Next ((t, checkElection Timeout)::reqs))
+  (snew, E (t, checkElection Timeout)::reqs )
 
-and checkTimer (s:State.t) = debug "Checking heartbeat timer"; 
+and checkTimer (s:State.t)  = debug "Checking heartbeat timer"; 
   if (s.mode = Follower) then
     (* if heartbeat is true, we have rec a packet in the last election timeout*)
     if s.heartbeat then 
       let t = MonoTime.add s.time timeout in
-      (State.tick s Reset, Next [(t, checkTimer )]) 
+      (State.tick s Reset, [ E (t, checkTimer )]) 
     (* we have timedout so become candidate *)
-    else (s,Next [(s.time, startCand)])
-  else (s,Next [])
+    else (s,[E (s.time, startCand)])
+  else (s,[])
 
-and startFollow (s:State.t) = debug "Entering Follower mode";
+and startFollow (s:State.t)  = debug "Entering Follower mode";
   let t = MonoTime.add s.time timeout in
-  (s,Next [(t, checkTimer)])
+  (s,[E (t, checkTimer)])
 
 and requestVoteRq term cand_id lst_index last_term rvc s =
-  debug ("Dispatch request to"^ IntID.print rvc );
-  (s,Next [])
+  debug ("Dispatch request to"^ IntID.to_string rvc );
+  (s,[])
   
 and requestVoteRs term voteGranted id (s:State.t) = 
   if (term > s.term) 
-  then (State.tick s (StepDown term) ,Next [(s.time,startFollow)]) 
+  then (State.tick s (StepDown term) ,[ E (s.time,startFollow)]) 
   else if (voteGranted) 
-  then (State.tick s (VoteFrom id), Next [(s.time,checkElection Timeout)])
-  else (s, Next [])
+  then (State.tick s (VoteFrom id), [E (s.time,checkElection Timeout)])
+  else (s, [])
 
 and checkElection c s = 
   match c with 
-  | Timeout -> (*TODO: check electon outcome *) (s,Next [])
-  | Vote -> (* TODO:check election outcome *) (s,Next [])
+  | Timeout -> (*TODO: check electon outcome *) (s,[])
+  | Vote -> (* TODO:check election outcome *) (s,[])
 
-(*
-let AppendEntriesRq
+let eventlist =  [E (MonoTime.init(), startFollow);
+                  E (MonoTime.t_of_int 30, incrTime)]
 
-let AppendEntriesRs
-*)
+let rec run (s:State.t) (el: (MonoTime.t,State.t) EventList.t)  = 
+  match el with | [] -> debug "terminating" | l ->
+    match (EventList.find s.time l) with
+    | Some (e,ls) -> 
+        let s_new,e_new = e s in
+        State.print s_new;
+        run s_new (EventList.add e_new ls)
+    | None -> 
+        debug "Incrementing Time"; State.print s;
+        run (State.tick s IncrementTime) el
 
-let eventlist = Next [(MonoTime.init(), startFollow);
-                 (MonoTime.t_of_int 30, incrTime)]
-
-let rec run (s:State.t) = function 
-  | Next events -> 
-  let f (t,_) = ( s.time = t) in 
-  match (List.partition_tf events ~f) with
-  | ([],[]) -> debug "finished all events"
-    (* if no more events for this time then increment time and try again *)
-  | ([],_) ->  let (snew,_) = incrTime s in
-     run snew (Next events)
-    (* if there are event to be executed, run them *)
-  | (next::thn,later) -> 
-      let snew,enew = (match next with (_,e) -> e s) in
-      let enew = (match enew with Next x -> x) in
-    (* will return any new events to add to event list so add to list*)
-  run snew (Next (enew @ thn @ later)) 
-
-let main = run (State.init()) eventlist 
-
-
-  
+let main = run (State.init()) (EventList.from_list eventlist)
