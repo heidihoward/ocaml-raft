@@ -13,6 +13,10 @@ module type STATE =
   type role = Follower | Candidate | Leader
   val string_of_role: role -> string
 
+  (*TODO: Ask anil about how a concrete type can be in the struct and sig
+    * without copy/paste *)
+  (* TODO Find a much better way to represent state for quick read access, i.e.
+   * divide into different records for each state and one for log etc..*)
   type t = 
     { term : Index.t;
       mode: role;
@@ -43,9 +47,10 @@ module type STATE =
    | Vote of Id.t
    | StepDown of Index.t
    | VoteFrom of Id.t
+   | StartCandidate
 
   val init: unit -> t
-  val tick: t -> statecall -> t
+  val tick: statecall -> t -> t
   val print: t -> unit
 
 end  
@@ -94,6 +99,7 @@ module PureState : STATE  =
    | Vote of Id.t
    | StepDown of Index.t
    | VoteFrom of Id.t
+   | StartCandidate
 
 
   let init () =
@@ -111,18 +117,23 @@ module PureState : STATE  =
       nextIndex = Index.init();
       lastAgreeIndex = Index.init(); 
       id = Id.from_int 1;
-      allNodes = [Id.from_int 2; Id.from_int 3];
+      allNodes = [Id.from_int 2; Id.from_int 3; Id.from_int 4; Id.from_int 5];
     } 
 
   let print s = 
-    printf "Term: %s | Mode: %s | Time: %s \n" 
+    printf "Term: %s | Mode: %s | Time: %s | ID: %s | Log: %s" 
     (Index.to_string s.term) 
     (string_of_role s.mode)
     (MonoTime.to_string s.time)
+    (Id.to_string s.id)
+    (Log.to_string s.log);
+    match s.mode with
+    | Candidate -> printf "All Nodes: %s \n" (List.to_string ~f:Id.to_string s.allNodes)
+    | _ -> printf "/n"
 
   
 
-  let tick s tk =
+  let tick tk s =
   match tk with
     | IncrementTime -> 
         let t = MonoTime.succ s.time in
@@ -142,6 +153,8 @@ module PureState : STATE  =
         votedFor = None;
         votesResponded=[];
         votesGranted=[] }
+    | StartCandidate -> 
+        { s with mode=Candidate}
 
 
 

@@ -9,7 +9,8 @@ module type TIME = sig
   type t
   type span
   val init : unit -> t
-  val compare : t -> t -> int
+  val compare : t -> t -> int (*TODO ask anil why explicity write this instead
+  of using Core's with compare *)
   val add : t -> span -> t
   val succ: t -> t
   val diff : t -> t -> span

@@ -6,10 +6,13 @@ open Env
 module MonoTime = Clock.FakeTime
 module State = Env.PureState(IntID)(MonoTime)(Index)(LogEntry)(ListLog)
 
-  module Event = struct 
+module Event = struct 
   type ('a,'b) t = E of ('a * ('a,'b) event)
   and ('a,'b) event = ('b -> ('b * ('a,'b) t list))
-  end 
+
+  let compare x y = match x,y with
+  | (E (xt,xe),E (yt,ye)) -> compare xt yt
+end 
 
 module type EVENTLIST = sig
   type ('a,'b) t
@@ -24,7 +27,7 @@ module EventList = struct
 
   type ('a,'b) t = ('a,'b) Event.t  list
 
-  let from_list x = x
+  let from_list x = List.sort ~cmp:Event.compare x
   let to_list x = x
 
   let find x l =  
@@ -33,9 +36,18 @@ module EventList = struct
     (* TODO write better implementation of find which returns list *)
     match (List.partition_tf l ~f) with
   | (E (_,e)::_,ls) -> Some (e,ls)
-  | ([],_) -> None 
+  | ([],_) -> None  
 
-  let add a l = a@l
+  let find t l = 
+    (* TODO ask anil why does Event.(..) work here ? *)
+    let open Event in 
+    match l with
+    | E (lt,le)::ls -> if lt=t then Some (le,ls) else None
+    | _ -> None 
+
+
+  let add a l = 
+    List.merge l (from_list a) ~cmp:Event.compare
 end
 
 open EventList
@@ -45,12 +57,14 @@ let timeout = MonoTime.span_of_int 5
 
 type checker = Timeout | Vote (*what event triggered a check of electron outcome *)
 
-let rec incrTime s = (State.tick s IncrementTime, [])
+let rec incrTime s = (State.tick IncrementTime s, [])
 
-and startCand s = debug "Entering Candidate Mode";
-  let snew = State.tick (State.tick s IncrementTerm) (Vote s.id ) in
+and startCand (s:State.t) = debug "Entering Candidate Mode";
+  let snew = State.tick (Vote s.id) s
+          |> State.tick IncrementTerm
+          |> State.tick StartCandidate in
   let reqs = List.map snew.allNodes 
-    ~f:(fun rcv -> E (snew.time, requestVoteRq snew.term snew.id snew.lastlogIndex
+    ~f:(fun rcv ->  E (snew.time, requestVoteRq snew.term snew.id snew.lastlogIndex
     snew.lastlogTerm rcv)) in
   let t = MonoTime.add snew.time timeout in
   (snew, E (t, checkElection Timeout)::reqs )
@@ -60,7 +74,7 @@ and checkTimer (s:State.t)  = debug "Checking heartbeat timer";
     (* if heartbeat is true, we have rec a packet in the last election timeout*)
     if s.heartbeat then 
       let t = MonoTime.add s.time timeout in
-      (State.tick s Reset, [ E (t, checkTimer )]) 
+      (State.tick Reset s, [ E (t, checkTimer )]) 
     (* we have timedout so become candidate *)
     else (s,[E (s.time, startCand)])
   else (s,[])
@@ -69,18 +83,22 @@ and startFollow (s:State.t)  = debug "Entering Follower mode";
   let t = MonoTime.add s.time timeout in
   (s,[E (t, checkTimer)])
 
-and requestVoteRq term cand_id lst_index last_term rvc s =
-  debug ("Dispatch request to"^ IntID.to_string rvc );
-  (s,[])
+  (* TODO ask anil why s needs to explicitly annotated to access its field *)
+and requestVoteRq term cand_id lst_index last_term rvc (s:State.t) =
+  debug ("Dispatch request to "^ IntID.to_string rvc );
+  (* Simulated Responses *)
+  (s,[E (MonoTime.succ s.time, requestVoteRs term true rvc )])
   
 and requestVoteRs term voteGranted id (s:State.t) = 
+  debug ("Receive request reply from "^ IntID.to_string id );
   if (term > s.term) 
-  then (State.tick s (StepDown term) ,[ E (s.time,startFollow)]) 
+  then (State.tick (StepDown term) s,[ E (s.time,startFollow)]) 
   else if (voteGranted) 
-  then (State.tick s (VoteFrom id), [E (s.time,checkElection Timeout)])
+  then (State.tick (VoteFrom id) s, [E (s.time,checkElection Timeout)])
   else (s, [])
 
-and checkElection c s = 
+and checkElection c s =
+  debug "Check Timer";
   match c with 
   | Timeout -> (*TODO: check electon outcome *) (s,[])
   | Vote -> (* TODO:check election outcome *) (s,[])
@@ -88,8 +106,9 @@ and checkElection c s =
 let eventlist =  [E (MonoTime.init(), startFollow);
                   E (MonoTime.t_of_int 30, incrTime)]
 
-let rec run (s:State.t) (el: (MonoTime.t,State.t) EventList.t)  = 
-  match el with | [] -> debug "terminating" | l ->
+let rec run ?term (s:State.t) (el: (MonoTime.t,State.t) EventList.t)  = 
+  match el with | [] -> debug "terminating" 
+  | l -> debug (MonoTime.to_string s.time);
     match (EventList.find s.time l) with
     | Some (e,ls) -> 
         let s_new,e_new = e s in
@@ -97,6 +116,6 @@ let rec run (s:State.t) (el: (MonoTime.t,State.t) EventList.t)  =
         run s_new (EventList.add e_new ls)
     | None -> 
         debug "Incrementing Time"; State.print s;
-        run (State.tick s IncrementTime) el
+        run (State.tick IncrementTime s) el
 
 let main = run (State.init()) (EventList.from_list eventlist)
