@@ -21,7 +21,7 @@ module type STATE =
     { term : Index.t;
       mode: role;
       time: MonoTime.t;
-      heartbeat: bool; (*if there's been a heartbeat since last check *)
+      timer: bool; (*if there's condition filled since last check *)
       votedFor: Id.t option;
       log: Log(E).t; (*TODO Ask anil about how to do this properly *)
       lastlogIndex: Index.t;
@@ -32,7 +32,8 @@ module type STATE =
       nextIndex: Index.t;
       lastAgreeIndex: Index.t;
       id: Id.t;
-      allNodes: Id.t list; 
+      allNodes: Id.t list;
+      leader: Id.t option;
     }
  
   
@@ -43,13 +44,17 @@ module type STATE =
     | StepUp *)
    | IncrementTime 
    | IncrementTerm
-   | Reset 
+   | Reset | Set 
    | Vote of Id.t
    | StepDown of Index.t
    | VoteFrom of Id.t
    | StartCandidate
+   | StartLeader
+   | SetTime of MonoTime.t
+   | SetLeader of Id.t
+   | SetTerm of Index.t
 
-  val init: unit -> t
+  val init: Id.t -> Id.t list -> t
   val tick: statecall -> t -> t
   val print: t -> unit
 
@@ -75,7 +80,7 @@ module PureState : STATE  =
     { term : Index.t;
       mode: role;
       time: MonoTime.t;
-      heartbeat: bool; (*if there's been a heartbeat since last check *)
+      timer: bool; (*if there's been a heartbeat since last check *)
       votedFor: Id.t option;
       log: Log.t;
       lastlogIndex: Index.t;
@@ -87,6 +92,7 @@ module PureState : STATE  =
       lastAgreeIndex: Index.t;
       id: Id.t;
       allNodes: Id.t list; 
+      leader: Id.t option
     }
    
   type statecall = 
@@ -95,18 +101,22 @@ module PureState : STATE  =
     | StepUp *)
    | IncrementTime 
    | IncrementTerm
-   | Reset 
+   | Reset | Set
    | Vote of Id.t
    | StepDown of Index.t
    | VoteFrom of Id.t
    | StartCandidate
+   | StartLeader
+   | SetTime of MonoTime.t
+   | SetLeader of Id.t
+   | SetTerm of Index.t
 
 
-  let init () =
+  let init me all =
     { term = Index.init();
       mode = Follower;
       time = MonoTime.init();
-      heartbeat = false;
+      timer = false;
       votedFor = None;
       log = Log.init(); 
       lastlogIndex = Index.init();
@@ -116,20 +126,24 @@ module PureState : STATE  =
       votesGranted = [];
       nextIndex = Index.init();
       lastAgreeIndex = Index.init(); 
-      id = Id.from_int 1;
-      allNodes = [Id.from_int 2; Id.from_int 3; Id.from_int 4; Id.from_int 5];
+      id = me;
+      allNodes = all;
+      leader = None;
     } 
 
+  let id_print = function  None -> "none" | Some x -> Id.to_string x
+
   let print s = 
-    printf "Term: %s | Mode: %s | Time: %s | ID: %s | Log: %s" 
+    printf " ID: %s | Term: %s | Mode: %s | Time: %s |\n VotedFor: %s | " 
+    (Id.to_string s.id)
     (Index.to_string s.term) 
     (string_of_role s.mode)
     (MonoTime.to_string s.time)
-    (Id.to_string s.id)
-    (Log.to_string s.log);
-    match s.mode with
-    | Candidate -> printf "All Nodes: %s \n" (List.to_string ~f:Id.to_string s.allNodes)
-    | _ -> printf "/n"
+    (id_print s.votedFor);
+    printf "All Nodes: %s | Votes Recieved: %s | Leader: %s \n" 
+    (List.to_string ~f:Id.to_string s.allNodes)
+    (List.to_string ~f:Id.to_string s.votesGranted)
+    (id_print s.leader)
 
   
 
@@ -139,7 +153,9 @@ module PureState : STATE  =
         let t = MonoTime.succ s.time in
        { s with time=t }
     | Reset -> 
-       {s with heartbeat=false}
+       {s with timer=false}
+    | Set -> 
+        {s with timer=true}
     | IncrementTerm -> 
         let t = Index.succ s.term in
        { s with term=t }
@@ -148,13 +164,35 @@ module PureState : STATE  =
     | VoteFrom id ->
         { s with votesGranted = id::s.votesGranted }
     | StepDown term ->
-        { s with mode=Follower; 
-        heartbeat = false; 
+        { s with mode=Follower;
+        term = term;
+        timer = false; 
         votedFor = None;
         votesResponded=[];
         votesGranted=[] }
     | StartCandidate -> 
-        { s with mode=Candidate}
+        { s with mode=Candidate;
+        timer = false;
+        votedFor = Some s.id;
+        votesResponded=[];
+        votesGranted=[s.id];
+        term = (Index.succ s.term)
+        }
+    | SetTime t -> 
+        { s with time=t}
+    | StartLeader -> 
+        { s with mode=Leader;
+        timer = false;
+        votedFor = None;
+        votesResponded=[];
+        votesGranted=[];
+        leader = Some s.id
+        }
+    | SetLeader ld ->
+        { s with leader= Some ld}
+    | SetTerm t ->
+        { s with term = t;
+          votedFor = None }
 
 
 

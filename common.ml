@@ -6,6 +6,12 @@ let debug x = if !debug_active then
     (printf " %s \n"  x)
 
 
+module type PARAMETERS = sig
+  val timeout: unit -> int
+  val nodes: int
+  val pkt_delay: unit -> int
+end
+
 module type INDEX = sig
   type t
   val succ: t -> t
