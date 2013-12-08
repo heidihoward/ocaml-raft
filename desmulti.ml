@@ -1,5 +1,5 @@
 open Core.Std
-open Common
+open Multicommon
 open Clock
 open Env
 
@@ -41,37 +41,37 @@ and startCand (s:State.t) = debug "Entering Candidate Mode";
           |> State.tick IncrementTerm
           |> State.tick StartCandidate in
   let reqs = List.map snew.allNodes 
-    ~f:(fun rcv ->  E (snew.time, requestVoteRq snew.term snew.id snew.lastlogIndex
+    ~f:(fun rcv ->  E (snew.time,s.id, requestVoteRq snew.term snew.id snew.lastlogIndex
     snew.lastlogTerm rcv)) in
   let t = MonoTime.add snew.time timeout in
-  (snew, E (t, checkElection Timeout)::reqs )
+  (snew, E (t, s.id, checkElection Timeout)::reqs )
 
 and checkTimer (s:State.t)  = debug "Checking heartbeat timer"; 
   if (s.mode = Follower) then
     (* if heartbeat is true, we have rec a packet in the last election timeout*)
     if s.heartbeat then 
       let t = MonoTime.add s.time timeout in
-      (State.tick Reset s, [ E (t, checkTimer )]) 
+      (State.tick Reset s, [ E (t, s.id, checkTimer )]) 
     (* we have timedout so become candidate *)
-    else (s,[E (s.time, startCand)])
+    else (s,[E (s.time,s.id, startCand)])
   else (s,[])
 
 and startFollow (s:State.t)  = debug "Entering Follower mode";
   let t = MonoTime.add s.time timeout in
-  (s,[E (t, checkTimer)])
+  (s,[E (t, s.id,checkTimer)])
 
   (* TODO ask anil why s needs to explicitly annotated to access its field *)
 and requestVoteRq term cand_id lst_index last_term rvc (s:State.t) =
   debug ("Dispatch request to "^ Id.to_string rvc );
   (* Simulated Responses *)
-  (s,[E (MonoTime.succ s.time, requestVoteRs term true rvc )])
+  (s,[E (MonoTime.succ s.time, s.id, requestVoteRs term true rvc )])
   
 and requestVoteRs term voteGranted id (s:State.t) = 
   debug ("Receive request reply from "^ Id.to_string id );
   if (term > s.term) 
-  then (State.tick (StepDown term) s,[ E (s.time,startFollow)]) 
+  then (State.tick (StepDown term) s,[ E (s.time,s.id,startFollow)]) 
   else if (voteGranted) 
-  then (State.tick (VoteFrom id) s, [E (s.time,checkElection Timeout)])
+  then (State.tick (VoteFrom id) s, [E (s.time,s.id,checkElection Timeout)])
   else (s, [])
 
 and checkElection c s =
@@ -80,7 +80,7 @@ and checkElection c s =
   | Timeout -> (*TODO: check electon outcome *) (s,[])
   | Vote -> (* TODO:check election outcome *) (s,[])
 
-
+(*
 let rec run ~term (s:State.t) (el: (MonoTime.t,State.t) EventList.t)  = 
   (* checking for termination conditions *)
   match el with 
@@ -97,9 +97,20 @@ let rec run ~term (s:State.t) (el: (MonoTime.t,State.t) EventList.t)  =
     | None -> 
         debug "Incrementing Time"; State.print s;
         run ~term (State.tick IncrementTime s) el )) 
+*)
+let rec run_multi ~term
+  (sl: (Id.t,State.t) List.Assoc.t) 
+  (el:(MonoTime.t,Id.t,State.t) EventList.t)  =
 
-let run_multi l: (State.t * (MonoTime.t,State.t) EventList.t) list =
-  let f ((s,el):(State.t * (MonoTime.t,State.t) EventList.t)) = 
+  match EventList.hd el with
+  | None -> debug "terminating as no events remain"
+  | Some (E (t,id,e),els) -> if (t=term) 
+    then debug "terminating as terminate time has been reached"
+    else 
+      let s = match (List.Assoc.find sl id) with Some x -> x in
+      let s_new,el_new = e s in
+      run_multi ~term (List.Assoc.add sl id s_new) (EventList.add el_new els) 
+  (*  let f ((s,el):(State.t * (MonoTime.t,State.t) EventList.t)) = 
     run  ~term:(Some (MonoTime.succ s.time)) s el in
   (* run each node for one time unit *)
   let l_new =  List.map ~f l in 
@@ -109,22 +120,24 @@ let run_multi l: (State.t * (MonoTime.t,State.t) EventList.t) list =
   let msgs n = List.map ~f:(fun node -> if (Id.to_int node = n) then Id.collect
               else []) |> Caml.List.flatten in
   List.map ~f:(fun n (s,el) -> (s,EventList.add el (msgs n))) l_new
-  |> run_multi 
+  |> run_multi *)
  
+
+let eventlist :(MonoTime.t,Id.t,State.t) Event.t list  =  
+  [E (MonoTime.init(), Id.from_int 1, startFollow);
+   E (MonoTime.t_of_int 30, Id.from_int 1, incrTime)]
+
 
 
 end
 
 module DES =  DEventSim(IntID)
-module DESmulti = DEventSim(SimID)
-
-let eventlist = DES.( [E (MonoTime.init(), startFollow);
-                  E (MonoTime.t_of_int 30, incrTime)] )
+(*module DESmulti = DEventSim(SimID)*)
 
 let main = 
-  DES.run 
-  ~term:(Some (MonoTime.t_of_int 5)) 
-  (DES.State.init()) 
-  (EventList.from_list eventlist)
+  DES.run_multi 
+  ~term:(MonoTime.t_of_int 50)
+  [(IntID.from_int 1,DES.State.init())] 
+  (EventList.from_list DES.eventlist)
 
- (* DESmulti.run_multi *)
+

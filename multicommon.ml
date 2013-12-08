@@ -40,7 +40,7 @@ module IntID : ID  = struct
 (*  type msg = unit *)
   let from_int x = x
   let to_int x  = x
-  let comp t1 t2 = (t1=t2)
+  let comp t1 t2 = phys_equal t1 t2
   let to_string = string_of_int
 (*  let get_loc _ = None *)
 (*  let set_loc t _ = t *)(* simple IntID don't hold any location information *) 
@@ -79,11 +79,11 @@ module ListLog : LOG =
 end
 
 module Event = struct 
-  type ('a,'b) t = E of ('a * ('a,'b) event)
-  and ('a,'b) event = ('b -> ('b * ('a,'b) t list))
+  type ('a,'b,'c) t = E of ('a * 'b * ('a,'b,'c) event)
+  and ('a,'b,'c) event = ('c -> ('c * ('a,'b,'c) t list))
 
   let compare x y = match x,y with
-  | (E (xt,xe),E (yt,ye)) -> compare xt yt 
+  | (E (xt,_,_),E (yt,_,_)) -> compare xt yt 
   
  (* type ('a,'b,'c) t = E of ('a * ('a,'b,'c) event)
   and ('a,'b,'c) event = ('b -> ('b * ('c,'b) t list * ('a,'b) t list))
@@ -93,16 +93,16 @@ module Event = struct
 end 
 
 module type EVENTLIST = sig
-  type ('a,'b) t
-  val from_list: ('a,'b) Event.t list -> ('a,'b) t
-  val to_list: ('a,'b) t -> ('a,'b) Event.t list
-  val find: 'a -> ('a,'b) t -> ('b * ('a,'b) t ) option
-  val add: ('a,'b) Event.t -> ('a,'b) t -> ('a,'b) t
+  type ('a,'b,'c) t
+  val from_list: ('a,'b,'c) Event.t list -> ('a,'b,'c) t
+  val to_list: ('a,'b,'c) t -> ('a,'b,'c) Event.t list
+  val hd: ('a,'b,'c) t -> ('a,'b,'c) Event.t option
+  val add: ('a,'b,'c) Event.t -> ('a,'b,'c) t -> ('a,'b,'c) t
 end
 
 module EventList = struct
 
-  type ('a,'b) t = ('a,'b) Event.t  list
+  type ('a,'b,'c) t = ('a,'b,'c) Event.t  list
 
   let from_list x = List.sort ~cmp:Event.compare x
   let to_list x = x
@@ -115,15 +115,12 @@ module EventList = struct
   | (E (_,e)::_,ls) -> Some (e,ls)
   | ([],_) -> None  *)
 
-  let find t l = 
-    (* TODO ask anil why does Event.(..) work here ? *)
-    let open Event in 
-    match l with
-    | E (lt,le)::ls -> if lt=t then Some (le,ls) else None
-    | _ -> None 
-
+  let hd = function
+    | [] -> None 
+    | x::xs -> Some(x,xs)
 
   let add a l = 
     List.merge l (from_list a) ~cmp:Event.compare
 end
+
 
