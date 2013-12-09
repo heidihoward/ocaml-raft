@@ -9,10 +9,6 @@ module type STATE =
   functor (E: ENTRY) ->
   functor (Log:  LOG ) -> sig
 
-
-  type role = Follower | Candidate | Leader
-  val string_of_role: role -> string
-
   (*TODO: Ask anil about how a concrete type can be in the struct and sig
     * without copy/paste *)
   (* TODO Find a much better way to represent state for quick read access, i.e.
@@ -56,7 +52,7 @@ module type STATE =
 
   val init: Id.t -> Id.t list -> t
   val tick: statecall -> t -> t
-  val print: t -> unit
+  val print: t -> string
 
 end  
 
@@ -68,12 +64,7 @@ module PureState : STATE  =
   functor (L: LOG) -> struct
 
   module Log = L(Entry)
-  type role = Follower | Candidate | Leader
 
-  let string_of_role = function
-    | Follower -> "Follower"
-    | Candidate -> "Candidate"
-    | Leader -> "Leader"
   
   (* Split this record down into sections, seperating general statem *)
   type t = 
@@ -134,16 +125,15 @@ module PureState : STATE  =
   let id_print = function  None -> "none" | Some x -> Id.to_string x
 
   let print s = 
-    printf " ID: %s | Term: %s | Mode: %s | Time: %s |\n VotedFor: %s | " 
-    (Id.to_string s.id)
-    (Index.to_string s.term) 
-    (string_of_role s.mode)
-    (MonoTime.to_string s.time)
-    (id_print s.votedFor);
-    printf "All Nodes: %s | Votes Recieved: %s | Leader: %s \n" 
-    (List.to_string ~f:Id.to_string s.allNodes)
-    (List.to_string ~f:Id.to_string s.votesGranted)
-    (id_print s.leader)
+    " ID: "^(Id.to_string s.id)^
+    " | Term: "^(Index.to_string s.term)^
+    " | Mode: "^(string_of_role s.mode)^
+    " | Time: "^(MonoTime.to_string s.time)^
+    " | VotedFor: "^(Id.to_string s.id)^
+    " | All Nodes: "^(List.to_string ~f:Id.to_string s.allNodes)^
+    " | Votes Recieved: "^ (List.to_string ~f:Id.to_string s.votesGranted)^
+    " | Leader: "^(id_print s.leader)
+
 
   
 
@@ -179,6 +169,7 @@ module PureState : STATE  =
         term = (Index.succ s.term)
         }
     | SetTime t -> 
+        assert (t >= s.time);
         { s with time=t}
     | StartLeader -> 
         { s with mode=Leader;
@@ -191,6 +182,7 @@ module PureState : STATE  =
     | SetLeader ld ->
         { s with leader= Some ld}
     | SetTerm t ->
+        assert (t >= s.term);
         { s with term = t;
           votedFor = None }
 

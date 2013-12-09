@@ -65,7 +65,7 @@ end
 
 module FakeCounter = Counter(FakeTime)
 module RealCounter = Counter(RealTime)
-
+(*
 let () =
   FakeCounter.run ();
-  RealCounter.run ()
+  RealCounter.run () *)

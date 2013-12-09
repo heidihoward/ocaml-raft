@@ -5,11 +5,19 @@ let debug_active = ref true
 let debug x = if !debug_active then
     (printf " %s \n"  x)
 
+type role = Follower | Candidate | Leader
+
+let string_of_role = function
+  | Follower -> "Follower"
+  | Candidate -> "Candidate"
+  | Leader -> "Leader"
 
 module type PARAMETERS = sig
-  val timeout: unit -> int
+  val timeout: role -> int
   val nodes: int
   val pkt_delay: unit -> int
+  val termination: int
+  val debug_mode: bool
 end
 
 module type INDEX = sig
