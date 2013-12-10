@@ -1,10 +1,9 @@
 open Core.Std
 open Common
-open Clock
 
 module type STATE = 
   functor (Id: ID) -> 
-  functor (MonoTime: TIME) ->
+  functor (MonoTime: Clock.TIME) ->
   functor (Index: INDEX) -> 
   functor (E: ENTRY) ->
   functor (Log:  LOG ) -> sig
@@ -58,7 +57,7 @@ end
 
 module PureState : STATE  = 
   functor (Id: ID) -> 
-  functor (MonoTime: TIME) ->
+  functor (MonoTime: Clock.TIME) ->
   functor (Index: INDEX) -> 
   functor (Entry: ENTRY) ->
   functor (L: LOG) -> struct
