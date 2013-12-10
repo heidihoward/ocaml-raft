@@ -15,7 +15,7 @@ module type STATE =
   type t = 
     { term : Index.t;
       mode: role;
-      time: MonoTime.t;
+      time: (unit -> MonoTime.t);
       timer: bool; (*if there's condition filled since last check *)
       votedFor: Id.t option;
       log: Log(E).t; (*TODO Ask anil about how to do this properly *)
@@ -69,7 +69,7 @@ module PureState : STATE  =
   type t = 
     { term : Index.t;
       mode: role;
-      time: MonoTime.t;
+      time: (unit -> MonoTime.t);
       timer: bool; (*if there's been a heartbeat since last check *)
       votedFor: Id.t option;
       log: Log.t;
@@ -105,7 +105,7 @@ module PureState : STATE  =
   let init me all =
     { term = Index.init();
       mode = Follower;
-      time = MonoTime.init();
+      time = MonoTime.init;
       timer = false;
       votedFor = None;
       log = Log.init(); 
@@ -127,7 +127,7 @@ module PureState : STATE  =
     " ID: "^(Id.to_string s.id)^
     " | Term: "^(Index.to_string s.term)^
     " | Mode: "^(string_of_role s.mode)^
-    " | Time: "^(MonoTime.to_string s.time)^
+    " | Time: "^(MonoTime.to_string (s.time()))^
     " | VotedFor: "^(Id.to_string s.id)^
     " | All Nodes: "^(List.to_string ~f:Id.to_string s.allNodes)^
     " | Votes Recieved: "^ (List.to_string ~f:Id.to_string s.votesGranted)^
@@ -138,9 +138,9 @@ module PureState : STATE  =
 
   let tick tk s =
   match tk with
-    | IncrementTime -> 
-        let t = MonoTime.succ s.time in
-       { s with time=t }
+    | IncrementTime -> s (*TODO remove *)
+      (*  let t = MonoTime.succ s.time in
+       { s with time=t } *)
     | Reset -> 
        {s with timer=false}
     | Set -> 
@@ -168,8 +168,8 @@ module PureState : STATE  =
         term = (Index.succ s.term)
         }
     | SetTime t -> 
-        assert (t >= s.time);
-        { s with time=t}
+        let _ = MonoTime.wait_until t in
+        { s with time=(MonoTime.store t)}
     | StartLeader -> 
         { s with mode=Leader;
         timer = false;

@@ -1,9 +1,10 @@
 open Core.Std
 open Async.Std
 
+(* TODO work out why these no longer work *)
 let debug_active = ref true
 
-let debug x = if !debug_active then
+let debug x = (*if !debug_active then*)
     (printf " %s \n"  x)
 
 type role = Follower | Candidate | Leader
