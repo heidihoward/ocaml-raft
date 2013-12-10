@@ -1,14 +1,11 @@
 open Core.Std
 open Common
-(*open Clock *)
-(*open Env *)
-(*open EventList *)
-(*open Event *)
 
 (*this functor takes more arguments than nessacary, but not sure about which
  * modules will have alternative inferences in the future, definitly ENTRY *)
+
 module DEventSim = 
-  functor (Id:ID) -> 
+  functor (Id:NODE_ID) -> 
   functor (MonoTime: Clock.TIME) ->
   functor (Index: INDEX) ->
   functor (Entry: ENTRY) ->

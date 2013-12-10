@@ -2,7 +2,7 @@ open Core.Std
 open Common
 
 module type STATE = 
-  functor (Id: ID) -> 
+  functor (Id: NODE_ID) -> 
   functor (MonoTime: Clock.TIME) ->
   functor (Index: INDEX) -> 
   functor (E: ENTRY) ->
@@ -56,7 +56,7 @@ module type STATE =
 end  
 
 module PureState : STATE  = 
-  functor (Id: ID) -> 
+  functor (Id: NODE_ID) -> 
   functor (MonoTime: Clock.TIME) ->
   functor (Index: INDEX) -> 
   functor (Entry: ENTRY) ->

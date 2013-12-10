@@ -1,4 +1,5 @@
 open Core.Std
+open Async.Std
 
 let debug_active = ref true
 
@@ -34,13 +35,13 @@ module Index : INDEX = struct
   let to_string = string_of_int
 end
 
-module type ID = sig
+module type NODE_ID = sig
   type t
 (*  type loc*)
 (*  type msg *)
   val from_int: int -> t
   val to_int: t -> int
-  val comp: t -> t -> bool
+  val equal: t -> t -> bool
   val to_string: t -> string
 (*  val get_loc: t -> loc *)
 (*  val set_loc: t -> loc -> t *)
@@ -48,19 +49,27 @@ module type ID = sig
   val collect: t -> msg list *)
 end 
 
-module IntID : ID  = struct
+module IntID : NODE_ID  = struct
   type t = int
 (*  type loc = unit *)
 (*  type msg = unit *)
   let from_int x = x
   let to_int x  = x
-  let comp t1 t2 = phys_equal t1 t2
+  let equal = Int.equal
   let to_string = string_of_int
 (*  let get_loc _ = None *)
 (*  let set_loc t _ = t *)(* simple IntID don't hold any location information *) 
 (*  let dispatch x _ = x
   let collect _ = [] *)
 end  
+
+(* TODO modify NODE_ID so that this is a valid implementation *)
+module TcpID = struct
+  type loc = Async_extra.Import.Socket.Address.Inet.t Tcp.where_to_connect
+  type t = int * loc
+  let create id host prt = (id,Tcp.to_host_and_port host prt)
+  let get_loc = snd
+end
 
 module type ENTRY = sig 
   type t 

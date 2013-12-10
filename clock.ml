@@ -17,7 +17,8 @@ module type TIME = sig
   val t_of_int : int -> t
   val span_of_int : int -> span
   val to_string: t -> string
-  val wait : t -> span -> t
+(*  val wait : t -> span -> t *)
+  val wait_until: t -> unit
 end 
 
 module FakeTime : TIME = struct
@@ -31,9 +32,10 @@ module FakeTime : TIME = struct
   let span_of_int s = s
   let succ t = t+1
   let to_string t = string_of_int t
-  let wait t span = 
+(*  let wait t span = 
     Printf.printf "fake wait %s\n%!" (to_string t); 
-    add t span
+    add t span *)
+  let wait_until _ = ()
 end
 
 module RealTime : TIME = struct
@@ -43,29 +45,36 @@ module RealTime : TIME = struct
   let compare = Time.compare
   let add a b = Time.add a b
   let t_of_int _t = Time.now () (* TODO fixme *)
-  let span_of_int s = Time.Span.create ~sec:s ()
+  let span_of_int s = Time.Span.create ~ms:s ()
   let succ a = add a (span_of_int 1)
-  let to_string t = Time.to_string t
+  let to_string t = "Time.to_string t"^"secs"
   let diff a b = Time.diff a b
 
-  let wait t span =
+(*  let wait t span =
     Printf.printf "real wait %s\n" (to_string t);
     let sec = Time.Span.to_sec span |> Float.to_int in
     Unix.sleep sec;
-    Time.now ()
-end
+    Time.now () *)
 
+  let wait_until t = 
+    Time.now ()
+    |> Time.diff t
+    |> Time.Span.to_sec
+    |> Float.to_int
+    |> (fun t -> if (t>0) then (Unix.sleep t)  else ())
+end
+(*
 module Counter(T:TIME) = struct
   let run () =
     let t = T.init () in
     let initial_span = T.diff t t in
     let last_time = T.wait t initial_span in
     print_endline (T.to_string last_time)
-end
+end 
 
 module FakeCounter = Counter(FakeTime)
 module RealCounter = Counter(RealTime)
-(*
+
 let () =
   FakeCounter.run ();
   RealCounter.run () *)
