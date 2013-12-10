@@ -1,24 +1,26 @@
 open Core.Std
 open Common
-open Clock
-open Env
-open EventList
-open Event
+(*open Clock *)
+(*open Env *)
+(*open EventList *)
+(*open Event *)
 
-
+(*this functor takes more arguments than nessacary, but not sure about which
+ * modules will have alternative inferences in the future, definitly ENTRY *)
 module DEventSim = 
   functor (Id:ID) -> 
-  functor (MonoTime: TIME) ->
+  functor (MonoTime: Clock.TIME) ->
   functor (Index: INDEX) ->
   functor (Entry: ENTRY) ->
   functor (L:LOG) ->
   functor (P:PARAMETERS) -> struct
 
-module State = PureState(Id)(MonoTime)(Index)(Entry)(L)
+module State = Env.PureState(Id)(MonoTime)(Index)(Entry)(L)
+open Event (*needed to quickly access the event constructor E *)
 
 debug_active := P.debug_mode
 
-let () = Random.self_init ()
+(* let () = Random.self_init () *)
 (* TODO: check it one timeout should be used for other electons and followers*)
 let timeout (m:role) = MonoTime.span_of_int (P.timeout m)
 
@@ -39,11 +41,11 @@ let checkElection (s:State.t) =
 type checker = Follower_Timeout of Index.t 
              | Candidate_Timeout of Index.t
              | Leader_Timeout of Index.t
-             (*what event triggered a check of electron outcome *)
 
-let rec incrTime s = (State.tick IncrementTime s, [])
+(* let rec incrTime s = (State.tick IncrementTime s, []) *)
 
-and startCand (s:State.t) = debug "Entering Candidate Mode / Restarting Electon";
+let rec  startCand (s:State.t) = 
+  debug "Entering Candidate Mode / Restarting Electon";
   let snew =  State.tick StartCandidate s in
   let reqs = broadcast snew.allNodes s.time 
     (requestVoteRq snew.term snew.id snew.lastlogIndex
@@ -93,12 +95,13 @@ and stepDown term (s:State.t) =
   (* else if (term=s.term) && (s.mode=Leader) then startFollower term s *) 
 
   (* TODO ask anil why s needs to explicitly annotated to access its field *)
+
 and requestVoteRq term cand_id lst_index last_term (s:State.t) =
   debug ("I've got a vote request from: "^ Id.to_string cand_id^ 
          " term number: "^Index.to_string term);
   (* TODO: this is a Simulated Response so allows granting vote
    * , need todo properly *)
-  let s_new,e_new =  stepDown term s in
+  let (s_new:State.t),e_new =  stepDown term s in
   let vote = (term = s_new.term) && (lst_index >= s.lastlogIndex ) 
     && (last_term >= s.lastlogTerm ) && (s.votedFor = None) in
   let s_new = 
@@ -107,7 +110,8 @@ and requestVoteRq term cand_id lst_index last_term (s:State.t) =
       |> State.tick Set )
     else 
       s_new )in
-  (s_new, [unicast cand_id s_new.time (requestVoteRs s_new.term vote s_new.id )])
+  (s_new, (unicast cand_id s_new.time (requestVoteRs s_new.term vote
+  s_new.id))::e_new)
   
 and requestVoteRs term voteGranted id (s:State.t) = 
   debug ("Receive vote request reply from "^ Id.to_string id );
@@ -122,50 +126,28 @@ and requestVoteRs term voteGranted id (s:State.t) =
 
 and heartbeatRq term lead_id (s:State.t) =
   debug ("Recieve hearbeat from "^Id.to_string lead_id);
-  let s_new,e_new = stepDown term s in
+  let (s_new:State.t),e_new = stepDown term s in
   if (term = s_new.term) then 
-    let s_new = State.tick Set s |> State.tick (SetLeader lead_id) in
-    (s_new,[unicast lead_id s_new.time (heartbeatRs s_new.term ) ])
+    let (s_new:State.t) = State.tick Set s |> State.tick (SetLeader lead_id) in
+    (s_new,(unicast lead_id s_new.time (heartbeatRs s_new.term ))::e_new)
   else 
-    (s_new,[unicast lead_id s_new.time (heartbeatRs s_new.term)])
+    (s_new,(unicast lead_id s_new.time (heartbeatRs s_new.term))::e_new)
 
 and heartbeatRs term (s:State.t) =
   let s_new,e_new = stepDown term s in
   (s_new,e_new)
 
 
-(*and checkTimer c s =
-  debug "Check Timer";
-  match c with 
-  | Follower_Timeout -> 
-  | Candidate_TImeout -> 
-*)
-(*
-let rec run ~term (s:State.t) (el: (MonoTime.t,State.t) EventList.t)  = 
-  (* checking for termination conditions *)
-  match el with 
-  | []-> debug "terminating as no events remain" 
-  | l -> ( 
-    if ( match term with | Some tt -> (tt=s.time) | _ -> false )
-      then debug "terminating as terminate time has been reached"
-      else (
-    match (EventList.find s.time l) with
-    | Some (e,ls) -> 
-        let s_new,e_new = e s in
-        State.print s_new;
-        run ~term s_new (EventList.add e_new ls)
-    | None -> 
-        debug "Incrementing Time"; State.print s;
-        run ~term (State.tick IncrementTime s) el )) 
-*)
-
 let finished (sl: (Id.t,State.t) List.Assoc.t) =
   let leader,term= match (List.Assoc.find sl (Id.from_int 0)) with 
     Some s -> s.leader,s.term in
+  (* TODO ask anil about suppressing pattern-match not exhaustive but leave case
+   * undealt with, i.e it really should occur, if it does, then excuation should
+   * stop *)
   let f (_,(state:State.t)) = 
     not ((state.leader = leader) || (state.term = term)) in 
   match (List.find sl ~f) with
-  | Some x -> true | _ -> false
+  | Some _ -> true | _ -> false
 
 let printline =  "---------------------------------------------------\n"
 
@@ -173,40 +155,31 @@ let get_time (sl: (Id.t,State.t) List.Assoc.t) =
   let state = match (List.Assoc.find sl (Id.from_int 0)) with Some x -> x in
   MonoTime.to_string state.time
 
+(* Main excuation cycle *)  
 let rec run_multi ~term
   (sl: (Id.t,State.t) List.Assoc.t) 
   (el:(MonoTime.t,Id.t,State.t) EventList.t)  =
-  (* addition termination condition for tests *)
+  (* checking termination condition for tests *)
     if (finished sl) 
     then begin
-     (*  debug "terminating as leader has been agreed";*)
-       (* for graph gen. *) printf "%s \n" (get_time sl) end
+      debug "terminating as leader has been agreed";
+       (* for graph gen. *) printf " %s \n" (get_time sl) end
     else
   match EventList.hd el with
   | None -> debug "terminating as no events remain"
   | Some (E (t,id,e),els) -> if (t>=term) 
     then debug "terminating as terminate time has been reached"
+    (* will not be terminating so simluate event *)
     else  match (List.Assoc.find sl id) with 
       | Some s -> 
         let s = State.tick (SetTime t) s in
         let s_new,el_new = e s in
         debug (State.print s_new); debug printline;
         run_multi ~term (List.Assoc.add sl id s_new) (EventList.add el_new els) 
+        (* Currently none case is not used but will used later to simulate
+         * failure *)
       | None -> debug "node is unavaliable";
         run_multi ~term sl els
-        
-  (*  let f ((s,el):(State.t * (MonoTime.t,State.t) EventList.t)) = 
-    run  ~term:(Some (MonoTime.succ s.time)) s el in
-  (* run each node for one time unit *)
-  let l_new =  List.map ~f l in 
-  (* collect events across the nodes *)
-  let all_ids = List.map ~f:(fun (s,_) ->  s.allNodes) l_new 
-             |> Caml.List.flatten in
-  let msgs n = List.map ~f:(fun node -> if (Id.to_int node = n) then Id.collect
-              else []) |> Caml.List.flatten in
-  List.map ~f:(fun n (s,el) -> (s,EventList.add el (msgs n))) l_new
-  |> run_multi *)
- 
 
 let eventlist num  :(MonoTime.t,Id.t,State.t) Event.t list  =  
   let initial = List.init num ~f:(fun i ->
@@ -225,19 +198,6 @@ let start () =
 end
 
 
-(*let create_para ~nodes ~term ~time_min ~time_max ~delay_min ~delay_max ~debug = 
-  let outcome = (module struct
-    let () = Random.self_init ()
-    let nodes = nodes
-    let timeout () = ((Random.int (time_max-time_min)) + time_min)
-    let pkt_delay () = ((Random.int (delay_max-delay_min)) + delay_min)
-    let termination = term
-    let debug_mode = debug
-  end : PARAMETERS) in outcome*)
-
-(*module Para = (val (create_para ~nodes:2): PARAMETERS)   
-module DES =  DEventSim(IntID)(FakeTime)(Index)(LogEntry)(ListLog)(Para) *)
-
 let run ~nodes ~term ~time_min ~time_max ~delay_min ~delay_max ~debug ~iter
   ~data =
   let module Par = (struct
@@ -249,17 +209,14 @@ let run ~nodes ~term ~time_min ~time_max ~delay_min ~delay_max ~debug ~iter
     let pkt_delay () = ((Random.int (delay_max-delay_min)) + delay_min)
     let termination = term
     let debug_mode = debug
-    let write_data (v:string) = 
+    let write_data _ = ignore(data);()
+    (* TODO implement the write data for leader election tests
       match data with 
       | Some file -> () 
-      | None -> ()
+      | None -> () *)
   end : PARAMETERS) in 
-  let module DES =  DEventSim(IntID)(FakeTime)(Index)(LogEntry)(ListLog)(Par) in
-  for i=0 to iter do DES.start() done
- (* DES.run_multi 
-  ~term:(FakeTime.t_of_int 500)
-  (DES.statelist 20)
-  (DES.eventlist 20) *)
+  let module DES =  DEventSim(IntID)(Clock.FakeTime)(Index)(LogEntry)(ListLog)(Par) in
+  for i=0 to iter do ignore(i); DES.start() done
 
 let command =
   Command.basic 
