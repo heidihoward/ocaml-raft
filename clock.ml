@@ -65,10 +65,9 @@ module RealTime : TIME = struct
     Time.now ()
     |> Time.diff t
     |> Time.Span.to_sec
-    |> Float.to_int
-    |> (fun t -> if (t>0) then (Unix.sleep t)  else ())
+    |> (fun t -> if (t>0.0) then ignore(Unix.nanosleep t)  else ())
 
-  let store t = init
+  let store _ = init
 end
 (*
 module Counter(T:TIME) = struct

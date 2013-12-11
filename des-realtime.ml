@@ -15,10 +15,7 @@ module DEventSim =
 module State = Env.PureState(Id)(MonoTime)(Index)(Entry)(L)
 open Event (*needed to quickly access the event constructor E *)
 
-(* debug_active :=  P.debug_mode *)
-let debug x = printf " %s \n" x
-
-let start_time = MonoTime.init()
+debug_active := P.debug_mode
 
 (* let () = Random.self_init () *)
 (* TODO: check it one timeout should be used for other electons and followers*)
@@ -29,8 +26,6 @@ let unicast (dist:Id.t) (t:MonoTime.t) e =
    * distribution/bound *)
   let delay = MonoTime.span_of_int (P.pkt_delay()) in
   let arriv = MonoTime.add t delay in
-  debug ("dispatching msg to "^(Id.to_string dist) ^ " to arrive at
-  "^(MonoTime.to_string arriv));
   E (arriv ,dist ,e ) 
 
 let broadcast (dests:Id.t list) (t:MonoTime.t) e  = 
@@ -49,15 +44,15 @@ type checker = Follower_Timeout of Index.t
 let rec  startCand (s:State.t) = 
   debug "Entering Candidate Mode / Restarting Electon";
   let snew =  State.tick StartCandidate s in
-  let reqs = broadcast snew.allNodes (snew.time()) 
+  let reqs = broadcast snew.allNodes s.time 
     (requestVoteRq snew.term snew.id snew.lastlogIndex
     snew.lastlogTerm) in
-  let t = MonoTime.add (snew.time()) (timeout Candidate) in
+  let t = MonoTime.add snew.time (timeout Candidate) in
   (snew, E (t, s.id, checkTimer (Candidate_Timeout snew.term) )::reqs )
 
 and checkTimer c (s:State.t)  = debug "Checking timer"; 
   let next_timer c_new (s:State.t) = 
-    let t =  MonoTime.add (s.time()) (timeout Follower) in
+    let t =  MonoTime.add s.time (timeout Follower) in
     (State.tick Reset s, [ E (t, s.id, checkTimer c_new )]) in
   (* TODO: this about the case where the nodes has gone to candidate and back to
    * follower, how do we check for this case *)
@@ -67,21 +62,20 @@ and checkTimer c (s:State.t)  = debug "Checking timer";
     if s.timer then next_timer (Follower_Timeout s.term) s  
     (* we have timedout so become candidate *)
     else (startCand s)
-  | Candidate_Timeout term, Candidate when term = s.term -> (debug "restating
-  election"; startCand s)
+  | Candidate_Timeout term, Candidate when term = s.term -> (startCand s)
   | Leader_Timeout term, Leader when term = s.term -> (dispatchHeartbeat s)
   | _ -> debug "Timer no longer valid"; (s,[])
 
 and dispatchHeartbeat (s:State.t) =
-  let reqs = broadcast s.allNodes (s.time()) 
+  let reqs = broadcast s.allNodes s.time 
     (heartbeatRq s.term s.id) in
-  let t = MonoTime.add (s.time()) (timeout Leader) in
+  let t = MonoTime.add s.time (timeout Leader) in
   (s, E (t, s.id, checkTimer (Leader_Timeout s.term) )::reqs )
 
 
 and startFollow term (s:State.t)  = debug "Entering Follower mode";
   (* used for setdown too so need to reset follower state *)
-  let t = MonoTime.add (s.time()) (timeout Follower) in
+  let t = MonoTime.add s.time (timeout Follower) in
   let s = State.tick (StepDown term) s in 
   (s,[ E (t, s.id,checkTimer (Follower_Timeout s.term) )])
 
@@ -113,7 +107,7 @@ and requestVoteRq term cand_id lst_index last_term (s:State.t) =
       |> State.tick Set )
     else 
       s_new )in
-  (s_new, (unicast cand_id (s_new.time()) (requestVoteRs s_new.term vote
+  (s_new, (unicast cand_id s_new.time (requestVoteRs s_new.term vote
   s_new.id))::e_new)
   
 and requestVoteRs term voteGranted id (s:State.t) = 
@@ -132,9 +126,9 @@ and heartbeatRq term lead_id (s:State.t) =
   let (s_new:State.t),e_new = stepDown term s in
   if (term = s_new.term) then 
     let (s_new:State.t) = State.tick Set s |> State.tick (SetLeader lead_id) in
-    (s_new,(unicast lead_id (s_new.time()) (heartbeatRs s_new.term ))::e_new)
+    (s_new,(unicast lead_id s_new.time (heartbeatRs s_new.term ))::e_new)
   else 
-    (s_new,(unicast lead_id (s_new.time()) (heartbeatRs s_new.term))::e_new)
+    (s_new,(unicast lead_id s_new.time (heartbeatRs s_new.term))::e_new)
 
 and heartbeatRs term (s:State.t) =
   let s_new,e_new = stepDown term s in
@@ -154,10 +148,9 @@ let finished (sl: (Id.t,State.t) List.Assoc.t) =
 
 let printline =  "---------------------------------------------------\n"
 
-let get_time_span (sl: (Id.t,State.t) List.Assoc.t) = 
+let get_time (sl: (Id.t,State.t) List.Assoc.t) = 
   let state = match (List.Assoc.find sl (Id.from_int 0)) with Some x -> x in
-  let duration = MonoTime.diff (state.time()) start_time in
-  MonoTime.span_to_string (duration)
+  MonoTime.to_string state.time
 
 (* Main excuation cycle *)  
 let rec run_multi ~term
@@ -167,16 +160,14 @@ let rec run_multi ~term
     if (finished sl) 
     then begin
       debug "terminating as leader has been agreed";
-       (* for graph gen. *) printf " %s \n" (get_time_span sl) end
+       (* for graph gen. *) printf " %s \n" (get_time sl) end
     else
   match EventList.hd el with
   | None -> debug "terminating as no events remain"
   | Some (E (t,id,e),els) -> if (t>=term) 
     then debug "terminating as terminate time has been reached"
     (* will not be terminating so simluate event *)
-    else  
-      MonoTime.wait_until t;
-      match (List.Assoc.find sl id) with 
+    else  match (List.Assoc.find sl id) with 
       | Some s -> 
         let s = State.tick (SetTime t) s in
         let s_new,el_new = e s in
@@ -198,16 +189,14 @@ let statelist (num:int) =
   List.map ~f:(fun node -> node, State.init node (remove node id_list)) id_list
 
 let start () = 
-  let time_intval = MonoTime.span_of_int P.termination in
-  let time_now = MonoTime.init() in
-  run_multi ~term:(MonoTime.add time_now time_intval ) 
+  run_multi ~term:(MonoTime.t_of_int P.termination) 
   (statelist P.nodes)  
   (eventlist P.nodes)
 end
 
 
 let run ~nodes ~term ~time_min ~time_max ~delay_min ~delay_max ~debug ~iter
-  ~data ~real =
+  ~data =
   let module Par = (struct
     let () = Random.self_init ()
     let nodes = nodes
@@ -223,44 +212,36 @@ let run ~nodes ~term ~time_min ~time_max ~delay_min ~delay_max ~debug ~iter
       | Some file -> () 
       | None -> () *)
   end : PARAMETERS) in 
-   if (real) then begin
-  let module DES =  
-    DEventSim(IntID)(Clock.RealTime)(Index)(LogEntry)(ListLog)(Par) in
-  for i=1 to iter do ignore(i); DES.start() done end 
-   else begin
-  let module DES =  
-    DEventSim(IntID)(Clock.FakeTime)(Index)(LogEntry)(ListLog)(Par) in
-  for i=1 to iter do ignore(i); DES.start() done end
+  let module DES =  DEventSim(IntID)(Clock.RealTime)(Index)(LogEntry)(ListLog)(Par) in
+  for i=0 to iter do ignore(i); DES.start() done
 
 let command =
   Command.basic 
-    ~summary:"Discrete Event Simulator & Realtime Simulator for Raft's Leader Election"
+    ~summary:"Discrete Event Simulator for Raft's Leader Election"
     ~readme: (fun () -> "see www.cl.cam.ac.uk/~hh360 for more information ")
     Command.Spec.(
       empty
       +> flag "-nodes" (required int) 
         ~doc:"int Number of nodes to simulate"
-      +> flag "-term" (optional_with_default 5000 int)
-        ~doc:"int The maxiumun time before termination"
-      +> flag "-time-min" (optional_with_default 100 int)
+      +> flag "-term" (optional_with_default 500 int)
+        ~doc:"int The maxiumun number of terms before termination"
+      +> flag "-time-min" (optional_with_default 10 int)
         ~doc:"int The minimum timeout used"
-      +> flag "-time-max" (optional_with_default 150 int)
+      +> flag "-time-max" (optional_with_default 15 int)
         ~doc:"int The max timeout used"
-      +> flag "-delay-min" (optional_with_default 6 int)
+      +> flag "-delay-min" (optional_with_default 1 int)
         ~doc:"int The min packet delay"
-      +> flag "-delay-max" (optional_with_default 8 int)
+      +> flag "-delay-max" (optional_with_default 5 int)
         ~doc:"int The max delay of packets"
-      +> flag "-d" no_arg
-        ~doc:"Enable debug (disabled by default)"
+      +> flag "-d" (optional_with_default true bool)
+        ~doc:"bool Enable debug (disabled by default)"
       +> flag "-iter" (optional_with_default 1 int) 
         ~doc:"int Number of Simulations"
       +> flag "-data" (optional string) 
         ~doc:"filename File to output data to as .data"
-      +> flag "-r" no_arg 
-        ~doc:"Run as simulation in realtime instead of as a DES"
     )
-    (fun nodes term time_min time_max delay_min delay_max debug iter data real () -> 
+    (fun nodes term time_min time_max delay_min delay_max debug iter data () -> 
       run ~nodes ~term ~time_min ~time_max ~delay_min ~delay_max ~debug ~iter
-      ~data ~real)
+      ~data )
 
 let () =  Command.run command

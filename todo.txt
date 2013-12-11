@@ -1,0 +1,6 @@
+- produce dot diagrams
+- allow DES to run in real time
+- disseration writting
+- mini applications for raft like chat client or key value store
+- implement rest of protocall 
+- abstract the des readu for real implementation with node communication over TCP

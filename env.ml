@@ -83,7 +83,7 @@ module PureState : STATE  =
       id: Id.t;
       allNodes: Id.t list; 
       leader: Id.t option
-    }
+    } with sexp
    
   type statecall = 
 (*    | Apply  (* now safe to apply LastAppled to the state machine*)
@@ -132,9 +132,9 @@ module PureState : STATE  =
     " | All Nodes: "^(List.to_string ~f:Id.to_string s.allNodes)^
     " | Votes Recieved: "^ (List.to_string ~f:Id.to_string s.votesGranted)^
     " | Leader: "^(id_print s.leader)
+ (* sexp_of_t s |> Sexp.to_string *)
 
 
-  
 
   let tick tk s =
   match tk with
@@ -168,7 +168,6 @@ module PureState : STATE  =
         term = (Index.succ s.term)
         }
     | SetTime t -> 
-        let _ = MonoTime.wait_until t in
         { s with time=(MonoTime.store t)}
     | StartLeader -> 
         { s with mode=Leader;
