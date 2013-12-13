@@ -7,12 +7,46 @@ let debug_active = ref true
 let debug x = (*if !debug_active then*)
     (printf " %s \n"  x)
 
-type role = Follower | Candidate | Leader
+type role = Follower | Candidate | Leader with sexp
+type 'a status = Live of 'a | Down of 'a | Notfound 
 
 let string_of_role = function
   | Follower -> "Follower"
   | Candidate -> "Candidate"
   | Leader -> "Leader"
+
+module type STATELIST = sig
+  (* essentially a wrapper around List.Assoc to later manage simulated node
+   * failures *)
+  type ('id,'state) t
+  val find: ('id,'state) t -> 'id -> 'state status 
+  val add: ('id,'state) t -> 'id -> 'state -> ('id,'state) t
+  val check_condition: ('id,'state) t -> f:(('id * ('state status)) -> bool) -> bool
+  val from_listassoc: ('id, 'state status ) List.Assoc.t -> ('id,'state) t
+  val kill: ('id, 'state) t -> 'id -> ('id,'state) t
+  val wake: ('id, 'state) t -> 'id -> ('id,'state) t
+end
+
+module StateList : STATELIST = struct
+  type ('id,'state) t = ('id,'state status) List.Assoc.t
+  let find sl id  = match (List.Assoc.find sl id) with
+    | Some x -> x | None -> Notfound
+  let add sl id state = List.Assoc.add sl id (Live state) 
+  let from_listassoc x = x
+  let check_condition sl ~f = 
+    match (List.find sl ~f) with 
+    Some _ -> true | None -> false 
+
+  let kill sl id = 
+    match (find sl id) with
+    | Live s -> List.Assoc.add sl id (Down s)
+
+  let wake sl id =
+    match (find sl id) with 
+    | Down s -> List.Assoc.add sl id (Live s)
+
+end
+
 
 module type PARAMETERS = sig
   val timeout: role -> int
@@ -23,21 +57,21 @@ module type PARAMETERS = sig
 end
 
 module type INDEX = sig
-  type t
+  type t with sexp,bin_io
   val succ: t -> t
   val init: unit -> t
   val to_string: t -> string
 end 
 
 module Index : INDEX = struct
-  type t = int with compare
+  type t = int with compare,sexp,bin_io
   let succ = succ
   let init () = 0
   let to_string = string_of_int
 end
 
 module type NODE_ID = sig
-  type t
+  type t with sexp,bin_io
 (*  type loc*)
 (*  type msg *)
   val from_int: int -> t
@@ -51,7 +85,7 @@ module type NODE_ID = sig
 end 
 
 module IntID : NODE_ID  = struct
-  type t = int
+  type t = int with sexp,bin_io
 (*  type loc = unit *)
 (*  type msg = unit *)
   let from_int x = x
@@ -68,18 +102,18 @@ end
 module TcpID = struct
   type loc = Async_extra.Import.Socket.Address.Inet.t Tcp.where_to_connect
   type t = int * loc
-  let create id host prt = (id,Tcp.to_host_and_port host prt)
+  let create id (host,prt) = (id,Tcp.to_host_and_port host prt)
   let get_loc = snd
 end
 
 module type ENTRY = sig 
-  type t 
+  type t with bin_io,sexp
   val to_string: t -> string
 end 
 
 module LogEntry: ENTRY = struct
   (*TODO copy over proper application from other .mls *)
-  type t = A | B | C
+  type t = A | B | C with bin_io,sexp
   let to_string = function
     | A -> "A"
     | B -> "B"
@@ -88,7 +122,7 @@ end
 
 
 module type LOG = functor (E: ENTRY) -> sig
-  type t
+  type t with bin_io,sexp
   val init: unit -> t
   val append: t -> E.t -> t
   val to_string: t -> string
@@ -96,7 +130,7 @@ end
 
 module ListLog : LOG =
   functor (LogEntry: ENTRY) ->  struct
-  type t = LogEntry.t list
+  type t = LogEntry.t list with bin_io,sexp
   let init () = []
   let append t x = x::t
   let to_string = List.to_string ~f:LogEntry.to_string
@@ -146,5 +180,4 @@ module EventList = struct
   let add a l = 
     List.merge l (from_list a) ~cmp:Event.compare
 end
-
 

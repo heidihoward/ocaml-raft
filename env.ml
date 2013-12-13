@@ -50,6 +50,7 @@ module type STATE =
    | SetTerm of Index.t
 
   val init: Id.t -> Id.t list -> t
+  val empty: unit -> t
   val tick: statecall -> t -> t
   val print: t -> string
 
@@ -120,6 +121,26 @@ module PureState : STATE  =
       allNodes = all;
       leader = None;
     } 
+
+  let empty () =
+    { term = Index.init();
+      mode = Follower;
+      time = MonoTime.init;
+      timer = false;
+      votedFor = None;
+      log = Log.init(); 
+      lastlogIndex = Index.init();
+      lastlogTerm = Index.init();
+      lastApplied = Index.init();
+      votesResponded = [];
+      votesGranted = [];
+      nextIndex = Index.init();
+      lastAgreeIndex = Index.init(); 
+      id = (Id.from_int 0); (*this is a bad hack *)
+      allNodes = [];
+      leader = None;
+    } 
+
 
   let id_print = function  None -> "none" | Some x -> Id.to_string x
 

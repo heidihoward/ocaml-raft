@@ -141,27 +141,31 @@ and heartbeatRs term (s:State.t) =
   (s_new,e_new)
 
 
-let finished (sl: (Id.t,State.t) List.Assoc.t) =
-  let leader,term= match (List.Assoc.find sl (Id.from_int 0)) with 
-    Some s -> s.leader,s.term in
+let finished (sl: (Id.t,State.t) StateList.t) =
+  let leader,term = match (StateList.find sl (Id.from_int 0)) with 
+    Live s -> s.leader,s.term in
   (* TODO ask anil about suppressing pattern-match not exhaustive but leave case
    * undealt with, i.e it really should occur, if it does, then excuation should
    * stop *)
-  let f (_,(state:State.t)) = 
-    not ((state.leader = leader) || (state.term = term)) in 
-  match (List.find sl ~f) with
-  | Some _ -> true | _ -> false
+  let f (_,(state:State.t status)) = 
+    match state with 
+    | Live s -> not ((s.leader = leader) || (s.term = term)) 
+    | Down _ | Notfound -> false
+  in 
+  (* TODO: modify finish to check the number of live nodes is the majority *)
+  StateList.check_condition sl ~f
 
 let printline =  "---------------------------------------------------\n"
 
-let get_time_span (sl: (Id.t,State.t) List.Assoc.t) = 
-  let state = match (List.Assoc.find sl (Id.from_int 0)) with Some x -> x in
+let get_time_span (sl: (Id.t,State.t) StateList.t) = 
+  (* TODO: fix this so it finds the first live node *)
+  let state = match (StateList.find sl (Id.from_int 0)) with Live x -> x in
   let duration = MonoTime.diff (state.time()) start_time in
   MonoTime.span_to_string (duration)
 
 (* Main excuation cycle *)  
 let rec run_multi ~term
-  (sl: (Id.t,State.t) List.Assoc.t) 
+  (sl: (Id.t,State.t) StateList.t) 
   (el:(MonoTime.t,Id.t,State.t) EventList.t)  =
   (* checking termination condition for tests *)
     if (finished sl) 
@@ -169,6 +173,7 @@ let rec run_multi ~term
       debug "terminating as leader has been agreed";
        (* for graph gen. *) printf " %s \n" (get_time_span sl) end
     else
+      let sl,el = simulate_failures sl el in 
   match EventList.hd el with
   | None -> debug "terminating as no events remain"
   | Some (E (t,id,e),els) -> if (t>=term) 
@@ -176,15 +181,15 @@ let rec run_multi ~term
     (* will not be terminating so simluate event *)
     else  
       MonoTime.wait_until t;
-      match (List.Assoc.find sl id) with 
-      | Some s -> 
+      match (StateList.find sl id) with 
+      | Live s -> 
         let s = State.tick (SetTime t) s in
         let s_new,el_new = e s in
         debug (State.print s_new); debug printline;
-        run_multi ~term (List.Assoc.add sl id s_new) (EventList.add el_new els) 
+        run_multi ~term (StateList.add sl id s_new) (EventList.add el_new els) 
         (* Currently none case is not used but will used later to simulate
          * failure *)
-      | None -> debug "node is unavaliable";
+      | Down _ | Notfound -> debug "node is unavaliable";
         run_multi ~term sl els
 
 let eventlist num  :(MonoTime.t,Id.t,State.t) Event.t list  =  
@@ -195,7 +200,10 @@ let eventlist num  :(MonoTime.t,Id.t,State.t) Event.t list  =
 let statelist (num:int) = 
   let id_list = List.init num ~f:(Id.from_int) in
   let remove x xs = List.filter xs ~f:(fun y -> not (x = y)) in 
-  List.map ~f:(fun node -> node, State.init node (remove node id_list)) id_list
+  let gen_state id id_list = State.init id (remove id id_list) in
+  List.map 
+    ~f:(fun node_id -> node_id , (Live (gen_state node_id id_list))) id_list
+  |> StateList.from_listassoc 
 
 let start () = 
   let time_intval = MonoTime.span_of_int P.termination in
