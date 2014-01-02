@@ -30,6 +30,8 @@ let nxt_reset (t:MonoTime.t) =
   let delay = MonoTime.span_of_int ((Random.int 50)+1) in
   MonoTime.add t delay
 
+module Comms = struct 
+
 let unicast (dist:Id.t) (t:MonoTime.t) e = 
   (*TODO: modify these to allow the user to specify some deley
    * distribution/bound *)
@@ -41,6 +43,9 @@ let unicast (dist:Id.t) (t:MonoTime.t) e =
 
 let broadcast (dests:Id.t list) (t:MonoTime.t) e  = 
   List.map dests ~f:(fun dst -> unicast dst t e) 
+
+end 
+
 
 let checkElection (s:State.t) = 
   (* TODO: check exactly def of majority, maybe off by one error here *)
@@ -55,7 +60,7 @@ type checker = Follower_Timeout of Index.t
 let rec  startCand (s:State.t) = 
   debug "Entering Candidate Mode / Restarting Electon";
   let snew =  State.tick StartCandidate s in
-  let reqs = broadcast snew.allNodes (snew.time()) 
+  let reqs = Comms.broadcast snew.allNodes (snew.time()) 
     (requestVoteRq snew.term snew.id snew.lastlogIndex
     snew.lastlogTerm) in
   let t = MonoTime.add (snew.time()) (timeout Candidate) in
@@ -79,7 +84,7 @@ and checkTimer c (s:State.t)  = debug "Checking timer";
   | _ -> debug "Timer no longer valid"; (s,[])
 
 and dispatchHeartbeat (s:State.t) =
-  let reqs = broadcast s.allNodes (s.time()) 
+  let reqs = Comms.broadcast s.allNodes (s.time()) 
     (heartbeatRq s.term s.id) in
   let t = MonoTime.add (s.time()) (timeout Leader) in
   (s, E (t, s.id, checkTimer (Leader_Timeout s.term) )::reqs )
@@ -119,7 +124,7 @@ and requestVoteRq term cand_id lst_index last_term (s:State.t) =
       |> State.tick Set )
     else 
       s_new )in
-  (s_new, (unicast cand_id (s_new.time()) (requestVoteRs s_new.term vote
+  (s_new, (Comms.unicast cand_id (s_new.time()) (requestVoteRs s_new.term vote
   s_new.id))::e_new)
   
 and requestVoteRs term voteGranted id (s:State.t) = 
@@ -138,9 +143,9 @@ and heartbeatRq term lead_id (s:State.t) =
   let (s_new:State.t),e_new = stepDown term s in
   if (term = s_new.term) then 
     let (s_new:State.t) = State.tick Set s |> State.tick (SetLeader lead_id) in
-    (s_new,(unicast lead_id (s_new.time()) (heartbeatRs s_new.term ))::e_new)
+    (s_new,(Comms.unicast lead_id (s_new.time()) (heartbeatRs s_new.term ))::e_new)
   else 
-    (s_new,(unicast lead_id (s_new.time()) (heartbeatRs s_new.term))::e_new)
+    (s_new,(Comms.unicast lead_id (s_new.time()) (heartbeatRs s_new.term))::e_new)
 
 and heartbeatRs term (s:State.t) =
   let s_new,e_new = stepDown term s in
