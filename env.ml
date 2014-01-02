@@ -48,6 +48,7 @@ module type STATE =
    | SetTime of MonoTime.t
    | SetLeader of Id.t
    | SetTerm of Index.t
+   | Restart
 
   val init: Id.t -> Id.t list -> t
   val empty: unit -> t
@@ -101,6 +102,7 @@ module PureState : STATE  =
    | SetTime of MonoTime.t
    | SetLeader of Id.t
    | SetTerm of Index.t
+   | Restart
 
 
   let init me all =
@@ -204,6 +206,11 @@ module PureState : STATE  =
         assert (t >= s.term);
         { s with term = t;
           votedFor = None }
+    | Restart -> 
+        { empty() with 
+          time = s.time;
+          votedFor = s.votedFor;
+          term = s.term}
 
 
 
