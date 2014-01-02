@@ -231,7 +231,7 @@ let init_eventlist num  :(MonoTime.t,Id.t,State.t) Event.t list  =
     E (MonoTime.init(), Id.from_int i, startFollow (Index.init()) ) ) in
   let failure_sim = List.init num ~f:(fun i -> 
     N (nxt_failure (MonoTime.init()), Id.from_int i, Kill)) in
-  EventList.from_list (initial@failure_sim)
+  EventList.from_list (initial)
 
 let init_statelist (num:int) = 
   let id_list = List.init num ~f:(Id.from_int) in

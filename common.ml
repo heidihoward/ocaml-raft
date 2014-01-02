@@ -1,5 +1,7 @@
 open Core.Std
 open Async.Std
+(* This module contains basic functions and modules used through, with no
+ * external dependances on any other modules *)
 
 (* TODO work out why these no longer work *)
 let debug_active = ref true
@@ -17,11 +19,9 @@ let string_of_role = function
   | Leader -> "Leader"
 
 module type STATELIST = sig
-  (* essentially a wrapper around List.Assoc to later manage simulated node
-   * failures *)
+  (* STATELIST is essentially a wrapper around List.Assoc to manage simulated node failures *)
   type ('id,'state) t
   val find: ('id,'state) t -> 'id -> 'state status
-  val find_alive ('id,'state) t -> 'state
   val add: ('id,'state) t -> 'id -> 'state status -> ('id,'state) t
   val check_condition: ('id,'state) t -> f:(('id * ('state status)) -> bool) -> bool
   val from_listassoc: ('id, 'state status ) List.Assoc.t -> ('id,'state) t
@@ -33,12 +33,12 @@ module StateList : STATELIST = struct
   type ('id,'state) t = ('id,'state status) List.Assoc.t
   let find sl id  = match (List.Assoc.find sl id) with
     | Some x -> x | None -> Notfound
+
   let add sl id state = List.Assoc.add sl id state 
   let from_listassoc x = x
-  let find_alive sl = 
+
   let check_condition sl ~f = 
-    match (List.find sl ~f) with 
-    Some _ -> true | None -> false 
+    match (List.find sl ~f) with Some _ -> true | None -> false 
 
   let kill sl id = 
     match (find sl id) with
