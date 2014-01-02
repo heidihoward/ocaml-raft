@@ -11,7 +11,8 @@ module DEventSim =
   functor (L:LOG) ->
   functor (P:PARAMETERS) -> struct
 
-module State = Env.PureState(Id)(MonoTime)(Entry)(L)
+module StateList = Env.StateHandler(Id)(MonoTime)(Entry)(L)
+module State = StateList.State
 open Event (*needed to quickly access the event constructor E *)
 
 (* debug_active :=  P.debug_mode *)
@@ -146,7 +147,7 @@ and heartbeatRs term (s:State.t) =
   (s_new,e_new)
 
 
-let finished (sl: (Id.t,State.t) StateList.t) =
+let finished (sl: StateList.t) =
   let leader,term = match (StateList.find sl (Id.from_int 0)) with 
     Live s -> s.leader,s.term in
   (* TODO ask anil about suppressing pattern-match not exhaustive but leave case
@@ -162,7 +163,7 @@ let finished (sl: (Id.t,State.t) StateList.t) =
 
 let printline =  "---------------------------------------------------\n"
 
-let get_time_span (sl: (Id.t,State.t) StateList.t) = 
+let get_time_span (sl:StateList.t) = 
   (* TODO: fix this so it finds the first live node *)
   let state = match (StateList.find sl (Id.from_int 0)) with Live x -> x in
   let duration = MonoTime.diff (state.time()) start_time in
@@ -182,7 +183,7 @@ let kill (s:State.t) =
 
 (* Main excuation cycle *)  
 let rec run_multi ~term
-  (sl: (Id.t,State.t) StateList.t) 
+  (sl: StateList.t) 
   (el:(MonoTime.t,Id.t,State.t) EventList.t)  =
   (* checking termination condition for tests *)
     if (finished sl) 
@@ -232,19 +233,12 @@ let init_eventlist num  :(MonoTime.t,Id.t,State.t) Event.t list  =
     N (nxt_failure (MonoTime.init()), Id.from_int i, Kill)) in
   EventList.from_list (initial)
 
-let init_statelist (num:int) = 
-  let id_list = List.init num ~f:(Id.from_int) in
-  let remove x xs = List.filter xs ~f:(fun y -> not (x = y)) in 
-  let gen_state id id_list = State.init id (remove id id_list) in
-  List.map 
-    ~f:(fun node_id -> node_id , (Live (gen_state node_id id_list))) id_list
-  |> StateList.from_listassoc 
 
 let start () = 
   let time_intval = MonoTime.span_of_int P.termination in
   let time_now = MonoTime.init() in
   run_multi ~term:(MonoTime.add time_now time_intval ) 
-  (init_statelist P.nodes)  
+  (StateList.init P.nodes)  
   (init_eventlist P.nodes)
 end
 

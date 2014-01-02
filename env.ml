@@ -1,6 +1,6 @@
 open Core.Std
 open Common
-
+(*
 module type STATE = 
   functor (Id: NODE_ID) -> 
   functor (MonoTime: Clock.TIME) ->
@@ -54,9 +54,9 @@ module type STATE =
   val tick: statecall -> t -> t
   val print: t -> string
 
-end  
+end *) 
 
-module PureState : STATE  = 
+module PureState  = 
   functor (Id: NODE_ID) -> 
   functor (MonoTime: Clock.TIME) ->
   functor (Entry: ENTRY) ->
@@ -211,5 +211,41 @@ module PureState : STATE  =
           term = s.term}
 
 
+
+end
+
+module StateHandler =
+  functor (Id: NODE_ID) -> 
+  functor (MonoTime: Clock.TIME) ->
+  functor (Entry: ENTRY) ->
+  functor (L: LOG) -> struct
+
+module State = PureState(Id)(MonoTime)(Entry)(L)
+
+  type t = (Id.t,State.t status) List.Assoc.t
+
+  let find sl id  = match (List.Assoc.find sl id) with
+    | Some x -> x | None -> Notfound
+
+  let add sl id state = List.Assoc.add sl id state 
+  let from_listassoc x = x
+
+  let init n : t =
+    let id_list = List.init n ~f:(Id.from_int) in
+    let remove x xs = List.filter xs ~f:(fun y -> not (x = y)) in 
+    let gen_state id id_list = State.init id (remove id id_list) in
+    List.map 
+    ~f:(fun node_id -> node_id , (Live (gen_state node_id id_list))) id_list
+
+  let check_condition sl ~f = 
+    match (List.find sl ~f) with Some _ -> true | None -> false 
+
+  let kill sl id = 
+    match (find sl id) with
+    | Live s -> List.Assoc.add sl id (Down s)
+
+  let wake sl id =
+    match (find sl id) with 
+    | Down s -> List.Assoc.add sl id (Live s)
 
 end

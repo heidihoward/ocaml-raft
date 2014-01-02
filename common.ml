@@ -18,7 +18,7 @@ let string_of_role = function
   | Candidate -> "Candidate"
   | Leader -> "Leader"
 
-module type STATELIST = sig
+(* module type STATELIST = sig
   (* STATELIST is essentially a wrapper around List.Assoc to manage simulated node failures *)
   type ('id,'state) t
   val find: ('id,'state) t -> 'id -> 'state status
@@ -49,7 +49,7 @@ module StateList : STATELIST = struct
     | Down s -> List.Assoc.add sl id (Live s)
 
 end
-
+*)
 
 module type PARAMETERS = sig
   val timeout: role -> int
