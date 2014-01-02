@@ -7,12 +7,11 @@ open Common
 module DEventSim = 
   functor (Id:NODE_ID) -> 
   functor (MonoTime: Clock.TIME) ->
-  functor (Index: INDEX) ->
   functor (Entry: ENTRY) ->
   functor (L:LOG) ->
   functor (P:PARAMETERS) -> struct
 
-module State = Env.PureState(Id)(MonoTime)(Index)(Entry)(L)
+module State = Env.PureState(Id)(MonoTime)(Entry)(L)
 open Event (*needed to quickly access the event constructor E *)
 
 (* debug_active :=  P.debug_mode *)
@@ -269,11 +268,11 @@ let run ~nodes ~term ~time_min ~time_max ~delay_min ~delay_max ~debug ~iter
   end : PARAMETERS) in 
    if (real) then begin
   let module DES =  
-    DEventSim(IntID)(Clock.RealTime)(Index)(LogEntry)(ListLog)(Par) in
+    DEventSim(IntID)(Clock.RealTime)(LogEntry)(ListLog)(Par) in
   for i=1 to iter do ignore(i); DES.start() done end 
    else begin
   let module DES =  
-    DEventSim(IntID)(Clock.FakeTime)(Index)(LogEntry)(ListLog)(Par) in
+    DEventSim(IntID)(Clock.FakeTime)(LogEntry)(ListLog)(Par) in
   for i=1 to iter do ignore(i); DES.start() done end
 
 let command =

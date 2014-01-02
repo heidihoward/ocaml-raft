@@ -4,7 +4,6 @@ open Common
 module type STATE = 
   functor (Id: NODE_ID) -> 
   functor (MonoTime: Clock.TIME) ->
-  functor (Index: INDEX) -> 
   functor (E: ENTRY) ->
   functor (Log:  LOG ) -> sig
 
@@ -60,7 +59,6 @@ end
 module PureState : STATE  = 
   functor (Id: NODE_ID) -> 
   functor (MonoTime: Clock.TIME) ->
-  functor (Index: INDEX) -> 
   functor (Entry: ENTRY) ->
   functor (L: LOG) -> struct
 
