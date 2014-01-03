@@ -1,8 +1,8 @@
 open Core.Std
 open Common
 
-let run ~nodes ~term ~time_min ~time_max ~delay_min ~delay_max ~debug ~iter
-  ~data ~real =
+let run_disctime ~nodes ~term ~time_min ~time_max ~delay_min ~delay_max ~debug ~iter
+  ~data =
   let module Par = (struct
     let nodes = nodes
     let timeout = function
@@ -17,14 +17,36 @@ let run ~nodes ~term ~time_min ~time_max ~delay_min ~delay_max ~debug ~iter
       | Some file -> () 
       | None -> () *)
   end : PARAMETERS) in 
-   if (real) then begin
-  let module DES =  
-    Des.DEventSim(IntID)(Clock.RealTime)(LogEntry)(ListLog)(Par) in
-  for i=1 to iter do ignore(i); DES.start() done end 
-   else begin
+   
   let module DES =  
     Des.DEventSim(IntID)(Clock.FakeTime)(LogEntry)(ListLog)(Par) in
-  for i=1 to iter do ignore(i); DES.start() done end
+  for i=1 to iter do 
+    ignore(i); DES.start()
+  done 
+
+let run_realtime ~nodes ~term ~time_min ~time_max ~delay_min ~delay_max ~debug ~iter
+  ~data =
+  let module Par = (struct
+    let nodes = nodes
+    let timeout = function
+      | Leader -> NumberGen.fixed 5 ()
+      | Follower | Candidate -> NumberGen.uniform_int time_min time_max ()
+    let pkt_delay = NumberGen.uniform_int delay_min delay_max
+    let termination = term 
+    let debug_mode = debug
+    let write_data _ = ignore(data);()
+    (* TODO implement the write data for leader election tests
+      match data with 
+      | Some file -> () 
+      | None -> () *)
+  end : PARAMETERS) in 
+   
+  let module DES =  
+    Des.DEventSim(IntID)(Clock.RealTime)(LogEntry)(ListLog)(Par) in
+  for i=1 to iter do 
+    ignore(i); DES.start()
+  done 
+
 
 let command =
   Command.basic 
@@ -54,7 +76,8 @@ let command =
         ~doc:"Run as simulation in realtime instead of as a DES"
     )
     (fun nodes term time_min time_max delay_min delay_max debug iter data real () -> 
-      run ~nodes ~term ~time_min ~time_max ~delay_min ~delay_max ~debug ~iter
-      ~data ~real)
+      if (real) 
+      then run_realtime ~nodes ~term ~time_min ~time_max ~delay_min ~delay_max ~debug ~iter ~data 
+      else run_disctime ~nodes ~term ~time_min ~time_max ~delay_min ~delay_max ~debug ~iter ~data)
 
 let () =  Command.run command
