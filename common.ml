@@ -51,6 +51,16 @@ module StateList : STATELIST = struct
 end
 *)
 
+module NumberGen = struct
+  (* TODO: these are dealing with discite values but i think i need a seperate
+   * ones for continous *)
+  let () = Random.self_init ()
+  let fixed x () = x
+  let uniform_int min max () = Random.int (max-min) + min
+  let uniform_float min max () = Random.float (max-.min) +. min
+  let exp_float lam () = (-1.0 /. lam)*.log(Random.float 9.9999999999)
+end
+
 module type PARAMETERS = sig
   val timeout: role -> int
   val nodes: int

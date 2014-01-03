@@ -4,13 +4,12 @@ open Common
 let run ~nodes ~term ~time_min ~time_max ~delay_min ~delay_max ~debug ~iter
   ~data ~real =
   let module Par = (struct
-    let () = Random.self_init ()
     let nodes = nodes
     let timeout = function
-      | Leader -> 5
-      | Follower | Candidate -> ((Random.int (time_max-time_min)) + time_min)
-    let pkt_delay () = ((Random.int (delay_max-delay_min)) + delay_min)
-    let termination = term
+      | Leader -> NumberGen.fixed 5 ()
+      | Follower | Candidate -> NumberGen.uniform_int time_min time_max ()
+    let pkt_delay = NumberGen.uniform_int delay_min delay_max
+    let termination = term 
     let debug_mode = debug
     let write_data _ = ignore(data);()
     (* TODO implement the write data for leader election tests
