@@ -4,7 +4,7 @@ open Common
 (*this functor takes more arguments than nessacary, but not sure about which
  * modules will have alternative inferences in the future, definitly ENTRY *)
 
-module DEventSim = 
+module RaftSim = 
   functor (Id:NODE_ID) -> 
   functor (MonoTime: Clock.TIME) ->
   functor (Entry: ENTRY) ->
