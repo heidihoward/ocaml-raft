@@ -1,7 +1,8 @@
 open Core.Std
 open Common
 
-let run_disctime ~nodes ~term ~time_min ~time_max ~delay_min ~delay_max ~debug ~iter
+let run_disctime ~nodes ~term ~time_min ~time_max ~delay_min ~delay_max
+~debug_enabled ~iter
   ~data =
   let module Par = (struct
     let nodes = nodes
@@ -10,7 +11,7 @@ let run_disctime ~nodes ~term ~time_min ~time_max ~delay_min ~delay_max ~debug ~
       | Follower | Candidate -> NumberGen.uniform_int time_min time_max ()
     let pkt_delay = NumberGen.uniform_int delay_min delay_max
     let termination = term 
-    let debug_mode = debug
+    let debug_mode = if (debug_enabled) then debug else ignore 
     let write_data _ = ignore(data);()
     (* TODO implement the write data for leader election tests
       match data with 
@@ -19,12 +20,13 @@ let run_disctime ~nodes ~term ~time_min ~time_max ~delay_min ~delay_max ~debug ~
   end : PARAMETERS) in 
    
   let module DES =  
-    Des.DEventSim(IntID)(Clock.FakeTime)(LogEntry)(ListLog)(Par) in
+    Simulator.RaftSim(IntID)(Clock.FakeTime)(LogEntry)(ListLog)(Par) in
   for i=1 to iter do 
     ignore(i); DES.start()
   done 
 
-let run_realtime ~nodes ~term ~time_min ~time_max ~delay_min ~delay_max ~debug ~iter
+let run_realtime ~nodes ~term ~time_min ~time_max ~delay_min ~delay_max
+~debug_enabled ~iter
   ~data =
   let module Par = (struct
     let nodes = nodes
@@ -33,7 +35,7 @@ let run_realtime ~nodes ~term ~time_min ~time_max ~delay_min ~delay_max ~debug ~
       | Follower | Candidate -> NumberGen.uniform_int time_min time_max ()
     let pkt_delay = NumberGen.uniform_int delay_min delay_max
     let termination = term 
-    let debug_mode = debug
+    let debug_mode = if (debug_enabled) then debug else ignore 
     let write_data _ = ignore(data);()
     (* TODO implement the write data for leader election tests
       match data with 
@@ -42,42 +44,71 @@ let run_realtime ~nodes ~term ~time_min ~time_max ~delay_min ~delay_max ~debug ~
   end : PARAMETERS) in 
    
   let module DES =  
-    Des.DEventSim(IntID)(Clock.RealTime)(LogEntry)(ListLog)(Par) in
+    Simulator.RaftSim(IntID)(Clock.RealTime)(LogEntry)(ListLog)(Par) in
   for i=1 to iter do 
     ignore(i); DES.start()
   done 
 
 
-let command =
-  Command.basic 
-    ~summary:"Discrete Event Simulator & Realtime Simulator for Raft's Leader Election"
-    ~readme: (fun () -> "see www.cl.cam.ac.uk/~hh360 for more information ")
+let common =
     Command.Spec.(
       empty
       +> flag "-nodes" (required int) 
         ~doc:"int Number of nodes to simulate"
       +> flag "-term" (optional_with_default 5000 int)
         ~doc:"int The maxiumun time before termination"
-      +> flag "-time-min" (optional_with_default 100 int)
-        ~doc:"int The minimum timeout used"
-      +> flag "-time-max" (optional_with_default 150 int)
-        ~doc:"int The max timeout used"
-      +> flag "-delay-min" (optional_with_default 6 int)
-        ~doc:"int The min packet delay"
-      +> flag "-delay-max" (optional_with_default 8 int)
-        ~doc:"int The max delay of packets"
       +> flag "-d" no_arg
         ~doc:"Enable debug (disabled by default)"
       +> flag "-iter" (optional_with_default 1 int) 
         ~doc:"int Number of Simulations"
       +> flag "-data" (optional string) 
-        ~doc:"filename File to output data to as .data"
-      +> flag "-r" no_arg 
-        ~doc:"Run as simulation in realtime instead of as a DES"
-    )
-    (fun nodes term time_min time_max delay_min delay_max debug iter data real () -> 
-      if (real) 
-      then run_realtime ~nodes ~term ~time_min ~time_max ~delay_min ~delay_max ~debug ~iter ~data 
-      else run_disctime ~nodes ~term ~time_min ~time_max ~delay_min ~delay_max ~debug ~iter ~data)
+        ~doc:"filename File to output data to as .data" )
 
-let () =  Command.run command
+let realtime =
+  Command.basic
+    ~summary:"Realtime Simulator for Raft's Leader Election"
+    ~readme: (fun () -> "see www.cl.cam.ac.uk/~hh360 for more information ")
+  Command.Spec.(
+    empty
+     ++ common
+     +> flag "-time-min" (optional_with_default 100 int)
+        ~doc:"int The minimum timeout used"
+     +> flag "-time-max" (optional_with_default 150 int)
+        ~doc:"int The max timeout used"
+     +> flag "-delay-min" (optional_with_default 6 int)
+        ~doc:"int The min packet delay"
+     +> flag "-delay-max" (optional_with_default 8 int)
+        ~doc:"int The max delay of packets" 
+      )
+    (fun nodes term debug_enabled iter data time_min time_max delay_min
+    delay_max () ->  
+      run_realtime ~nodes ~term ~time_min ~time_max ~delay_min ~delay_max
+      ~debug_enabled ~iter ~data) 
+
+let discrete =
+  Command.basic
+    ~summary:"Discrete Event Simulator for Raft's Leader Election"
+    ~readme: (fun () -> "see www.cl.cam.ac.uk/~hh360 for more information ")
+  Command.Spec.(
+    empty
+     ++ common
+     +> flag "-time-min" (optional_with_default 100 float)
+        ~doc:"int The minimum timeout used"
+     +> flag "-time-max" (optional_with_default 150 float)
+        ~doc:"int The max timeout used"
+     +> flag "-delay-min" (optional_with_default 6 float)
+        ~doc:"int The min packet delay"
+     +> flag "-delay-max" (optional_with_default 8 float)
+        ~doc:"int The max delay of packets" 
+      )
+    (fun nodes term debug_enabled iter data time_min time_max delay_min
+    delay_max () ->  
+      run_disctime ~nodes ~term ~time_min ~time_max ~delay_min ~delay_max
+      ~debug_enabled ~iter ~data) 
+
+
+let () =  
+  ["realtime",realtime;"discrete",realtime]
+  |> Command.group ~summary:"Discrete Event Simulator & Realtime Simulator for
+  Raft's Leader Election"
+  |> Command.run

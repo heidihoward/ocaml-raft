@@ -3,9 +3,6 @@ open Async.Std
 (* This module contains basic functions and modules used through, with no
  * external dependances on any other modules *)
 
-(* TODO work out why these no longer work *)
-let debug_active = ref true
-
 let debug x = (*if !debug_active then*)
     (printf " %s \n"  x)
 
@@ -66,7 +63,7 @@ module type PARAMETERS = sig
   val nodes: int
   val pkt_delay: unit -> int
   val termination: int
-  val debug_mode: bool
+  val debug_mode: string -> unit
 end
 
 module type INDEX = sig

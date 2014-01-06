@@ -16,7 +16,7 @@ module State = StateList.State
 open Event (*needed to quickly access the event constructor E *)
 
 (* debug_active :=  P.debug_mode *)
-let debug x = printf " %s \n" x
+let debug = P.debug_mode
 
 let start_time = MonoTime.init()
 
