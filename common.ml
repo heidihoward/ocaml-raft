@@ -56,7 +56,7 @@ module NumberGen = struct
   let fixed x () = x
   let uniform_int min max () = Random.int (max-min) + min
   let uniform_float min max () = Random.float (max-.min) +. min
-  let exp_float lam () = (-1.0 /. lam)*.log(Random.float Float.max_value)
+  let exp_float lam () = (-1.0 /. lam)*.log(Random.float Float.max_finite_value)
 end
 
 module type PARAMETERS = sig
