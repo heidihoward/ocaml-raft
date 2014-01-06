@@ -7,6 +7,7 @@ let debug x = (*if !debug_active then*)
     (printf " %s \n"  x)
 
 type role = Follower | Candidate | Leader with sexp
+type value = Discrete of int | Continous of float
 type 'a status = Live of 'a | Down of 'a | Notfound 
 type failures = Wake | Kill
 
@@ -55,13 +56,13 @@ module NumberGen = struct
   let fixed x () = x
   let uniform_int min max () = Random.int (max-min) + min
   let uniform_float min max () = Random.float (max-.min) +. min
-  let exp_float lam () = (-1.0 /. lam)*.log(Random.float 9.9999999999)
+  let exp_float lam () = (-1.0 /. lam)*.log(Random.float Float.max_value)
 end
 
 module type PARAMETERS = sig
-  val timeout: role -> int
+  val timeout: role -> value
   val nodes: int
-  val pkt_delay: unit -> int
+  val pkt_delay: unit -> value
   val termination: int
   val debug_mode: string -> unit
 end

@@ -22,7 +22,10 @@ let start_time = MonoTime.init()
 
 (* let () = Random.self_init () *)
 (* TODO: check it one timeout should be used for other electons and followers*)
-let timeout (m:role) = MonoTime.span_of_int (P.timeout m)
+let timeout (m:role) = MonoTime.span_of_value (P.timeout m)
+  
+
+
 let nxt_failure (t:MonoTime.t) = 
   let delay = MonoTime.span_of_int ((Random.int 50)+1) in
   MonoTime.add t delay
@@ -35,7 +38,7 @@ module Comms = struct
 let unicast (dist:Id.t) (t:MonoTime.t) e = 
   (*TODO: modify these to allow the user to specify some deley
    * distribution/bound *)
-  let delay = MonoTime.span_of_int (P.pkt_delay()) in
+  let delay = MonoTime.span_of_value (P.pkt_delay()) in
   let arriv = MonoTime.add t delay in
   debug ("dispatching msg to "^(Id.to_string dist) ^ " to arrive at
   "^(MonoTime.to_string arriv));
