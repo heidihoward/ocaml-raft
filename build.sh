@@ -1,6 +1,9 @@
-rm *.log
+rm *.data
 rm *.{byte,native}
 
+corebuild common.byte
+corebuild env.byte
 corebuild clock.byte
-corebuild des.byte
+corebuild simulator.byte
+corebuild cmdstart.byte
 
