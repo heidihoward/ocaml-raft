@@ -65,6 +65,8 @@ module type PARAMETERS = sig
   val pkt_delay: unit -> value
   val termination: int
   val debug_mode: string -> unit
+  val nxt_failure: unit -> value
+  val nxt_recover: unit -> value
 end
 
 module type INDEX = sig

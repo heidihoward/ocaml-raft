@@ -23,14 +23,13 @@ let start_time = MonoTime.init()
 (* let () = Random.self_init () *)
 (* TODO: check it one timeout should be used for other electons and followers*)
 let timeout (m:role) = MonoTime.span_of_value (P.timeout m)
-  
-
 
 let nxt_failure (t:MonoTime.t) = 
-  let delay = MonoTime.span_of_int ((Random.int 50)+1) in
+  let delay = MonoTime.span_of_value (P.nxt_failure ()) in
   MonoTime.add t delay
-let nxt_reset (t:MonoTime.t) = 
-  let delay = MonoTime.span_of_int ((Random.int 50)+1) in
+
+let nxt_recover (t:MonoTime.t) = 
+  let delay = MonoTime.span_of_value (P.nxt_recover ()) in
   MonoTime.add t delay
 
 module Comms = struct 
@@ -187,7 +186,7 @@ let wake (s:State.t) =
 
 let kill (s:State.t) = 
   debug "node has failed";
-  (s,[N (nxt_reset (s.time()), s.id, Wake)])
+  (s,[N (nxt_recover (s.time()), s.id, Wake)])
 
 (* Main excuation cycle *)  
 let rec run_multi ~term
