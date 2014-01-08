@@ -53,10 +53,17 @@ module NumberGen = struct
   (* TODO: these are dealing with discite values but i think i need a seperate
    * ones for continous *)
   let () = Random.self_init ()
-  let fixed x () = x
-  let uniform_int min max () = Random.int (max-min) + min
-  let uniform_float min max () = Random.float (max-.min) +. min
-  let exp_float lam () = (-1.0 /. lam)*.log(Random.float Float.max_finite_value)
+  let fixed x () =  x
+
+  let uniform  minv maxv () = 
+    match minv,maxv with
+    | Continous min, Continous max -> 
+        Continous (Random.float (max-.min) +. min)
+    | Discrete min, Discrete max -> 
+        Discrete (Random.int (max-min) + min)
+
+  let exp_float lam () = 
+    Continous( (-1.0 /. lam)*.log(Random.float Float.max_finite_value) )
 end
 
 module type PARAMETERS = sig

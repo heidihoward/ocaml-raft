@@ -1,51 +1,49 @@
 open Core.Std
 open Common
 
-let run_disctime ~nodes ~term ~time_min ~time_max ~delay_min ~delay_max
-~debug_enabled ~iter
-  ~data =
-  let module Par = (struct
-    let nodes = nodes
-    let timeout = function
-      | Leader -> Discrete (NumberGen.fixed 5 ())
-      | Follower | Candidate -> Discrete (NumberGen.uniform_int time_min
-      time_max ())
-    let pkt_delay () = Discrete (NumberGen.uniform_int delay_min delay_max())
-    let termination = term 
-    let debug_mode = debug_enabled 
-    let nxt_failure () = Discrete (NumberGen.uniform_int 1 50 ())
-    let nxt_recover () = Discrete (NumberGen.uniform_int 1 4 () )
-  end : PARAMETERS) in 
-   
-  let module DES =  
-    Simulator.RaftSim(IntID)(Clock.FakeTime)(LogEntry)(ListLog)(Par) in
-  for i=1 to iter do 
-    ignore(i); DES.start()
-  done 
+type time = Discrete | Real
 
-let run_realtime ~nodes ~term ~time_min ~time_max ~delay_min ~delay_max
+type dis = Fixed of value | Uniform of value * value | Exp of value
+
+let string_to_dis time = 
+  Command.Spec.Arg_type.create 
+    (fun _ -> 
+      match time with 
+      | Discrete -> Fixed (Discrete 5.0)
+      | Real -> Fixed (Continous 5.0) )
+
+let run ~time ~nodes ~term ~time_min ~time_max ~delay_min ~delay_max
 ~debug_enabled ~iter
   ~data =
   let module Par = (struct
     let nodes = nodes
     let timeout = function
-      | Leader -> Continous (NumberGen.fixed 5.0 ())
-      | Follower | Candidate -> Continous (NumberGen.uniform_float time_min
-      time_max ())
-    let pkt_delay () = Continous (NumberGen.uniform_float delay_min delay_max ())
+      | Leader -> NumberGen.fixed (Continous 5.0) ()
+      | Follower | Candidate -> 
+          NumberGen.uniform time_min time_max ()
+    let pkt_delay () = NumberGen.uniform delay_min delay_max ()
     let termination = term 
     let debug_mode = debug_enabled 
-    let nxt_failure () = Continous (NumberGen.uniform_float 1.0 50.0 () )
-    let nxt_recover () = Continous (NumberGen.uniform_float 1.0 4.0 () )
+    let nxt_failure () = NumberGen.uniform (Continous 1.0) (Continous 50.0) () 
+    let nxt_recover () = NumberGen.uniform (Continous 1.0) (Continous 4.0) () 
   end : PARAMETERS) in 
    
+  match time with
+  | Discrete ->
+  begin
   let module DES =  
     Simulator.RaftSim(IntID)(Clock.RealTime)(LogEntry)(ListLog)(Par) in
   for i=1 to iter do 
-    ignore(i); DES.start()
-  done 
-
-
+    ignore(i); DES.start() 
+  done end 
+  | Real -> 
+  begin
+  let module DES =  
+    Simulator.RaftSim(IntID)(Clock.FakeTime)(LogEntry)(ListLog)(Par) in
+  for i=1 to iter do 
+    ignore(i); DES.start() 
+  done end
+   
 let common () =
     Command.Spec.(
       empty
@@ -78,7 +76,11 @@ let realtime =
       )
     (fun nodes term debug_enabled iter data time_min time_max delay_min
     delay_max () ->  
-      run_realtime ~nodes ~term ~time_min ~time_max ~delay_min ~delay_max
+      run ~time:Real ~nodes ~term 
+      ~time_min:(Continous time_min) 
+      ~time_max:(Continous time_max)
+      ~delay_min:(Continous delay_min) 
+      ~delay_max:(Continous delay_max)
       ~debug_enabled ~iter ~data) 
 
 let discrete =
@@ -99,7 +101,11 @@ let discrete =
       )
     (fun nodes term debug_enabled iter data time_min time_max delay_min
     delay_max () ->  
-      run_disctime ~nodes ~term ~time_min ~time_max ~delay_min ~delay_max
+      run ~time:Discrete ~nodes ~term 
+      ~time_min:(Discrete time_min) 
+      ~time_max:(Discrete time_max) 
+      ~delay_min:(Discrete delay_min)
+      ~delay_max:(Discrete delay_max)
       ~debug_enabled ~iter ~data) 
 
 
