@@ -42,7 +42,7 @@ let run_realtime ~nodes ~term ~time_min ~time_max ~delay_min ~delay_max
   done 
 
 
-let common =
+let common () =
     Command.Spec.(
       empty
       +> flag "-nodes" (required int) 
@@ -62,7 +62,7 @@ let realtime =
     ~readme: (fun () -> "see www.cl.cam.ac.uk/~hh360 for more information ")
   Command.Spec.(
     empty
-     ++ common
+     ++ common ()
      +> flag "-time-min" (optional_with_default 100.0 float)
         ~doc:"int The minimum timeout used"
      +> flag "-time-max" (optional_with_default 150.0 float)
@@ -83,7 +83,7 @@ let discrete =
     ~readme: (fun () -> "see www.cl.cam.ac.uk/~hh360 for more information ")
   Command.Spec.(
     empty
-     ++ common
+     ++ common ()
      +> flag "-time-min" (optional_with_default 100 int)
         ~doc:"int The minimum timeout used"
      +> flag "-time-max" (optional_with_default 150 int)
