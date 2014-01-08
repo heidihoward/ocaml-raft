@@ -3,8 +3,8 @@ open Async.Std
 (* This module contains basic functions and modules used through, with no
  * external dependances on any other modules *)
 
-let debug x = (*if !debug_active then*)
-    (printf " %s \n"  x)
+(*let debug x = (*if !debug_active then*)
+    (printf " %s \n"  x) *)
 
 type role = Follower | Candidate | Leader with sexp
 type value = Discrete of int | Continous of float
@@ -64,7 +64,7 @@ module type PARAMETERS = sig
   val nodes: int
   val pkt_delay: unit -> value
   val termination: int
-  val debug_mode: string -> unit
+  val debug_mode: bool
   val nxt_failure: unit -> value
   val nxt_recover: unit -> value
 end

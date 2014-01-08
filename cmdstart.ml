@@ -12,7 +12,7 @@ let run_disctime ~nodes ~term ~time_min ~time_max ~delay_min ~delay_max
       time_max ())
     let pkt_delay () = Discrete (NumberGen.uniform_int delay_min delay_max())
     let termination = term 
-    let debug_mode = if (debug_enabled) then debug else ignore 
+    let debug_mode = debug_enabled 
     let nxt_failure () = Discrete (NumberGen.uniform_int 1 50 ())
     let nxt_recover () = Discrete (NumberGen.uniform_int 1 4 () )
   end : PARAMETERS) in 
@@ -34,7 +34,7 @@ let run_realtime ~nodes ~term ~time_min ~time_max ~delay_min ~delay_max
       time_max ())
     let pkt_delay () = Continous (NumberGen.uniform_float delay_min delay_max ())
     let termination = term 
-    let debug_mode = if (debug_enabled) then debug else ignore 
+    let debug_mode = debug_enabled 
     let nxt_failure () = Continous (NumberGen.uniform_float 1.0 50.0 () )
     let nxt_recover () = Continous (NumberGen.uniform_float 1.0 4.0 () )
   end : PARAMETERS) in 

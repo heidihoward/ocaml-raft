@@ -16,7 +16,7 @@ module State = StateList.State
 open Event (*needed to quickly access the event constructor E *)
 
 (* debug_active :=  P.debug_mode *)
-let debug = P.debug_mode
+let debug x = if (P.debug_mode) then (printf " %s  \n" x) else ()
 
 let start_time = MonoTime.init()
 
@@ -241,7 +241,8 @@ let init_eventlist num  :(MonoTime.t,Id.t,State.t) Event.t list  =
   EventList.from_list (initial)
 
 
-let start () = 
+let start () =
+  debug "go";
   let time_intval = MonoTime.span_of_int P.termination in
   let time_now = MonoTime.init() in
   run_multi ~term:(MonoTime.add time_now time_intval ) 
