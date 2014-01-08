@@ -3,4 +3,4 @@ ocaml-raft
 
 Implementation of Raft consensus algorithm
 
-Its very early days for this project, it doesn't yet work, hopefully I'll have some up and running by the end of the month. I'm try to use this project as a real world test of Janestreets Core/Async. 
+So far we have a discrete event simulator and realtime simulator of a basic subset of raft. To build run build.sh and to execute run ./cmdstart.byte
