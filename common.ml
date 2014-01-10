@@ -1,5 +1,5 @@
 open Core.Std
-open Async.Std
+(*open Async.Std*)
 (* This module contains basic functions and modules used through, with no
  * external dependances on any other modules *)
 
@@ -7,7 +7,6 @@ open Async.Std
     (printf " %s \n"  x) *)
 
 type role = Follower | Candidate | Leader with sexp
-type value = Discrete of int | Continous of float
 type 'a status = Live of 'a | Down of 'a | Notfound 
 type failures = Wake | Kill
 
@@ -16,64 +15,37 @@ let string_of_role = function
   | Candidate -> "Candidate"
   | Leader -> "Leader"
 
-(* module type STATELIST = sig
-  (* STATELIST is essentially a wrapper around List.Assoc to manage simulated node failures *)
-  type ('id,'state) t
-  val find: ('id,'state) t -> 'id -> 'state status
-  val add: ('id,'state) t -> 'id -> 'state status -> ('id,'state) t
-  val check_condition: ('id,'state) t -> f:(('id * ('state status)) -> bool) -> bool
-  val from_listassoc: ('id, 'state status ) List.Assoc.t -> ('id,'state) t
-  val kill: ('id, 'state) t -> 'id -> ('id,'state) t
-  val wake: ('id, 'state) t -> 'id -> ('id,'state) t
-end
-
-module StateList : STATELIST = struct
-  type ('id,'state) t = ('id,'state status) List.Assoc.t
-  let find sl id  = match (List.Assoc.find sl id) with
-    | Some x -> x | None -> Notfound
-
-  let add sl id state = List.Assoc.add sl id state 
-  let from_listassoc x = x
-
-  let check_condition sl ~f = 
-    match (List.find sl ~f) with Some _ -> true | None -> false 
-
-  let kill sl id = 
-    match (find sl id) with
-    | Live s -> List.Assoc.add sl id (Down s)
-
-  let wake sl id =
-    match (find sl id) with 
-    | Down s -> List.Assoc.add sl id (Live s)
-
-end
-*)
 
 module NumberGen = struct
   (* TODO: these are dealing with discite values but i think i need a seperate
    * ones for continous *)
+
   let () = Random.self_init ()
   let fixed x () =  x
 
-  let uniform  minv maxv () = 
-    match minv,maxv with
-    | Continous min, Continous max -> 
-        Continous (Random.float (max-.min) +. min)
-    | Discrete min, Discrete max -> 
-        Discrete (Random.int (max-min) + min)
+  let uniform  min max () = (Random.float (max-.min) +. min)
 
-  let exp_float lam () = 
-    Continous( (-1.0 /. lam)*.log(Random.float Float.max_finite_value) )
+  let exp lam () = (-1.0 /. lam)*.log(Random.float Float.max_finite_value)
+
+ let string_to_dist str =
+   let flt = Float.of_string in
+   printf " %s \n" str;
+   match (String.split str ~on:'-') with
+   | "Fixed"::value::_ -> fixed (flt value)
+   | "Uniform"::min::max::[] -> uniform (flt min) (flt max)
+   | "Exp"::lamda::[] -> exp (flt lamda)
+   | er -> 
+         eprintf "failure to parse: %s" (List.to_string ~f:(fun x -> x) er) ; exit 1
 end
 
 module type PARAMETERS = sig
-  val timeout: role -> value
+  val timeout: role -> float
   val nodes: int
-  val pkt_delay: unit -> value
+  val pkt_delay: unit -> float
   val termination: int
   val debug_mode: bool
-  val nxt_failure: unit -> value
-  val nxt_recover: unit -> value
+  val nxt_failure: unit -> float
+  val nxt_recover: unit -> float
 end
 
 module type INDEX = sig
@@ -117,7 +89,7 @@ module IntID : NODE_ID  = struct
 (*  let dispatch x _ = x
   let collect _ = [] *)
 end  
-
+(*
 (* TODO modify NODE_ID so that this is a valid implementation *)
 module TcpID = struct
   type loc = Async_extra.Import.Socket.Address.Inet.t Tcp.where_to_connect
@@ -125,7 +97,7 @@ module TcpID = struct
   let create id (host,prt) = (id,Tcp.to_host_and_port host prt)
   let get_loc = snd
 end
-
+*)
 module type ENTRY = sig 
   type t with bin_io,sexp
   val to_string: t -> string

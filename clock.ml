@@ -18,7 +18,6 @@ module type TIME = sig
 (*  val t_of_int : int -> t *)
   val span_of_int : int -> span
   val span_of_float : float -> span
-  val span_of_value : value -> span
   val span_to_string: span -> string
   val to_string: t -> string
 (*  val wait : t -> span -> t *)
@@ -36,9 +35,6 @@ module FakeTime : TIME = struct
 (*  let t_of_int t = t *)
   let span_of_int s = s
   let span_of_float = Float.to_int
-  let span_of_value = function 
-    | Discrete t -> span_of_int t
-    | Continous t -> span_of_float t
   let succ t = t+1
   let span_to_string = string_of_int
   let to_string t = string_of_int t
@@ -58,9 +54,6 @@ module RealTime : TIME = struct
 (*  let t_of_int _t = Time.now () (* TODO fixme *) *)
   let span_of_int s = Time.Span.create ~ms:s ()
   let span_of_float s = span_of_int (Float.to_int s)
-   let span_of_value = function 
-    | Discrete t -> span_of_int t
-    | Continous t -> span_of_float t
   let succ a = add a (span_of_int 1)
   let span_to_string = Time.Span.to_string 
   let to_string = Time.to_string 

@@ -1,31 +1,24 @@
 open Core.Std
 open Common
 
-type time = Discrete | Real
+type time = Discrete | Real 
 
-type dis = Fixed of value | Uniform of value * value | Exp of value
 
-let string_to_dis time = 
-  Command.Spec.Arg_type.create 
-    (fun _ -> 
-      match time with 
-      | Discrete -> Fixed (Discrete 5.0)
-      | Real -> Fixed (Continous 5.0) )
+let distribution = 
+  Command.Spec.Arg_type.create NumberGen.string_to_dist
 
-let run ~time ~nodes ~term ~time_min ~time_max ~delay_min ~delay_max
-~debug_enabled ~iter
-  ~data =
+let run ~time ~nodes ~term ~debug_enabled ~iter ~data ~follower ~candidate ~leader ~delay ~failure ~recover =
   let module Par = (struct
     let nodes = nodes
     let timeout = function
-      | Leader -> NumberGen.fixed (Continous 5.0) ()
-      | Follower | Candidate -> 
-          NumberGen.uniform time_min time_max ()
-    let pkt_delay () = NumberGen.uniform delay_min delay_max ()
+      | Leader -> leader ()
+      | Follower -> follower ()
+      | Candidate -> candidate ()
+    let pkt_delay = delay
     let termination = term 
     let debug_mode = debug_enabled 
-    let nxt_failure () = NumberGen.uniform (Continous 1.0) (Continous 50.0) () 
-    let nxt_recover () = NumberGen.uniform (Continous 1.0) (Continous 4.0) () 
+    let nxt_failure = failure
+    let nxt_recover = recover
   end : PARAMETERS) in 
    
   match time with
@@ -56,7 +49,21 @@ let common () =
       +> flag "-iter" (optional_with_default 1 int) 
         ~doc:"int Number of Simulations"
       +> flag "-data" (optional string) 
-        ~doc:"filename File to output data to as .data" )
+        ~doc:"filename File to output data to as .data"
+     +> flag "-follower" (required distribution)
+        ~doc:"distribution Follower Statistical Distribution"
+     +> flag "-candidate" (required distribution)
+        ~doc:"distribution Candidate Statistical Distribution"
+     +> flag "-leader" (required distribution)
+        ~doc:"distribution Leader Statistical Distribution"
+     +> flag "-delay" (required distribution)
+        ~doc:"distribution Packet Delay Statistical Distribution"
+     +> flag "-failure" (required distribution)
+        ~doc:"distribution Node failure Statistical Distribution"
+     +> flag "-recover" (required distribution)
+        ~doc:"distribution Node recovery Statistical Distribution"
+
+ )
 
 let realtime =
   Command.basic
@@ -65,23 +72,9 @@ let realtime =
   Command.Spec.(
     empty
      ++ common ()
-     +> flag "-time-min" (optional_with_default 100.0 float)
-        ~doc:"int The minimum timeout used"
-     +> flag "-time-max" (optional_with_default 150.0 float)
-        ~doc:"int The max timeout used"
-     +> flag "-delay-min" (optional_with_default 6.0 float)
-        ~doc:"int The min packet delay"
-     +> flag "-delay-max" (optional_with_default 8.0 float)
-        ~doc:"int The max delay of packets" 
       )
-    (fun nodes term debug_enabled iter data time_min time_max delay_min
-    delay_max () ->  
-      run ~time:Real ~nodes ~term 
-      ~time_min:(Continous time_min) 
-      ~time_max:(Continous time_max)
-      ~delay_min:(Continous delay_min) 
-      ~delay_max:(Continous delay_max)
-      ~debug_enabled ~iter ~data) 
+    (fun nodes term debug_enabled iter data follower candidate leader delay failure recover () ->  
+      run ~time:Real ~nodes ~term ~debug_enabled ~iter ~data ~follower ~candidate ~leader ~delay ~failure ~recover) 
 
 let discrete =
   Command.basic
@@ -90,24 +83,9 @@ let discrete =
   Command.Spec.(
     empty
      ++ common ()
-     +> flag "-time-min" (optional_with_default 100 int)
-        ~doc:"int The minimum timeout used"
-     +> flag "-time-max" (optional_with_default 150 int)
-        ~doc:"int The max timeout used"
-     +> flag "-delay-min" (optional_with_default 6 int)
-        ~doc:"int The min packet delay"
-     +> flag "-delay-max" (optional_with_default 8 int)
-        ~doc:"int The max delay of packets" 
       )
-    (fun nodes term debug_enabled iter data time_min time_max delay_min
-    delay_max () ->  
-      run ~time:Discrete ~nodes ~term 
-      ~time_min:(Discrete time_min) 
-      ~time_max:(Discrete time_max) 
-      ~delay_min:(Discrete delay_min)
-      ~delay_max:(Discrete delay_max)
-      ~debug_enabled ~iter ~data) 
-
+    (fun nodes term debug_enabled iter data follower candidate leader delay failure recover () ->  
+      run ~time:Discrete ~nodes ~term ~debug_enabled ~iter ~data ~follower ~candidate ~leader ~delay ~failure ~recover) 
 
 let () =  
   ["realtime",realtime;"discrete",discrete]
