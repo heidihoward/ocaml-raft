@@ -25,14 +25,14 @@ let run ~time ~nodes ~term ~debug_enabled ~iter ~data ~follower ~candidate ~lead
   | Discrete ->
   begin
   let module DES =  
-    Simulator.RaftSim(IntID)(Clock.RealTime)(LogEntry)(ListLog)(Par) in
+    Simulator.RaftSim(IntID)(Clock.FakeTime)(LogEntry)(ListLog)(Par) in
   for i=1 to iter do 
     ignore(i); DES.start() 
   done end 
   | Real -> 
   begin
   let module DES =  
-    Simulator.RaftSim(IntID)(Clock.FakeTime)(LogEntry)(ListLog)(Par) in
+    Simulator.RaftSim(IntID)(Clock.RealTime)(LogEntry)(ListLog)(Par) in
   for i=1 to iter do 
     ignore(i); DES.start() 
   done end
