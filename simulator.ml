@@ -36,8 +36,14 @@ let nxt_recover (t:MonoTime.t) =
   MonoTime.add t delay
 
 module Comms = struct 
-
-let unicast (dist:IntID.t) (t:MonoTime.t) e = 
+(*
+let parse = function
+  | RequestVoteArg v -> request
+  | RequestVoteRes v ->
+  | HeartbeatArg v ->
+  | HeartbeatRes v ->
+*)
+let unicast (dist:IntID.t) (t:MonoTime.t) (e) = 
   (*TODO: modify these to allow the user to specify some deley
    * distribution/bound *)
   let delay = MonoTime.span_of_float (P.pkt_delay()) in
@@ -63,9 +69,14 @@ type checker = Follower_Timeout of Index.t
 let rec  startCand (s:State.t) = 
   debug "Entering Candidate Mode / Restarting Electon";
   let snew =  State.tick StartCandidate s in
+  let args = Rpcs.RequestVoteArg.(
+    { term = snew.term;
+      cand_id = snew.id;
+      last_index = snew.lastlogIndex;
+      last_term = snew.lastlogTerm; 
+    }) in
   let reqs = Comms.broadcast snew.allNodes (snew.time()) 
-    (requestVoteRq snew.term snew.id snew.lastlogIndex
-    snew.lastlogTerm) in
+    (requestVoteRq args) in
   let t = MonoTime.add (snew.time()) (timeout Candidate) in
   (snew, E (t, s.id, checkTimer (Candidate_Timeout snew.term) )::reqs )
 
@@ -87,8 +98,12 @@ and checkTimer c (s:State.t)  = debug "Checking timer";
   | _ -> debug "Timer no longer valid"; (s,[])
 
 and dispatchHeartbeat (s:State.t) =
+  let args = Rpcs.HeartbeatArg.(
+      { term = s.term;
+        lead_id = s.id;
+      }) in
   let reqs = Comms.broadcast s.allNodes (s.time()) 
-    (heartbeatRq s.term s.id) in
+    (heartbeatRq args) in
   let t = MonoTime.add (s.time()) (timeout Leader) in
   (s, E (t, s.id, checkTimer (Leader_Timeout s.term) )::reqs )
 
@@ -113,45 +128,54 @@ and stepDown term (s:State.t) =
 
   (* TODO ask anil why s needs to explicitly annotated to access its field *)
 
-and requestVoteRq term cand_id lst_index last_term (s:State.t) =
-  debug ("I've got a vote request from: "^ IntID.to_string cand_id^ 
-         " term number: "^Index.to_string term);
+and requestVoteRq (args: Rpcs.RequestVoteArg.t) (s:State.t) =
+  debug ("I've got a vote request from: "^ IntID.to_string args.cand_id^ 
+         " term number: "^Index.to_string args.term);
   (* TODO: this is a Simulated Response so allows granting vote
    * , need todo properly *)
-  let (s_new:State.t),e_new =  stepDown term s in
-  let vote = (term = s_new.term) && (lst_index >= s.lastlogIndex ) 
-    && (last_term >= s.lastlogTerm ) && (s.votedFor = None) in
+  let (s_new:State.t),e_new =  stepDown args.term s in
+  let vote = (args.term = s_new.term) && (args.last_index >= s.lastlogIndex ) 
+    && (args.last_term >= s.lastlogTerm ) && (s.votedFor = None) in
   let s_new = 
    ( if vote then 
-      (State.tick (Vote cand_id) s 
+      (State.tick (Vote args.cand_id) s 
       |> State.tick Set )
     else 
       s_new )in
-  (s_new, (Comms.unicast cand_id (s_new.time()) (requestVoteRs s_new.term vote
+  let res = 
+    Rpcs.RequestVoteRes.(
+      { term = s_new.term;
+        votegranted = vote;
+      }) in
+  (s_new, (Comms.unicast args.cand_id (s_new.time()) (requestVoteRs res
   s_new.id))::e_new)
   
-and requestVoteRs term voteGranted id (s:State.t) = 
+and requestVoteRs (res: Rpcs.RequestVoteRes.t) id (s:State.t) = 
   debug ("Receive vote request reply from "^ IntID.to_string id );
   (* TODO: consider how term check may effect old votes in the network *)
-  if (term > s.term)  then startFollow term s
-  else if (voteGranted) 
+  if (res.term > s.term)  then startFollow res.term s
+  else if (res.votegranted) 
     then begin 
       debug "Vote was granted";
       let s = State.tick (VoteFrom id) s in
       (if (checkElection s) then startLeader s else  (s, [])) end
     else (s, [])
 
-and heartbeatRq term lead_id (s:State.t) =
-  debug ("Recieve hearbeat from "^IntID.to_string lead_id);
-  let (s_new:State.t),e_new = stepDown term s in
-  if (term = s_new.term) then 
-    let (s_new:State.t) = State.tick Set s |> State.tick (SetLeader lead_id) in
-    (s_new,(Comms.unicast lead_id (s_new.time()) (heartbeatRs s_new.term ))::e_new)
-  else 
-    (s_new,(Comms.unicast lead_id (s_new.time()) (heartbeatRs s_new.term))::e_new)
+and heartbeatRq (args: Rpcs.HeartbeatArg.t) (s:State.t) =
+  debug ("Recieve hearbeat from "^IntID.to_string args.lead_id);
+  let (s_new:State.t),e_new = stepDown args.term s in
+  if (args.term = s_new.term) then 
+    let (s_new:State.t) = State.tick Set s |> State.tick (SetLeader args.lead_id) in
+    let res = Rpcs.HeartbeatRes.(
+    { term = s_new.term} ) in
+    (s_new,(Comms.unicast args.lead_id (s_new.time()) (heartbeatRs res ))::e_new)
+  else
+    let res = Rpcs.HeartbeatRes.(
+    { term = s_new.term} ) in
+    (s_new,(Comms.unicast args.lead_id (s_new.time()) (heartbeatRs res))::e_new)
 
-and heartbeatRs term (s:State.t) =
-  let s_new,e_new = stepDown term s in
+and heartbeatRs (res: Rpcs.HeartbeatRes.t) (s:State.t) =
+  let s_new,e_new = stepDown res.term s in
   (s_new,e_new)
 
 
