@@ -3,7 +3,6 @@ open Common
 
 
 module PureState  = 
-  functor (Id: NODE_ID) -> 
   functor (MonoTime: Clock.TIME) ->
   functor (Entry: ENTRY) ->
   functor (L: LOG) -> struct
@@ -16,30 +15,30 @@ module PureState  =
       mode: role;
       time: (unit -> MonoTime.t);
       timer: bool; (*if there's been a heartbeat since last check *)
-      votedFor: Id.t option;
+      votedFor: IntID.t option;
       log: Log.t;
       lastlogIndex: Index.t;
       lastlogTerm: Index.t;
       lastApplied: Index.t;
-      votesResponded: Id.t list;
-      votesGranted: Id.t list;
+      votesResponded: IntID.t list;
+      votesGranted: IntID.t list;
       nextIndex: Index.t;
       lastAgreeIndex: Index.t;
-      id: Id.t;
-      allNodes: Id.t list; 
-      leader: Id.t option
+      id: IntID.t;
+      allNodes: IntID.t list; 
+      leader: IntID.t option
     } with sexp
    
   type statecall = 
    | IncrementTerm
    | Reset | Set
-   | Vote of Id.t
+   | Vote of IntID.t
    | StepDown of Index.t
-   | VoteFrom of Id.t
+   | VoteFrom of IntID.t
    | StartCandidate
    | StartLeader
    | SetTime of MonoTime.t
-   | SetLeader of Id.t
+   | SetLeader of IntID.t
    | SetTerm of Index.t
    | Restart
 
@@ -77,22 +76,22 @@ module PureState  =
       votesGranted = [];
       nextIndex = Index.init();
       lastAgreeIndex = Index.init(); 
-      id = (Id.from_int 0); (*this is a bad hack *)
+      id = (IntID.from_int 0); (*this is a bad hack *)
       allNodes = [];
       leader = None;
     } 
 
 
-  let id_print = function  None -> "none" | Some x -> Id.to_string x
+  let id_print = function  None -> "none" | Some x -> IntID.to_string x
 
   let print s = 
-    " ID: "^(Id.to_string s.id)^
+    " id: "^(IntID.to_string s.id)^
     " | Term: "^(Index.to_string s.term)^
     " | Mode: "^(string_of_role s.mode)^
     " | Time: "^(MonoTime.to_string (s.time()))^"\n"^
-    " | VotedFor: "^(Id.to_string s.id)^
-    " | All Nodes: "^(List.to_string ~f:Id.to_string s.allNodes)^
-    " | Votes Recieved: "^ (List.to_string ~f:Id.to_string s.votesGranted)^
+    " | VotedFor: "^(IntID.to_string s.id)^
+    " | All Nodes: "^(List.to_string ~f:IntID.to_string s.allNodes)^
+    " | Votes Recieved: "^ (List.to_string ~f:IntID.to_string s.votesGranted)^
     " | Leader: "^(id_print s.leader)^
      "\n---------------------------------------------------\n"
  (* sexp_of_t s |> Sexp.to_string *)
@@ -152,14 +151,13 @@ module PureState  =
 end
 
 module StateHandler =
-  functor (Id: NODE_ID) -> 
   functor (MonoTime: Clock.TIME) ->
   functor (Entry: ENTRY) ->
   functor (L: LOG) -> struct
 
-module State = PureState(Id)(MonoTime)(Entry)(L)
+module State = PureState(MonoTime)(Entry)(L)
 
-  type t = (Id.t,State.t status) List.Assoc.t
+  type t = (IntID.t,State.t status) List.Assoc.t
 
   let find sl id  = match (List.Assoc.find sl id) with
     | Some x -> x | None -> Notfound
@@ -168,7 +166,7 @@ module State = PureState(Id)(MonoTime)(Entry)(L)
   let from_listassoc x = x
 
   let init n : t =
-    let id_list = List.init n ~f:(Id.from_int) in
+    let id_list = List.init n ~f:(IntID.from_int) in
     let remove x xs = List.filter xs ~f:(fun y -> not (x = y)) in 
     let gen_state id id_list = State.init id (remove id id_list) in
     List.map 

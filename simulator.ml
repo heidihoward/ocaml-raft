@@ -5,13 +5,12 @@ open Common
  * modules will have alternative inferences in the future, definitly ENTRY *)
 
 module RaftSim = 
-  functor (Id:NODE_ID) -> 
   functor (MonoTime: Clock.TIME) ->
   functor (Entry: ENTRY) ->
   functor (L:LOG) ->
   functor (P:PARAMETERS) -> struct
 
-module StateList = Env.StateHandler(Id)(MonoTime)(Entry)(L)
+module StateList = Env.StateHandler(MonoTime)(Entry)(L)
 module State = StateList.State
 open Event (*needed to quickly access the event constructor E *)
 
@@ -38,16 +37,16 @@ let nxt_recover (t:MonoTime.t) =
 
 module Comms = struct 
 
-let unicast (dist:Id.t) (t:MonoTime.t) e = 
+let unicast (dist:IntID.t) (t:MonoTime.t) e = 
   (*TODO: modify these to allow the user to specify some deley
    * distribution/bound *)
   let delay = MonoTime.span_of_float (P.pkt_delay()) in
   let arriv = MonoTime.add t delay in
-  debug ("dispatching msg to "^(Id.to_string dist) ^ " to arrive at "^
+  debug ("dispatching msg to "^(IntID.to_string dist) ^ " to arrive at "^
   (MonoTime.to_string arriv));
   E (arriv ,dist ,e ) 
 
-let broadcast (dests:Id.t list) (t:MonoTime.t) e  = 
+let broadcast (dests:IntID.t list) (t:MonoTime.t) e  = 
   List.map dests ~f:(fun dst -> unicast dst t e) 
 
 end 
@@ -115,7 +114,7 @@ and stepDown term (s:State.t) =
   (* TODO ask anil why s needs to explicitly annotated to access its field *)
 
 and requestVoteRq term cand_id lst_index last_term (s:State.t) =
-  debug ("I've got a vote request from: "^ Id.to_string cand_id^ 
+  debug ("I've got a vote request from: "^ IntID.to_string cand_id^ 
          " term number: "^Index.to_string term);
   (* TODO: this is a Simulated Response so allows granting vote
    * , need todo properly *)
@@ -132,7 +131,7 @@ and requestVoteRq term cand_id lst_index last_term (s:State.t) =
   s_new.id))::e_new)
   
 and requestVoteRs term voteGranted id (s:State.t) = 
-  debug ("Receive vote request reply from "^ Id.to_string id );
+  debug ("Receive vote request reply from "^ IntID.to_string id );
   (* TODO: consider how term check may effect old votes in the network *)
   if (term > s.term)  then startFollow term s
   else if (voteGranted) 
@@ -143,7 +142,7 @@ and requestVoteRs term voteGranted id (s:State.t) =
     else (s, [])
 
 and heartbeatRq term lead_id (s:State.t) =
-  debug ("Recieve hearbeat from "^Id.to_string lead_id);
+  debug ("Recieve hearbeat from "^IntID.to_string lead_id);
   let (s_new:State.t),e_new = stepDown term s in
   if (term = s_new.term) then 
     let (s_new:State.t) = State.tick Set s |> State.tick (SetLeader lead_id) in
@@ -157,7 +156,7 @@ and heartbeatRs term (s:State.t) =
 
 
 let finished (sl: StateList.t) =
-  let leader,term = match (StateList.find sl (Id.from_int 0)) with 
+  let leader,term = match (StateList.find sl (IntID.from_int 0)) with 
     Live s -> s.leader,s.term in
   (* TODO ask anil about suppressing pattern-match not exhaustive but leave case
    * undealt with, i.e it really should occur, if it does, then excuation should
@@ -172,7 +171,7 @@ let finished (sl: StateList.t) =
 
 let get_time_span (sl:StateList.t) = 
   (* TODO: fix this so it finds the first live node *)
-  let state = match (StateList.find sl (Id.from_int 0)) with Live x -> x in
+  let state = match (StateList.find sl (IntID.from_int 0)) with Live x -> x in
   let duration = MonoTime.diff (state.time()) start_time in
   MonoTime.span_to_string (duration)
 
@@ -188,7 +187,7 @@ let kill (s:State.t) =
   debug "node has failed";
   (s,[N (nxt_recover (s.time()), s.id, Wake)])
 
-let apply_E (st: State.t status) (e: (MonoTime.t,Id.t,State.t) event) (t: MonoTime.t) =
+let apply_E (st: State.t status) (e: (MonoTime.t,IntID.t,State.t) event) (t: MonoTime.t) =
   MonoTime.wait_until t;
   match st with 
   | Live s ->
@@ -215,7 +214,7 @@ let apply_N (st: State.t status) (e: failures) (t: MonoTime.t) =
 (* Main excuation cycle *)  
 let rec run_multi ~term
   (sl: StateList.t) 
-  (el:(MonoTime.t,Id.t,State.t) EventList.t)  =
+  (el:(MonoTime.t,IntID.t,State.t) EventList.t)  =
   (* checking termination condition for tests *)
     if (finished sl) 
     then begin
@@ -239,13 +238,13 @@ let rec run_multi ~term
       run_multi ~term (StateList.add sl id s_new) (EventList.add el_new els) 
 
 
-let init_eventlist num  :(MonoTime.t,Id.t,State.t) Event.t list  =  
+let init_eventlist num  :(MonoTime.t,IntID.t,State.t) Event.t list  =  
   let initial = List.init num ~f:(fun i ->
-    E (MonoTime.init(), Id.from_int i, startFollow (Index.init()) ) ) in
+    E (MonoTime.init(), IntID.from_int i, startFollow (Index.init()) ) ) in
   match P.nxt_failure with
   | Some _ ->
     let failure_sim = List.init num ~f:(fun i -> 
-      N (nxt_failure (MonoTime.init()), Id.from_int i, Kill)) in
+      N (nxt_failure (MonoTime.init()), IntID.from_int i, Kill)) in
     EventList.from_list (initial@failure_sim)
   | None -> EventList.from_list (initial)
 
