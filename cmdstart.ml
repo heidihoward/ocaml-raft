@@ -58,9 +58,9 @@ let common () =
         ~doc:"distribution Leader Statistical Distribution"
      +> flag "-delay" (required distribution)
         ~doc:"distribution Packet Delay Statistical Distribution"
-     +> flag "-failure" (required distribution)
+     +> flag "-failure" (optional distribution)
         ~doc:"distribution Node failure Statistical Distribution"
-     +> flag "-recover" (required distribution)
+     +> flag "-recover" (optional distribution)
         ~doc:"distribution Node recovery Statistical Distribution"
 
  )

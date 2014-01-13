@@ -3,8 +3,6 @@ open Core.Std
 (* This module contains basic functions and modules used through, with no
  * external dependances on any other modules *)
 
-(*let debug x = (*if !debug_active then*)
-    (printf " %s \n"  x) *)
 
 type role = Follower | Candidate | Leader with sexp
 type 'a status = Live of 'a | Down of 'a | Notfound 
@@ -34,8 +32,8 @@ module NumberGen = struct
    | "Fixed"::value::_ -> fixed (flt value)
    | "Uniform"::min::max::[] -> uniform (flt min) (flt max)
    | "Exp"::lamda::[] -> exp (flt lamda)
-   | er -> 
-         eprintf "failure to parse: %s" (List.to_string ~f:(fun x -> x) er) ; exit 1
+   | er ->  eprintf "failure to parse: %s" (List.to_string ~f:(fun x -> x) er) ; exit 1
+
 end
 
 module type PARAMETERS = sig
@@ -44,8 +42,8 @@ module type PARAMETERS = sig
   val pkt_delay: unit -> float
   val termination: int
   val debug_mode: bool
-  val nxt_failure: unit -> float
-  val nxt_recover: unit -> float
+  val nxt_failure: (unit -> float) option
+  val nxt_recover: (unit -> float) option
 end
 
 module type INDEX = sig

@@ -1,60 +1,6 @@
 open Core.Std
 open Common
-(*
-module type STATE = 
-  functor (Id: NODE_ID) -> 
-  functor (MonoTime: Clock.TIME) ->
-  functor (E: ENTRY) ->
-  functor (Log:  LOG ) -> sig
 
-  (*TODO: Ask anil about how a concrete type can be in the struct and sig
-    * without copy/paste *)
-  (* TODO Find a much better way to represent state for quick read access, i.e.
-   * divide into different records for each state and one for log etc..*)
-  type t = 
-    { term : Index.t;
-      mode: role;
-      time: (unit -> MonoTime.t);
-      timer: bool; (*if there's condition filled since last check *)
-      votedFor: Id.t option;
-      log: Log(E).t; (*TODO Ask anil about how to do this properly *)
-      lastlogIndex: Index.t;
-      lastlogTerm: Index.t;
-      lastApplied: Index.t;
-      votesResponded: Id.t list;
-      votesGranted: Id.t list;
-      nextIndex: Index.t;
-      lastAgreeIndex: Index.t;
-      id: Id.t;
-      allNodes: Id.t list;
-      leader: Id.t option;
-    }
- 
-  
-
-  type statecall = 
-(*    | Apply  (* now safe to apply LastAppled to the state machine*)
-    | StepDown of MonoTime.t (* you are out of date, become follower in this new  term *)
-    | StepUp *)
-   | IncrementTime 
-   | IncrementTerm
-   | Reset | Set 
-   | Vote of Id.t
-   | StepDown of Index.t
-   | VoteFrom of Id.t
-   | StartCandidate
-   | StartLeader
-   | SetTime of MonoTime.t
-   | SetLeader of Id.t
-   | SetTerm of Index.t
-   | Restart
-
-  val init: Id.t -> Id.t list -> t
-  val empty: unit -> t
-  val tick: statecall -> t -> t
-  val print: t -> string
-
-end *) 
 
 module PureState  = 
   functor (Id: NODE_ID) -> 
@@ -64,7 +10,6 @@ module PureState  =
 
   module Log = L(Entry)
 
-  
   (* Split this record down into sections, seperating general statem *)
   type t = 
     { term : Index.t;
@@ -86,10 +31,6 @@ module PureState  =
     } with sexp
    
   type statecall = 
-(*    | Apply  (* now safe to apply LastAppled to the state machine*)
-    | StepDown of MonoTime.t (* you are out of date, become follower in this new  term *)
-    | StepUp *)
-   | IncrementTime 
    | IncrementTerm
    | Reset | Set
    | Vote of Id.t
@@ -148,20 +89,18 @@ module PureState  =
     " ID: "^(Id.to_string s.id)^
     " | Term: "^(Index.to_string s.term)^
     " | Mode: "^(string_of_role s.mode)^
-    " | Time: "^(MonoTime.to_string (s.time()))^
+    " | Time: "^(MonoTime.to_string (s.time()))^"\n"^
     " | VotedFor: "^(Id.to_string s.id)^
     " | All Nodes: "^(List.to_string ~f:Id.to_string s.allNodes)^
     " | Votes Recieved: "^ (List.to_string ~f:Id.to_string s.votesGranted)^
-    " | Leader: "^(id_print s.leader)
+    " | Leader: "^(id_print s.leader)^
+     "\n---------------------------------------------------\n"
  (* sexp_of_t s |> Sexp.to_string *)
 
 
 
   let tick tk s =
   match tk with
-    | IncrementTime -> s (*TODO remove *)
-      (*  let t = MonoTime.succ s.time in
-       { s with time=t } *)
     | Reset -> 
        {s with timer=false}
     | Set -> 
@@ -209,8 +148,6 @@ module PureState  =
           time = s.time;
           votedFor = s.votedFor;
           term = s.term}
-
-
 
 end
 

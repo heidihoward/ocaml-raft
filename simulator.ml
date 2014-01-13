@@ -25,11 +25,15 @@ let start_time = MonoTime.init()
 let timeout (m:role) = MonoTime.span_of_float (P.timeout m)
 
 let nxt_failure (t:MonoTime.t) = 
-  let delay = MonoTime.span_of_float (P.nxt_failure ()) in
-  MonoTime.add t delay
+  match P.nxt_failure with
+  | Some dl ->
+    let delay = MonoTime.span_of_float (dl ()) in
+    MonoTime.add t delay
 
 let nxt_recover (t:MonoTime.t) = 
-  let delay = MonoTime.span_of_float (P.nxt_recover ()) in
+  match P.nxt_failure with
+  | Some dl ->
+  let delay = MonoTime.span_of_float (dl ()) in
   MonoTime.add t delay
 
 module Comms = struct 
@@ -39,8 +43,8 @@ let unicast (dist:Id.t) (t:MonoTime.t) e =
    * distribution/bound *)
   let delay = MonoTime.span_of_float (P.pkt_delay()) in
   let arriv = MonoTime.add t delay in
-  debug ("dispatching msg to "^(Id.to_string dist) ^ " to arrive at
-  "^(MonoTime.to_string arriv));
+  debug ("dispatching msg to "^(Id.to_string dist) ^ " to arrive at "^
+  (MonoTime.to_string arriv));
   E (arriv ,dist ,e ) 
 
 let broadcast (dests:Id.t list) (t:MonoTime.t) e  = 
@@ -56,8 +60,6 @@ let checkElection (s:State.t) =
 type checker = Follower_Timeout of Index.t 
              | Candidate_Timeout of Index.t
              | Leader_Timeout of Index.t
-
-(* let rec incrTime s = (State.tick IncrementTime s, []) *)
 
 let rec  startCand (s:State.t) = 
   debug "Entering Candidate Mode / Restarting Electon";
@@ -168,8 +170,6 @@ let finished (sl: StateList.t) =
   (* TODO: modify finish to check the number of live nodes is the majority *)
   StateList.check_condition sl ~f
 
-let printline =  "---------------------------------------------------\n"
-
 let get_time_span (sl:StateList.t) = 
   (* TODO: fix this so it finds the first live node *)
   let state = match (StateList.find sl (Id.from_int 0)) with Live x -> x in
@@ -188,6 +188,30 @@ let kill (s:State.t) =
   debug "node has failed";
   (s,[N (nxt_recover (s.time()), s.id, Wake)])
 
+let apply_E (st: State.t status) (e: (MonoTime.t,Id.t,State.t) event) (t: MonoTime.t) =
+  MonoTime.wait_until t;
+  match st with 
+  | Live s ->
+     let s = State.tick (SetTime t) s in
+     let s_new,e_new = e s in
+     debug (State.print s_new);
+     (Live s_new,e_new)
+ | Down _ | Notfound -> 
+     debug "node is unavaliable";
+     (st,[]) 
+
+let apply_N (st: State.t status) (e: failures) (t: MonoTime.t) =
+  MonoTime.wait_until t;
+  match e,st with 
+  | Wake,Down s ->  
+      let s = State.tick (SetTime t) s in
+      let s_new, e_new = wake s in
+      (Live s_new,e_new)
+  | Kill,Live s ->
+      let s_new, e_new = kill s in
+      (Down s_new,e_new)
+
+
 (* Main excuation cycle *)  
 let rec run_multi ~term
   (sl: StateList.t) 
@@ -198,51 +222,36 @@ let rec run_multi ~term
       debug "terminating as leader has been agreed";
        (* for graph gen. *) printf " %s \n" (get_time_span sl) end
     else
+  (* we will not be terminating as the term condition has been reached so get
+   * the next event in the event queue and apply it *)
   match EventList.hd el with
   | None -> debug "terminating as no events remain"
-  | Some (N (t,id,e),els) -> ( 
-      MonoTime.wait_until t;
-      let state = StateList.find sl id in
-      match e,state with 
-      | Wake,Down s ->  
-        let s = State.tick (SetTime t) s in
-        let s_new, e_new = wake s in
-          run_multi ~term 
-          (StateList.add sl id (Live s_new)) 
-          (EventList.add e_new els)
-      | Kill,Live s ->
-        let s = State.tick (SetTime t) s in
-        let s_new, e_new = kill s in
-          run_multi ~term 
-          (StateList.add sl id (Down s_new)) 
-          (EventList.add e_new els)
-      | _ -> run_multi ~term sl els )
+  (* next event is a simulated failure/recovery *)
+  | Some (N (t,id,e),els) -> 
+      let s_new, el_new = apply_N (StateList.find sl id) e t in
+      run_multi ~term (StateList.add sl id s_new) (EventList.add el_new els) 
+  (* next event is some computation at a node *)
   | Some (E (t,id,e),els) -> if (t>=term) 
     then debug "terminating as terminate time has been reached"
     (* will not be terminating so simluate event *)
     else  
-      MonoTime.wait_until t;
-      match (StateList.find sl id) with 
-      | Live s -> 
-        let s = State.tick (SetTime t) s in
-        let s_new,el_new = e s in
-        debug (State.print s_new); debug printline;
-        run_multi ~term (StateList.add sl id (Live s_new)) (EventList.add el_new els) 
-        (* Currently none case is not used but will used later to simulate
-         * failure *)
-      | Down _ | Notfound -> debug "node is unavaliable";
-        run_multi ~term sl els
+      let s_new, el_new = apply_E (StateList.find sl id) e t in
+      run_multi ~term (StateList.add sl id s_new) (EventList.add el_new els) 
+
 
 let init_eventlist num  :(MonoTime.t,Id.t,State.t) Event.t list  =  
   let initial = List.init num ~f:(fun i ->
     E (MonoTime.init(), Id.from_int i, startFollow (Index.init()) ) ) in
-  let failure_sim = List.init num ~f:(fun i -> 
-    N (nxt_failure (MonoTime.init()), Id.from_int i, Kill)) in
-  EventList.from_list (initial)
+  match P.nxt_failure with
+  | Some _ ->
+    let failure_sim = List.init num ~f:(fun i -> 
+      N (nxt_failure (MonoTime.init()), Id.from_int i, Kill)) in
+    EventList.from_list (initial@failure_sim)
+  | None -> EventList.from_list (initial)
 
 
 let start () =
-  debug "go";
+  debug "Raft Simulator is Starting Up";
   let time_intval = MonoTime.span_of_int P.termination in
   let time_now = MonoTime.init() in
   run_multi ~term:(MonoTime.add time_now time_intval ) 
