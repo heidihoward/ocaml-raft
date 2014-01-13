@@ -6,11 +6,10 @@ open Common
 
 module RaftSim = 
   functor (MonoTime: Clock.TIME) ->
-  functor (Entry: ENTRY) ->
   functor (L:LOG) ->
   functor (P:PARAMETERS) -> struct
 
-module StateList = Env.StateHandler(MonoTime)(Entry)(L)
+module StateList = Env.StateHandler(MonoTime)(L)
 module State = StateList.State
 open Event (*needed to quickly access the event constructor E *)
 

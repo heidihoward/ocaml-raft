@@ -111,20 +111,22 @@ module LogEntry: ENTRY = struct
 end
 
 
-module type LOG = functor (E: ENTRY) -> sig
+module type LOG = sig
   type t with bin_io,sexp
+  type entry
   val init: unit -> t
-  val append: t -> E.t -> t
+  val append: t -> entry -> t
   val to_string: t -> string
 end
 
-module ListLog : LOG =
-  functor (LogEntry: ENTRY) ->  struct
-  type t = LogEntry.t list with bin_io,sexp
+module ListLog =
+  functor (Entry: ENTRY) -> ( struct
+  type entry = Entry.t
+  type t = Entry.t list with bin_io,sexp
   let init () = []
   let append t x = x::t
-  let to_string = List.to_string ~f:LogEntry.to_string
-end
+  let to_string = List.to_string ~f:Entry.to_string
+end : LOG)
 
 module Event = struct 
   type ('a,'b,'c) t = E of ('a * 'b * ('a,'b,'c) event)

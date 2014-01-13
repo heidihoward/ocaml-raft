@@ -4,10 +4,7 @@ open Common
 
 module PureState  = 
   functor (MonoTime: Clock.TIME) ->
-  functor (Entry: ENTRY) ->
-  functor (L: LOG) -> struct
-
-  module Log = L(Entry)
+  functor (Log: LOG) -> struct
 
   (* Split this record down into sections, seperating general statem *)
   type t = 
@@ -152,10 +149,9 @@ end
 
 module StateHandler =
   functor (MonoTime: Clock.TIME) ->
-  functor (Entry: ENTRY) ->
   functor (L: LOG) -> struct
 
-module State = PureState(MonoTime)(Entry)(L)
+module State = PureState(MonoTime)(L)
 
   type t = (IntID.t,State.t status) List.Assoc.t
 
