@@ -7,7 +7,7 @@ module PureState  =
   functor (Mach: Statemach.MACHINE) -> struct
 
   (* Split this record down into sections, seperating general statem *)
-  type t = 
+  type t = private 
     { term : Index.t;
       mode: role;
       time: (unit -> MonoTime.t);
