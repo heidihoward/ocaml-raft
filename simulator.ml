@@ -7,7 +7,7 @@ open Common
 module RaftSim = 
   functor (MonoTime: Clock.TIME) ->
   functor (L:LOG) ->
-  functor (P:PARAMETERS) -> struct
+  functor (P:PARAMETERS) -> struct    
 
 module StateList = Env.StateHandler(MonoTime)(L)
 module State = StateList.State
