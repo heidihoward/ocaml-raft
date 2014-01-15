@@ -5,3 +5,4 @@ _build/
 *.log
 *.swp
 *.data
+*_testing

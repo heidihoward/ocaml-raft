@@ -26,7 +26,18 @@ module HeartbeatRes = struct
   type t = { term: Index.t; }
 end
 
+module ClientArg = struct
+  type t = { cmd: string }
+end
+
+module ClientRes = struct
+  type t = { success: bool;
+             leader:  IntID.t option }
+end
+
 type t =  RequestVoteArg of RequestVoteArg.t 
           | RequestVoteRes of RequestVoteRes.t 
           | HeartbeatArg of HeartbeatArg.t 
-          | HeartbeatRes of HeartbeatRes.t 
+          | HeartbeatRes of HeartbeatRes.t
+          | ClientArg of ClientArg.t
+          | ClientRes of ClientRes.t

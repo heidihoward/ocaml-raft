@@ -4,7 +4,7 @@ open Common
 
 module PureState  = 
   functor (MonoTime: Clock.TIME) ->
-  functor (Log: LOG) -> struct
+  functor (Mach: Statemach.MACHINE) -> struct
 
   (* Split this record down into sections, seperating general statem *)
   type t = 
@@ -13,7 +13,7 @@ module PureState  =
       time: (unit -> MonoTime.t);
       timer: bool; (*if there's been a heartbeat since last check *)
       votedFor: IntID.t option;
-      log: Log.t;
+      log: Mach.cmd ListLog.t;
       lastlogIndex: Index.t;
       lastlogTerm: Index.t;
       lastApplied: Index.t;
@@ -23,7 +23,8 @@ module PureState  =
       lastAgreeIndex: Index.t;
       id: IntID.t;
       allNodes: IntID.t list; 
-      leader: IntID.t option
+      leader: IntID.t option;
+      state_mach: Mach.t
     } with sexp
    
   type statecall = 
@@ -38,6 +39,7 @@ module PureState  =
    | SetLeader of IntID.t
    | SetTerm of Index.t
    | Restart
+   | Commit of Mach.cmd
 
 
   let init me all =
@@ -46,7 +48,7 @@ module PureState  =
       time = MonoTime.init;
       timer = false;
       votedFor = None;
-      log = Log.init(); 
+      log = ListLog.init(); 
       lastlogIndex = Index.init();
       lastlogTerm = Index.init();
       lastApplied = Index.init();
@@ -57,15 +59,16 @@ module PureState  =
       id = me;
       allNodes = all;
       leader = None;
+      state_mach = Mach.init()
     } 
 
-  let empty () =
-    { term = Index.init();
+  let refresh s:t =
+    { term = s.term;
       mode = Follower;
-      time = MonoTime.init;
+      time = s.time ;
       timer = false;
       votedFor = None;
-      log = Log.init(); 
+      log = s.log; 
       lastlogIndex = Index.init();
       lastlogTerm = Index.init();
       lastApplied = Index.init();
@@ -73,24 +76,28 @@ module PureState  =
       votesGranted = [];
       nextIndex = Index.init();
       lastAgreeIndex = Index.init(); 
-      id = (IntID.from_int 0); (*this is a bad hack *)
-      allNodes = [];
+      id = s.id; 
+      allNodes = s.allNodes;
       leader = None;
+      state_mach = s.state_mach
     } 
 
 
   let id_print = function  None -> "none" | Some x -> IntID.to_string x
 
   let print s = 
-    " id: "^(IntID.to_string s.id)^
+    "-------------------------------------------------------\n"^
+    " | Time: "^(MonoTime.to_string (s.time()))^
+    " | ID: "^(IntID.to_string s.id)^
     " | Term: "^(Index.to_string s.term)^
-    " | Mode: "^(string_of_role s.mode)^
-    " | Time: "^(MonoTime.to_string (s.time()))^"\n"^
+    " | Mode: "^(string_of_role s.mode)^"\n"^
     " | VotedFor: "^(IntID.to_string s.id)^
     " | All Nodes: "^(List.to_string ~f:IntID.to_string s.allNodes)^
     " | Votes Recieved: "^ (List.to_string ~f:IntID.to_string s.votesGranted)^
-    " | Leader: "^(id_print s.leader)^
-     "\n---------------------------------------------------\n"
+    " | Leader: "^(string_of_option (IntID.to_string) s.leader)^"\n"^
+    " | State Machine: "^(Mach.to_string s.state_mach)^
+    " | Replicated Log: "^(ListLog.to_string s.log ~f:(Mach.cmd_to_string))^
+    "\n-------------------------------------------------------"
  (* sexp_of_t s |> Sexp.to_string *)
 
 
@@ -140,18 +147,18 @@ module PureState  =
         { s with term = t;
           votedFor = None }
     | Restart -> 
-        { empty() with 
-          time = s.time;
-          votedFor = s.votedFor;
-          term = s.term}
+        refresh s
+    | Commit x ->
+        { s with
+        state_mach = Mach.commit s.state_mach x}
 
 end
 
 module StateHandler =
   functor (MonoTime: Clock.TIME) ->
-  functor (L: LOG) -> struct
+  functor (Mach: Statemach.MACHINE ) -> struct
 
-module State = PureState(MonoTime)(L)
+module State = PureState(MonoTime)(Mach)
 
   type t = (IntID.t,State.t status) List.Assoc.t
 

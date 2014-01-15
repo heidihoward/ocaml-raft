@@ -1,9 +1,5 @@
 rm *.data
 rm *.{byte,native}
 
-corebuild common.byte
-corebuild env.byte
-corebuild clock.byte
-corebuild simulator.byte
-corebuild cmdstart.byte
+corebuild common.byte rpcs.byte statemach.byte clock.byte env.byte simulator.byte cmdstart.byte
 

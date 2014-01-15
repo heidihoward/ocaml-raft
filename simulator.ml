@@ -6,10 +6,10 @@ open Common
 
 module RaftSim = 
   functor (MonoTime: Clock.TIME) ->
-  functor (L:LOG) ->
-  functor (P:PARAMETERS) -> struct    
+  functor (Mach: Statemach.MACHINE) ->
+  functor (P: PARAMETERS) -> struct    
 
-module StateList = Env.StateHandler(MonoTime)(L)
+module StateList = Env.StateHandler(MonoTime)(Mach)
 module State = StateList.State
 open Event (*needed to quickly access the event constructor E *)
 
@@ -177,6 +177,20 @@ and heartbeatRs (res: Rpcs.HeartbeatRes.t) (s:State.t) =
   let s_new,e_new = stepDown res.term s in
   (s_new,e_new)
 
+and clientRq (args: Rpcs.ClientArg.t) (s:State.t) = 
+  debug ("Recieved client request to commit "^args.cmd);
+  match s.mode with
+  | Follower  | Candidate ->
+    let res = { Rpcs.ClientRes.success = false; leader = s.leader } in
+    clientRs res s
+  | Leader -> (s,[])
+
+and clientRs (res: Rpcs.ClientRes.t) (s:State.t) = 
+  debug ("Simulating clients response");
+  match res.success,res.leader with
+  | true,_ -> ( debug "successfully committed"; (s,[]) )
+  | false,None -> ( debug "giving up"; (s,[]) )
+  | false,Some id -> (debug "trying again,but actually giving up"; (s,[]) )
 
 let finished (sl: StateList.t) =
   let leader,term = match (StateList.find sl (IntID.from_int 0)) with 

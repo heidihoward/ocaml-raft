@@ -13,6 +13,9 @@ let string_of_role = function
   | Candidate -> "Candidate"
   | Leader -> "Leader"
 
+let string_of_option f = function 
+  | None -> "none" 
+  | Some x -> f x
 
 module NumberGen = struct
   (* TODO: these are dealing with discite values but i think i need a seperate
@@ -112,13 +115,18 @@ end
 
 
 module type LOG = sig
-  type t with bin_io,sexp
-  type entry
-  val init: unit -> t
-  val append: t -> entry -> t
-  val to_string: t -> string
+  type 'a t with bin_io,sexp
+  val init: unit -> 'a t
+  val cons: 'a -> 'a t-> 'a t
+  val to_string : f:('a -> string) -> 'a t -> string
 end
 
+module ListLog : LOG = struct
+  include List
+  let init () = []
+end 
+
+(* This is no used but its too beautiful to delete 
 module ListLog =
   functor (Entry: ENTRY) -> ( struct
   type entry = Entry.t
@@ -127,7 +135,7 @@ module ListLog =
   let append t x = x::t
   let to_string = List.to_string ~f:Entry.to_string
 end : LOG)
-
+*)
 module Event = struct 
   type ('a,'b,'c) t = E of ('a * 'b * ('a,'b,'c) event)
                     | N of ('a * 'b * failures)
