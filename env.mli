@@ -1,0 +1,92 @@
+open Core.Std
+open Common
+
+(** [Env] contains modules for handling state including PrueState and StateList
+ * *)
+module StateHandler :
+  functor (MonoTime : Clock.TIME) ->
+    functor (Mach : Statemach.MACHINE) ->
+      sig
+
+(** [State] holds the state of one of the nodes in the Raft simulation, the
+ * state is accessable via type t with is a private record, its only modifiable
+ * via buy passing statecalls to the tick function *)
+module State :
+      sig
+
+        type t = private {
+          (** Generic state as specified by the protocol *) 
+          term : Index.t;
+          mode : role;
+          votedFor : IntID.t option;
+          log : Mach.cmd ListLog.t;
+          lastlogIndex : Index.t;
+          lastlogTerm : Index.t;
+          lastApplied : Index.t;
+          votesResponded : IntID.t list;
+          votesGranted : IntID.t list;
+          nextIndex : Index.t;
+          lastAgreeIndex : Index.t;
+          (** Simulation specfic state, need removing/altering for real
+           * implementation *)
+          time : unit -> MonoTime.t;
+          timer : bool; 
+          (** this flag is used to indicate if event of a timer
+          has happened since last checked, a better method for this should be
+          used *)
+          id : IntID.t;
+          allNodes : IntID.t list;
+          leader : IntID.t option;
+          state_mach : Mach.t;
+        }
+
+        val __t_of_sexp__ : Sexplib.Type.t -> t
+        val t_of_sexp : Sexplib.Type.t -> t
+        val sexp_of_t : t -> Sexplib.Type.t
+        
+        (** [statecall] are created to modify state *)
+        type statecall =
+            IncrementTerm
+          | Reset
+          | Set
+          | Vote of IntID.t
+          | StepDown of Index.t
+          | VoteFrom of IntID.t
+          | StartCandidate
+          | StartLeader
+          | SetTime of MonoTime.t
+          | SetLeader of IntID.t
+          | SetTerm of Index.t
+          | Restart
+          | Commit of Mach.cmd
+        
+        (** [init] id (list of other ids) will create the state *)
+        val init : IntID.t -> IntID.t list -> t
+        (** [print] turns state into string for debugging *)
+        val print : t -> string
+        (** [tick] is the only way to modify state *)
+        val tick : statecall -> t -> t
+      end
+
+       (** [t] holds the statehandler, this contains all the state.t for the
+        * nodes as will as managing simulated failures *)
+        type t
+        val find : t -> IntID.t -> State.t status
+
+        (** [add sl id state] not only added id,state to statehandler if it
+         * doesn't already exist but it also updates it if it already exists *)
+        val add : t -> IntID.t -> State.t status -> t
+        val from_listassoc : (IntID.t *  State.t status) list -> t
+        val init : int -> t
+
+        val check_condition : t -> f:( (IntID.t * State.t status) -> bool) -> bool
+        
+        (** [kill] and [wake] are used to simulate nodes being killed and
+         * recovering *)
+        val kill : t -> IntID.t -> t
+        val wake : t -> IntID.t -> t
+
+        (** [leader_agreed] returns true if the majority of nodes are up and all
+         * agree on term and leader *)
+        val leader_agreed: t -> bool
+      end

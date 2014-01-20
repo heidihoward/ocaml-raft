@@ -10,7 +10,7 @@ let distribution =
 let run ~time ~nodes ~term ~debug_enabled ~iter ~data ~follower ~candidate ~leader ~delay ~failure ~recover =
   let module Par = (struct
     let nodes = nodes
-    let timeout = function
+    let timeout () = function
       | Leader -> leader ()
       | Follower -> follower ()
       | Candidate -> candidate ()

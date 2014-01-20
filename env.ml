@@ -7,25 +7,31 @@ module PureState  =
   functor (Mach: Statemach.MACHINE) -> struct
 
   (* Split this record down into sections, seperating general statem *)
-  type t = private 
-    { term : Index.t;
-      mode: role;
-      time: (unit -> MonoTime.t);
-      timer: bool; (*if there's been a heartbeat since last check *)
-      votedFor: IntID.t option;
-      log: Mach.cmd ListLog.t;
-      lastlogIndex: Index.t;
-      lastlogTerm: Index.t;
-      lastApplied: Index.t;
-      votesResponded: IntID.t list;
-      votesGranted: IntID.t list;
-      nextIndex: Index.t;
-      lastAgreeIndex: Index.t;
-      id: IntID.t;
-      allNodes: IntID.t list; 
-      leader: IntID.t option;
-      state_mach: Mach.t
-    } with sexp
+        type t = {
+          (** Generic state as specified by the protocol *) 
+          term : Index.t;
+          mode : role;
+          votedFor : IntID.t option;
+          log : Mach.cmd ListLog.t;
+          lastlogIndex : Index.t;
+          lastlogTerm : Index.t;
+          lastApplied : Index.t;
+          votesResponded : IntID.t list;
+          votesGranted : IntID.t list;
+          nextIndex : Index.t;
+          lastAgreeIndex : Index.t;
+          (** Simulation specfic state, need removing/altering for real
+           * implementation *)
+          time : unit -> MonoTime.t;
+          timer : bool; 
+          (** this flag is used to indicate if event of a timer
+          has happened since last checked, a better method for this should be
+          used *)
+          id : IntID.t;
+          allNodes : IntID.t list;
+          leader : IntID.t option;
+          state_mach : Mach.t;
+        } with sexp
    
   type statecall = 
    | IncrementTerm
@@ -115,9 +121,9 @@ module PureState  =
         { s with votedFor = Some id}
     | VoteFrom id ->
         { s with votesGranted = id::s.votesGranted }
-    | StepDown term ->
+    | StepDown tm ->
         { s with mode=Follower;
-        term = term;
+        term = tm;
         timer = false; 
         votedFor = None;
         votesResponded=[];
@@ -165,6 +171,27 @@ module State = PureState(MonoTime)(Mach)
   let find sl id  = match (List.Assoc.find sl id) with
     | Some x -> x | None -> Notfound
 
+  (* returns a list of state.t for all live nodes, useful for iterating over *)
+  let get_live sl = 
+    let f (_,s) = (match s with
+    | Live _ -> true 
+    | Down _ | Notfound -> false ) in
+    let live_list = List.filter sl ~f in
+    let g (_,s) = (match s with Live st -> st) in
+    List.map live_list ~f:g
+
+  let leader_agreed sl = 
+    let (live: State.t list) = get_live sl in
+    (* check majority of nodes are live *)
+    if ((List.length live)*2 > (List.length sl)) then
+      match live with | hd::_ ->
+      match hd.leader with 
+      | None -> false  (* if hd doesn't know leader *)
+      | Some _ ->
+          (* check all live nodes agree on leader and term *)
+      List.for_all live ~f:(fun s -> s.leader=hd.leader && s.term=hd.term)
+    else false
+  
   let add sl id state = List.Assoc.add sl id state 
   let from_listassoc x = x
 

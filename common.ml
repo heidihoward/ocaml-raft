@@ -42,7 +42,7 @@ module NumberGen = struct
 end
 
 module type PARAMETERS = sig
-  val timeout: role -> float
+  val timeout: unit -> role -> float
   val nodes: int
   val pkt_delay: unit -> float
   val termination: int
@@ -67,14 +67,8 @@ module IntID  = struct
   let to_string = string_of_int
 end  
 
-module type LOG = sig
-  type 'a t with bin_io,sexp
-  val init: unit -> 'a t
-  val cons: 'a -> 'a t-> 'a t
-  val to_string : f:('a -> string) -> 'a t -> string
-end
 
-module ListLog : LOG = struct
+module ListLog = struct
   include List
   let init () = []
 end 
@@ -104,20 +98,8 @@ module Event = struct
   -> compare xt yt
 
   
- (* type ('a,'b,'c) t = E of ('a * ('a,'b,'c) event)
-  and ('a,'b,'c) event = ('b -> ('b * ('c,'b) t list * ('a,'b) t list))
-
-  let compare x y = match x,y with
-  | (E (xt,xe),E (yt,ye)) -> compare xt yt *)
 end 
 
-module type EVENTLIST = sig
-  type ('a,'b,'c) t
-  val from_list: ('a,'b,'c) Event.t list -> ('a,'b,'c) t
-  val to_list: ('a,'b,'c) t -> ('a,'b,'c) Event.t list
-  val hd: ('a,'b,'c) t -> ('a,'b,'c) Event.t option
-  val add: ('a,'b,'c) Event.t -> ('a,'b,'c) t -> ('a,'b,'c) t
-end
 
 module EventList = struct
 
@@ -125,14 +107,6 @@ module EventList = struct
 
   let from_list x = List.sort ~cmp:Event.compare x
   let to_list x = x
-
-(*  let find x l =  
-    let open Event in
-    let f = function | E (t,e) -> (x=t) in
-    (* TODO write better implementation of find which returns list *)
-    match (List.partition_tf l ~f) with
-  | (E (_,e)::_,ls) -> Some (e,ls)
-  | ([],_) -> None  *)
 
   let hd = function
     | [] -> None 

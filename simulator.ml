@@ -18,9 +18,9 @@ let debug x = if (P.debug_mode) then (printf " %s  \n" x) else ()
 
 let start_time = MonoTime.init()
 
-(* let () = Random.self_init () *)
+(* let () = Random.self_init () *) 
 (* TODO: check it one timeout should be used for other electons and followers*)
-let timeout (m:role) = MonoTime.span_of_float (P.timeout m)
+let timeout (m:role) = MonoTime.span_of_float (P.timeout () m)
 
 let nxt_failure (t:MonoTime.t) = 
   match P.nxt_failure with
@@ -130,6 +130,7 @@ and stepDown term (s:State.t) =
 and requestVoteRq (args: Rpcs.RequestVoteArg.t) (s:State.t) =
   debug ("I've got a vote request from: "^ IntID.to_string args.cand_id^ 
          " term number: "^Index.to_string args.term);
+  debug (Rpcs.RequestVoteArg.to_string args);
   (* TODO: this is a Simulated Response so allows granting vote
    * , need todo properly *)
   let (s_new:State.t),e_new =  stepDown args.term s in
@@ -151,6 +152,7 @@ and requestVoteRq (args: Rpcs.RequestVoteArg.t) (s:State.t) =
   
 and requestVoteRs (res: Rpcs.RequestVoteRes.t) id (s:State.t) = 
   debug ("Receive vote request reply from "^ IntID.to_string id );
+  debug (Rpcs.RequestVoteRes.to_string res);
   (* TODO: consider how term check may effect old votes in the network *)
   if (res.term > s.term)  then startFollow res.term s
   else if (res.votegranted) 
@@ -162,9 +164,10 @@ and requestVoteRs (res: Rpcs.RequestVoteRes.t) id (s:State.t) =
 
 and heartbeatRq (args: Rpcs.HeartbeatArg.t) (s:State.t) =
   debug ("Recieve hearbeat from "^IntID.to_string args.lead_id);
+  debug (Rpcs.HeartbeatArg.to_string args);
   let (s_new:State.t),e_new = stepDown args.term s in
   if (args.term = s_new.term) then 
-    let (s_new:State.t) = State.tick Set s |> State.tick (SetLeader args.lead_id) in
+    let (s_new:State.t) = State.tick Set s_new |> State.tick (SetLeader args.lead_id) in
     let res = Rpcs.HeartbeatRes.(
     { term = s_new.term} ) in
     (s_new,(Comms.unicast args.lead_id (s_new.time()) (heartbeatRs res ))::e_new)
@@ -174,6 +177,7 @@ and heartbeatRq (args: Rpcs.HeartbeatArg.t) (s:State.t) =
     (s_new,(Comms.unicast args.lead_id (s_new.time()) (heartbeatRs res))::e_new)
 
 and heartbeatRs (res: Rpcs.HeartbeatRes.t) (s:State.t) =
+  debug (Rpcs.HeartbeatRes.to_string res);
   let s_new,e_new = stepDown res.term s in
   (s_new,e_new)
 
@@ -192,7 +196,7 @@ and clientRs (res: Rpcs.ClientRes.t) (s:State.t) =
   | false,None -> ( debug "giving up"; (s,[]) )
   | false,Some id -> (debug "trying again,but actually giving up"; (s,[]) )
 
-let finished (sl: StateList.t) =
+(*let leader_agreed (sl: StateList.t) =
   let leader,term = match (StateList.find sl (IntID.from_int 0)) with 
     Live s -> s.leader,s.term in
   (* TODO ask anil about suppressing pattern-match not exhaustive but leave case
@@ -205,7 +209,7 @@ let finished (sl: StateList.t) =
   in 
   (* TODO: modify finish to check the number of live nodes is the majority *)
   StateList.check_condition sl ~f
-
+*)
 let get_time_span (sl:StateList.t) = 
   (* TODO: fix this so it finds the first live node *)
   let state = match (StateList.find sl (IntID.from_int 0)) with Live x -> x in
@@ -253,7 +257,7 @@ let rec run_multi ~term
   (sl: StateList.t) 
   (el:(MonoTime.t,IntID.t,State.t) EventList.t)  =
   (* checking termination condition for tests *)
-    if (finished sl) 
+    if (StateList.leader_agreed sl) 
     then begin
       debug "terminating as leader has been agreed";
        (* for graph gen. *) printf " %s \n" (get_time_span sl) end

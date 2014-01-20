@@ -22,11 +22,7 @@ val string_of_option : ('a -> string) -> 'a option -> string
  * will often be discrite *)
 module NumberGen :
   sig
-   (** the following take parameters and return random number generaters *)
-
-    val fixed : float -> (unit -> float)
-    val uniform : float -> float -> (unit -> float)
-    val exp : float -> (unit -> float)
+   (** string_to_dist takes a string specifying parameters and return a random number generaters *)
     val string_to_dist : string -> (unit -> float)
   end
 
@@ -36,7 +32,7 @@ module type PARAMETERS =
   sig
     (* [timeout role] returns a float returning the timeout using the
      * distribution specified eariler *)
-    val timeout : role -> float
+    val timeout : unit -> role -> float
     val nodes : int
     val pkt_delay : unit -> float
     val termination : int
@@ -85,11 +81,11 @@ module IntID :
     val sexp_of_t : t -> Sexplib.Type.t
   end
 
-(** [LOG] is a cut down version of list used for the replication log to ensure
+(** [ListLog] is a cut down version of list used for the replication log to ensure
    * append only *)
-module type LOG =
+module ListLog :
   sig
-    type 'a t
+    type 'a t 
     val init : unit -> 'a t
     val cons : 'a -> 'a t -> 'a t
     val to_string : f:('a -> string) -> 'a t -> string
@@ -112,7 +108,7 @@ module type LOG =
     val bin_writer_t :
       'a Bin_prot.Type_class.writer0 -> 'a t Bin_prot.Type_class.writer0
   end
-module ListLog : LOG
+
 
 module Event :
   sig
@@ -121,15 +117,6 @@ module Event :
       | N of ('a * 'b * failures)
     and ('a, 'b, 'c) event = 'c -> 'c * ('a, 'b, 'c) t list
     val compare : ('a, 'b, 'c) t -> ('a, 'd, 'e) t -> int
-  end
-
-module type EVENTLIST =
-  sig
-    type ('a, 'b, 'c) t
-    val from_list : ('a, 'b, 'c) Event.t list -> ('a, 'b, 'c) t
-    val to_list : ('a, 'b, 'c) t -> ('a, 'b, 'c) Event.t list
-    val hd : ('a, 'b, 'c) t -> ('a, 'b, 'c) Event.t option
-    val add : ('a, 'b, 'c) Event.t -> ('a, 'b, 'c) t -> ('a, 'b, 'c) t
   end
 
 module EventList :

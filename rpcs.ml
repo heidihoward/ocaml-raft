@@ -1,29 +1,45 @@
 open Core.Std
 open Common
 
-(*module type PACKET = sig
-  type t 
-end *)
+(*module packet = 
+ functor (Pkt: sig type t with sexp) ->  struct
+  
+  let t_to_string (t:Pkt.t) = 
+  sexp_of_t t |> Sexp.to_string
+
+end 
+*)
+
+
 
 module RequestVoteArg  = struct
   type t = { term: Index.t;
              cand_id: IntID.t;
              last_index: Index.t;
-             last_term: Index.t; }
+             last_term: Index.t; } with sexp
+
+  let to_string t = 
+    "--> RequestVote Request "^(sexp_of_t t |> Sexp.to_string)
 end
 
 module RequestVoteRes = struct
   type t = { term: Index.t;
-             votegranted: bool}
+             votegranted: bool} with sexp
+  let to_string t =
+    "--> RequestVote Response "^(sexp_of_t t |> Sexp.to_string)
 end
 
 module HeartbeatArg = struct
   type t = { term: Index.t;
-             lead_id: IntID.t;}
+             lead_id: IntID.t;} with sexp
+  let to_string t =
+    "--> Heartbeat Request "^(sexp_of_t t |> Sexp.to_string)
 end 
 
 module HeartbeatRes = struct
-  type t = { term: Index.t; }
+  type t = { term: Index.t; } with sexp
+  let to_string t = 
+    "--> Heartbeat Response "^(sexp_of_t t |> Sexp.to_string)
 end
 
 module ClientArg = struct
