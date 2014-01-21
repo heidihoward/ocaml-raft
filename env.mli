@@ -73,9 +73,13 @@ module State :
         type t
         val find : t -> IntID.t -> State.t status
 
-        (** [add sl id state] not only added id,state to statehandler if it
-         * doesn't already exist but it also updates it if it already exists *)
-        val add : t -> IntID.t -> State.t status -> t
+        val find_wst : t -> IntID.t -> State.t
+
+        (** [add sl id state] If there isn't already a state.t associated with
+         * id when [add] will add state as a live node to statehandler. If it
+         * already exists and its live, it also updates it and keeps the node
+         * status. If you try to update  *)
+        val add : t -> IntID.t -> State.t -> t
         val from_listassoc : (IntID.t *  State.t status) list -> t
         val init : int -> t
 
@@ -83,8 +87,8 @@ module State :
         
         (** [kill] and [wake] are used to simulate nodes being killed and
          * recovering *)
-        val kill : t -> IntID.t -> t
-        val wake : t -> IntID.t -> t
+        val kill : t -> IntID.t -> MonoTime.t -> t
+        val wake : t -> IntID.t -> MonoTime.t -> t
 
         (** [leader_agreed] returns true if the majority of nodes are up and all
          * agree on term and leader *)

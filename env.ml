@@ -171,6 +171,9 @@ module State = PureState(MonoTime)(Mach)
   let find sl id  = match (List.Assoc.find sl id) with
     | Some x -> x | None -> Notfound
 
+  let find_wst sl id = match (find sl id) with
+    | Live x | Down x -> x | Notfound -> exit 1
+
   (* returns a list of state.t for all live nodes, useful for iterating over *)
   let get_live sl = 
     let f (_,s) = (match s with
@@ -191,8 +194,16 @@ module State = PureState(MonoTime)(Mach)
           (* check all live nodes agree on leader and term *)
       List.for_all live ~f:(fun s -> s.leader=hd.leader && s.term=hd.term)
     else false
+ 
+  let exists sl id = List.exists sl ~f:(fun (node_id,_) -> node_id=id) 
+
+  let add sl id state = 
+    match (find sl id) with
+    | Notfound | Live _ -> (* adding new node, assume live or already live *) 
+        List.Assoc.add sl id (Live state) 
+    | Down _ -> (* updating a dead node *)
+            exit 1
   
-  let add sl id state = List.Assoc.add sl id state 
   let from_listassoc x = x
 
   let init n : t =
@@ -205,12 +216,20 @@ module State = PureState(MonoTime)(Mach)
   let check_condition sl ~f = 
     match (List.find sl ~f) with Some _ -> true | None -> false 
 
-  let kill sl id = 
+  let kill sl id time= 
     match (find sl id) with
-    | Live s -> List.Assoc.add sl id (Down s)
+    | Live s -> 
+        let s_new = State.tick (SetTime time) s in
+        List.Assoc.add sl id (Down s_new)
+    | Down s -> exit 1 (* killing a down node *)
 
-  let wake sl id =
+  let wake sl id time =
     match (find sl id) with 
-    | Down s -> List.Assoc.add sl id (Live s)
+    | Down s -> 
+        let s_new = 
+          State.tick Restart s 
+          |> State.tick (SetTime time) in
+        List.Assoc.add sl id (Live s_new)
+    | Live s -> exit 1 (*waking a live node *)
 
 end

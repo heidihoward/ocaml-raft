@@ -218,38 +218,39 @@ let get_time_span (sl:StateList.t) =
 
 let wake (s:State.t) =
   debug "node is restarting after failing";
-  let s_new = State.tick Reset s in
   let timer = MonoTime.add (s.time()) (timeout Follower) in
-  let e_new = [ E (timer, s.id,checkTimer (Follower_Timeout s_new.term) );
-                N (nxt_failure (s_new.time()), s.id, Kill) ] in
-  (s_new,e_new)
+   [ E (timer, s.id,checkTimer (Follower_Timeout s.term) );
+     N (nxt_failure (s.time()), s.id, Kill) ]
 
 let kill (s:State.t) = 
   debug "node has failed";
-  (s,[N (nxt_recover (s.time()), s.id, Wake)])
+  [N (nxt_recover (s.time()), s.id, Wake)]
 
 let apply_E (st: State.t status) (e: (MonoTime.t,IntID.t,State.t) event) (t: MonoTime.t) =
+  (* wait used in realtime simulation, just instant unit for DES *)
   MonoTime.wait_until t;
   match st with 
   | Live s ->
      let s = State.tick (SetTime t) s in
      let s_new,e_new = e s in
      debug (State.print s_new);
-     (Live s_new,e_new)
- | Down _ | Notfound -> 
+     Some (s_new,e_new)
+ | Down s -> (*node is down so event is lost *)
      debug "node is unavaliable";
-     (st,[]) 
+     None
+ | Notfound -> exit 1
 
-let apply_N (st: State.t status) (e: failures) (t: MonoTime.t) =
+let apply_N (sl: StateList.t) (e: failures) (t: MonoTime.t) (id:IntID.t) =
   MonoTime.wait_until t;
-  match e,st with 
-  | Wake,Down s ->  
-      let s = State.tick (SetTime t) s in
-      let s_new, e_new = wake s in
-      (Live s_new,e_new)
-  | Kill,Live s ->
-      let s_new, e_new = kill s in
-      (Down s_new,e_new)
+  match e with 
+  | Wake -> 
+      let sl_new = StateList.wake sl id t in (* handle state changes *)
+      let e_new = wake (StateList.find_wst sl_new id)  in(*handle waking events *)
+      (sl_new,e_new)
+  | Kill ->
+      let sl_new = StateList.kill sl id t in
+      let e_new = wake (StateList.find_wst sl_new id) in
+      (sl_new,e_new)
 
 
 (* Main excuation cycle *)  
@@ -268,15 +269,16 @@ let rec run_multi ~term
   | None -> debug "terminating as no events remain"
   (* next event is a simulated failure/recovery *)
   | Some (N (t,id,e),els) -> 
-      let s_new, el_new = apply_N (StateList.find sl id) e t in
-      run_multi ~term (StateList.add sl id s_new) (EventList.add el_new els) 
+      let sl_new, el_new = apply_N sl e t id in
+      run_multi ~term sl_new (EventList.add el_new els) 
   (* next event is some computation at a node *)
   | Some (E (t,id,e),els) -> if (t>=term) 
     then debug "terminating as terminate time has been reached"
     (* will not be terminating so simluate event *)
     else  
-      let s_new, el_new = apply_E (StateList.find sl id) e t in
-      run_multi ~term (StateList.add sl id s_new) (EventList.add el_new els) 
+      match (apply_E (StateList.find sl id) e t) with
+      | Some (s_new,el_new) -> run_multi ~term (StateList.add sl id s_new) (EventList.add el_new els) 
+      | None -> run_multi ~term sl els 
 
 
 let init_eventlist num  :(MonoTime.t,IntID.t,State.t) Event.t list  =  
