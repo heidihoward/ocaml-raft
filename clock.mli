@@ -1,3 +1,5 @@
+(** [TIME] is an abstract notion, used here for sequencing events *) 
+
 module type TIME =
   sig
     type t
@@ -5,7 +7,6 @@ module type TIME =
     val init : unit -> t
     val compare : t -> t -> int
     val add : t -> span -> t
-    val succ : t -> t
     val diff : t -> t -> span
     val span_of_int : int -> span
     val span_of_float : float -> span

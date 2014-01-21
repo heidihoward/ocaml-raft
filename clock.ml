@@ -1,11 +1,6 @@
 open Core.Std
 open Common
-(*
-module type SPAN = sig
-  type t
-  val of_seconds : int -> t
-end
-*)
+
 module type TIME = sig
   type t
   type span
@@ -13,14 +8,11 @@ module type TIME = sig
   val compare : t -> t -> int (*TODO ask anil why explicity write this instead
   of using Core's with compare *)
   val add : t -> span -> t
-  val succ: t -> t
   val diff : t -> t -> span
-(*  val t_of_int : int -> t *)
   val span_of_int : int -> span
   val span_of_float : float -> span
   val span_to_string: span -> string
   val to_string: t -> string
-(*  val wait : t -> span -> t *)
   val wait_until: t -> unit
   val store: t -> (unit -> t)
 end 
@@ -35,7 +27,6 @@ module FakeTime : TIME = struct
 (*  let t_of_int t = t *)
   let span_of_int s = s
   let span_of_float = Float.to_int
-  let succ t = t+1
   let span_to_string = string_of_int
   let to_string t = string_of_int t
 (*  let wait t span = 
@@ -54,7 +45,6 @@ module RealTime : TIME = struct
 (*  let t_of_int _t = Time.now () (* TODO fixme *) *)
   let span_of_int s = Time.Span.create ~ms:s ()
   let span_of_float s = span_of_int (Float.to_int s)
-  let succ a = add a (span_of_int 1)
   let span_to_string = Time.Span.to_string 
   let to_string = Time.to_string 
   let diff a b = Time.diff a b
