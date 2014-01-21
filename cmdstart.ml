@@ -41,19 +41,22 @@ let common () =
     Command.Spec.(
       empty
       +> flag "-nodes" (required int) 
-        ~doc:"int Number of nodes to simulate"
+        ~doc:"int Number of nodes to simulate, must be 2 or greater"
       +> flag "-term" (optional_with_default 5000 int)
         ~doc:"int The maxiumun number of terms before termination"
       +> flag "-d" no_arg
-        ~doc:"Enable debug (disabled by default)"
+        ~doc:"Enable debugging output (disabled by default)"
       +> flag "-iter" (optional_with_default 1 int) 
-        ~doc:"int Number of Simulations"
+        ~doc:"int Number of Simulations to run"
       +> flag "-data" (optional string) 
-        ~doc:"filename File to output data to as .data"
+        ~doc:"filename File to output data to as .data (currently not working)"
      +> flag "-follower" (required distribution)
-        ~doc:"distribution Follower Statistical Distribution"
+        ~doc:"distribution Follower timeout Statistical Distribution, this gives
+        the distribution of the follower timeout which lead to the start of an
+        electon"
      +> flag "-candidate" (required distribution)
-        ~doc:"distribution Candidate Statistical Distribution"
+        ~doc:"distribution Candidate timeout Statistical Distribution, this
+        gives the distrubut"
      +> flag "-leader" (required distribution)
         ~doc:"distribution Leader Statistical Distribution"
      +> flag "-delay" (required distribution)
