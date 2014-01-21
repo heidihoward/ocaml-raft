@@ -1,3 +1,5 @@
+open Core.Std
+
 (** Common is the basic module at the foundation of OCaml-Raft, it uses no other
  * ocaml-raft modules and contains much of the basic functionality used throught
  * *)
@@ -50,11 +52,11 @@ module Index :
     val to_string : t -> string
 
     val bin_t : t Bin_prot.Type_class.t0
-    val bin_read_t : t Core.Std.Bin_prot.Read.reader
-    val __bin_read_t__ : (int -> t) Core.Std.Bin_prot.Read.reader
+    val bin_read_t : t Bin_prot.Read.reader
+    val __bin_read_t__ : (int -> t) Bin_prot.Read.reader
     val bin_reader_t : t Bin_prot.Type_class.reader0
-    val bin_size_t : t Core.Std.Bin_prot.Size.sizer
-    val bin_write_t : t Core.Std.Bin_prot.Write.writer
+    val bin_size_t : t Bin_prot.Size.sizer
+    val bin_write_t : t Bin_prot.Write.writer
     val bin_writer_t : t Bin_prot.Type_class.writer0
     val t_of_sexp : Sexplib.Type.t -> t
     val sexp_of_t : t -> Sexplib.Type.t
@@ -71,11 +73,11 @@ module IntID :
     val to_string : t -> string
 
     val bin_t : t Bin_prot.Type_class.t0
-    val bin_read_t : t Core.Std.Bin_prot.Read.reader
-    val __bin_read_t__ : (int -> t) Core.Std.Bin_prot.Read.reader
+    val bin_read_t : t Bin_prot.Read.reader
+    val __bin_read_t__ : (int -> t) Bin_prot.Read.reader
     val bin_reader_t : t Bin_prot.Type_class.reader0
-    val bin_size_t : t Core.Std.Bin_prot.Size.sizer
-    val bin_write_t : t Core.Std.Bin_prot.Write.writer
+    val bin_size_t : t Bin_prot.Size.sizer
+    val bin_write_t : t Bin_prot.Write.writer
     val bin_writer_t : t Bin_prot.Type_class.writer0
     val t_of_sexp : Sexplib.Type.t -> t
     val sexp_of_t : t -> Sexplib.Type.t
@@ -94,17 +96,17 @@ module ListLog :
     val sexp_of_t : ('a -> Sexplib.Type.t) -> 'a t -> Sexplib.Type.t
     val bin_t : 'a Bin_prot.Type_class.t0 -> 'a t Bin_prot.Type_class.t0
     val bin_read_t :
-      'a Core.Std.Bin_prot.Read.reader -> 'a t Core.Std.Bin_prot.Read.reader
+      'a Bin_prot.Read.reader -> 'a t Bin_prot.Read.reader
     val __bin_read_t__ :
-      'a Core.Std.Bin_prot.Read.reader ->
-      (int -> 'a t) Core.Std.Bin_prot.Read.reader
+      'a Bin_prot.Read.reader ->
+      (int -> 'a t) Bin_prot.Read.reader
     val bin_reader_t :
       'a Bin_prot.Type_class.reader0 -> 'a t Bin_prot.Type_class.reader0
     val bin_size_t :
-      'a Core.Std.Bin_prot.Size.sizer -> 'a t Core.Std.Bin_prot.Size.sizer
+      'a Bin_prot.Size.sizer -> 'a t Bin_prot.Size.sizer
     val bin_write_t :
-      'a Core.Std.Bin_prot.Write.writer ->
-      'a t Core.Std.Bin_prot.Write.writer
+      'a Bin_prot.Write.writer ->
+      'a t Bin_prot.Write.writer
     val bin_writer_t :
       'a Bin_prot.Type_class.writer0 -> 'a t Bin_prot.Type_class.writer0
   end
@@ -121,11 +123,9 @@ module Event :
 
 module EventList :
   sig
-    type ('a, 'b, 'c) t = ('a, 'b, 'c) Event.t list
-    val from_list : ('a, 'b, 'c) Event.t list -> ('a, 'b, 'c) Event.t list
-    val to_list : 'a -> 'a
-    val hd : 'a list -> ('a * 'a list) option
-    val add :
-      ('a, 'b, 'c) Event.t list ->
-      ('a, 'b, 'c) Event.t list -> ('a, 'b, 'c) Event.t list
+    type ('a, 'b, 'c) t
+    val from_list : ('a, 'b, 'c) Event.t list -> ('a, 'b, 'c) t
+    val to_list : ('a, 'b, 'c) t -> ('a, 'b, 'c) Event.t list
+    val hd : ('a, 'b, 'c) t -> (('a, 'b, 'c) Event.t * (('a, 'b, 'c) t)) option 
+    val add : ('a, 'b, 'c) Event.t list -> ('a, 'b, 'c) t -> ('a, 'b, 'c) t
   end

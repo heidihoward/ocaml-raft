@@ -108,7 +108,7 @@ module EventList = struct
   let from_list x = List.sort ~cmp:Event.compare x
   let to_list x = x
 
-  let hd = function
+  let hd el = match el with
     | [] -> None 
     | x::xs -> Some(x,xs)
 

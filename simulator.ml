@@ -1,8 +1,9 @@
 open Core.Std
 open Common
 
-(*this functor takes more arguments than nessacary, but not sure about which
- * modules will have alternative inferences in the future, definitly ENTRY *)
+(* [RaftSim] is a main body of the implementation, it handles the simulation, the
+ * core protcol implementation and communication. This aspects need to be
+ * divided up but everything depend on the State module with a functor *)
 
 module RaftSim = 
   functor (MonoTime: Clock.TIME) ->
@@ -13,35 +14,15 @@ module StateList = Env.StateHandler(MonoTime)(Mach)
 module State = StateList.State
 open Event (*needed to quickly access the event constructor E *)
 
-(* debug_active :=  P.debug_mode *)
 let debug x = if (P.debug_mode) then (printf " %s  \n" x) else ()
 
-let start_time = MonoTime.init()
-
-(* let () = Random.self_init () *) 
-(* TODO: check it one timeout should be used for other electons and followers*)
+(* TODO: consider spliting this up into 3 functions*)
 let timeout (m:role) = MonoTime.span_of_float (P.timeout () m)
 
-let nxt_failure (t:MonoTime.t) = 
-  match P.nxt_failure with
-  | Some dl ->
-    let delay = MonoTime.span_of_float (dl ()) in
-    MonoTime.add t delay
-
-let nxt_recover (t:MonoTime.t) = 
-  match P.nxt_failure with
-  | Some dl ->
-  let delay = MonoTime.span_of_float (dl ()) in
-  MonoTime.add t delay
+module RaftImpl = struct
 
 module Comms = struct 
-(*
-let parse = function
-  | RequestVoteArg v -> request
-  | RequestVoteRes v ->
-  | HeartbeatArg v ->
-  | HeartbeatRes v ->
-*)
+
 let unicast (dist:IntID.t) (t:MonoTime.t) (e) = 
   (*TODO: modify these to allow the user to specify some deley
    * distribution/bound *)
@@ -196,20 +177,25 @@ and clientRs (res: Rpcs.ClientRes.t) (s:State.t) =
   | false,None -> ( debug "giving up"; (s,[]) )
   | false,Some id -> (debug "trying again,but actually giving up"; (s,[]) )
 
-(*let leader_agreed (sl: StateList.t) =
-  let leader,term = match (StateList.find sl (IntID.from_int 0)) with 
-    Live s -> s.leader,s.term in
-  (* TODO ask anil about suppressing pattern-match not exhaustive but leave case
-   * undealt with, i.e it really should occur, if it does, then excuation should
-   * stop *)
-  let f (_,(state:State.t status)) = 
-    match state with 
-    | Live s -> not ((s.leader = leader) || (s.term = term)) 
-    | Down _ | Notfound -> false
-  in 
-  (* TODO: modify finish to check the number of live nodes is the majority *)
-  StateList.check_condition sl ~f
-*)
+end
+
+
+
+let start_time = MonoTime.init()
+
+
+let nxt_failure (t:MonoTime.t) = 
+  match P.nxt_failure with
+  | Some dl ->
+    let delay = MonoTime.span_of_float (dl ()) in
+    MonoTime.add t delay
+
+let nxt_recover (t:MonoTime.t) = 
+  match P.nxt_failure with
+  | Some dl ->
+  let delay = MonoTime.span_of_float (dl ()) in
+  MonoTime.add t delay
+
 let get_time_span (sl:StateList.t) = 
   (* TODO: fix this so it finds the first live node *)
   let state = match (StateList.find sl (IntID.from_int 0)) with Live x -> x in
@@ -219,7 +205,7 @@ let get_time_span (sl:StateList.t) =
 let wake (s:State.t) =
   debug "node is restarting after failing";
   let timer = MonoTime.add (s.time()) (timeout Follower) in
-   [ E (timer, s.id,checkTimer (Follower_Timeout s.term) );
+   [ E (timer, s.id,RaftImpl.checkTimer (Follower_Timeout s.term) );
      N (nxt_failure (s.time()), s.id, Kill) ]
 
 let kill (s:State.t) = 
@@ -281,9 +267,9 @@ let rec run_multi ~term
       | None -> run_multi ~term sl els 
 
 
-let init_eventlist num  :(MonoTime.t,IntID.t,State.t) Event.t list  =  
+let init_eventlist num  :(MonoTime.t,IntID.t,State.t) EventList.t  =  
   let initial = List.init num ~f:(fun i ->
-    E (MonoTime.init(), IntID.from_int i, startFollow (Index.init()) ) ) in
+    E (MonoTime.init(), IntID.from_int i, RaftImpl.startFollow (Index.init()) ) ) in
   match P.nxt_failure with
   | Some _ ->
     let failure_sim = List.init num ~f:(fun i -> 
