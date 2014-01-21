@@ -10,8 +10,11 @@ module RaftSim =
   functor (Mach: Statemach.MACHINE) ->
   functor (P: PARAMETERS) -> struct    
 
-module StateList = Env.StateHandler(MonoTime)(Mach)
-module State = StateList.State
+module State = 
+  (Env.PureState(MonoTime)(Mach): 
+    Env.STATE with type time := MonoTime.t)
+module StateList = Simenv.StateHandler(State)
+
 open Event (*needed to quickly access the event constructor E *)
 
 let debug x = if (P.debug_mode) then (printf " %s  \n" x) else ()
