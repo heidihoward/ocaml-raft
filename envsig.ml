@@ -80,7 +80,7 @@ module State :
          * already exists and its live, it also updates it and keeps the node
          * status. If you try to update  *)
         val add : t -> IntID.t -> State.t -> t
-        val from_listassoc : (IntID.t *  State.t status) list -> t
+(*        val from_listassoc : (IntID.t *  State.t status) list -> t *)
         val init : int -> t
 
         val check_condition : t -> f:( (IntID.t * State.t status) -> bool) -> bool

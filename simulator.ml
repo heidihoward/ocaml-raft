@@ -10,7 +10,7 @@ module RaftSim =
   functor (Mach: Statemach.MACHINE) ->
   functor (P: PARAMETERS) -> struct    
 
-module StateList = Env.StateHandler(MonoTime)(Mach)
+module StateList = Env.StateHandlerHist(MonoTime)(Mach)
 module State = StateList.State
 open Event (*needed to quickly access the event constructor E *)
 
