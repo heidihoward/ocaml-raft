@@ -93,4 +93,6 @@ module State :
         (** [leader_agreed] returns true if the majority of nodes are up and all
          * agree on term and leader *)
         val leader_agreed: t -> bool
+
+        val check_safety: t -> unit
       end

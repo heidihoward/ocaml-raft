@@ -256,6 +256,7 @@ let rec run_multi ~term
   (* next event is a simulated failure/recovery *)
   | Some (N (t,id,e),els) -> 
       let sl_new, el_new = apply_N sl e t id in
+      StateList.check_safety sl;
       run_multi ~term sl_new (EventList.add el_new els) 
   (* next event is some computation at a node *)
   | Some (E (t,id,e),els) -> if (t>=term) 

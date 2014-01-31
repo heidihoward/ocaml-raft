@@ -232,6 +232,7 @@ module State = PureState(MonoTime)(Mach)
         List.Assoc.add sl id (Live s_new)
     | Live s -> exit 1 (*waking a live node *)
 
+  let check_safety _ = ()  
 end
 
 module StateHandlerHist =
@@ -314,5 +315,31 @@ module State = PureState(MonoTime)(Mach)
           |> State.tick (SetTime time) in
         append sl id (Live s_new)
     | Live s -> exit 1 (*waking a live node *)
+
+  let rec get_live_states sl = 
+    let live_only l = List.filter_map l 
+      ~f:(function Live x -> Some x | Down _ -> None) in
+    match sl with
+    | (id,s_lst)::rs -> (live_only s_lst) @ get_live_states rs
+    | [] -> [] 
+
+  let rec election_safety (states :State.t list) lds =
+    match states with
+    | s::rest -> ( match s.leader,(List.Assoc.find lds s.term) with
+                 | (Some ldx, Some ldy) when ldx=ldy -> 
+                     election_safety rest lds
+                 | (None, _) -> election_safety rest lds    
+                 | (Some ldx, None) -> election_safety rest 
+                     (List.Assoc.add lds s.term ldx) 
+                 | _ -> assert false )
+    | [] -> true
+
+
+  let check_safety sl =
+    let states = get_live_states sl in
+    let _ = election_safety states [] in
+    ()
+
+
 
 end
