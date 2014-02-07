@@ -247,12 +247,14 @@ let rec run_multi ~term
     if (StateList.leader_agreed sl) 
     then begin
       debug "terminating as leader has been agreed";
-       (* for graph gen. *) printf " %s \n" (get_time_span sl) end
+       (* for graph gen.  printf " %s \n" (get_time_span sl); *)
+        (get_time_span sl)
+        end
     else
   (* we will not be terminating as the term condition has been reached so get
    * the next event in the event queue and apply it *)
   match EventList.hd el with
-  | None -> debug "terminating as no events remain"
+  | None -> debug "terminating as no events remain"; (get_time_span sl)
   (* next event is a simulated failure/recovery *)
   | Some (N (t,id,e),els) -> 
       let sl_new, el_new = apply_N sl e t id in
@@ -260,7 +262,7 @@ let rec run_multi ~term
       run_multi ~term sl_new (EventList.add el_new els) 
   (* next event is some computation at a node *)
   | Some (E (t,id,e),els) -> if (t>=term) 
-    then debug "terminating as terminate time has been reached"
+    then begin debug "terminating as terminate time has been reached"; (get_time_span sl) end
     (* will not be terminating so simluate event *)
     else  
       match (apply_E (StateList.find sl id) e t) with

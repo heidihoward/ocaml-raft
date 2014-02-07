@@ -32,7 +32,6 @@ module NumberGen = struct
 
  let string_to_dist str =
    let flt = Float.of_string in
-   printf " %s \n" str;
    match (String.split str ~on:'-') with
    | "Fixed"::value::_ -> fixed (flt value)
    | "Uniform"::min::max::[] -> uniform (flt min) (flt max)
@@ -115,4 +114,6 @@ module EventList = struct
   let add a l = 
     List.merge l (from_list a) ~cmp:Event.compare
 end
+
+
 

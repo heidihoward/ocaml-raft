@@ -1,42 +1,7 @@
 open Core.Std
 open Common
 
-type time = Discrete | Real 
 
-
-let distribution = 
-  Command.Spec.Arg_type.create NumberGen.string_to_dist
-
-let run ~time ~nodes ~term ~debug_enabled ~iter ~data ~follower ~candidate ~leader ~delay ~failure ~recover =
-  let module Par = (struct
-    let nodes = nodes
-    let timeout () = function
-      | Leader -> leader ()
-      | Follower -> follower ()
-      | Candidate -> candidate ()
-    let pkt_delay = delay
-    let termination = term 
-    let debug_mode = debug_enabled 
-    let nxt_failure = failure
-    let nxt_recover = recover
-  end : PARAMETERS) in 
-   
-  match time with
-  | Discrete ->
-  begin
-  let module DES =  
-    Simulator.RaftSim(Clock.FakeTime)(Statemach.KeyValStr)(Par) in
-  for i=1 to iter do 
-    ignore(i); DES.start() 
-  done end 
-  | Real -> 
-  begin
-  let module DES =  
-    Simulator.RaftSim(Clock.RealTime)(Statemach.KeyValStr)(Par) in
-  for i=1 to iter do 
-    ignore(i); DES.start() 
-  done end
-   
 let common () =
     Command.Spec.(
       empty
@@ -47,23 +12,23 @@ let common () =
       +> flag "-d" no_arg
         ~doc:"Enable debugging output (disabled by default)"
       +> flag "-iter" (optional_with_default 1 int) 
-        ~doc:"int Number of Simulations to run"
+        ~doc:"int Number of Simulations to run (not working) "
       +> flag "-data" (optional string) 
         ~doc:"filename File to output data to as .data (currently not working)"
-     +> flag "-follower" (required distribution)
+     +> flag "-follower" (required Parser.distribution)
         ~doc:"distribution Follower timeout Statistical Distribution, this gives
         the distribution of the follower timeout which lead to the start of an
         electon"
-     +> flag "-candidate" (required distribution)
+     +> flag "-candidate" (required Parser.distribution)
         ~doc:"distribution Candidate timeout Statistical Distribution, this
         gives the distrubut"
-     +> flag "-leader" (required distribution)
+     +> flag "-leader" (required Parser.distribution)
         ~doc:"distribution Leader Statistical Distribution"
-     +> flag "-delay" (required distribution)
+     +> flag "-delay" (required Parser.distribution)
         ~doc:"distribution Packet Delay Statistical Distribution"
-     +> flag "-failure" (optional distribution)
+     +> flag "-failure" (optional Parser.distribution)
         ~doc:"distribution Node failure Statistical Distribution"
-     +> flag "-recover" (optional distribution)
+     +> flag "-recover" (optional Parser.distribution)
         ~doc:"distribution Node recovery Statistical Distribution"
 
  )
@@ -77,7 +42,7 @@ let realtime =
      ++ common ()
       )
     (fun nodes term debug_enabled iter data follower candidate leader delay failure recover () ->  
-      run ~time:Real ~nodes ~term ~debug_enabled ~iter ~data ~follower ~candidate ~leader ~delay ~failure ~recover) 
+      printf "%s" (Parser.run ~time:Real ~nodes ~term ~debug_enabled ~iter ~data ~follower ~candidate ~leader ~delay ~failure ~recover)) 
 
 let discrete =
   Command.basic
@@ -88,7 +53,7 @@ let discrete =
      ++ common ()
       )
     (fun nodes term debug_enabled iter data follower candidate leader delay failure recover () ->  
-      run ~time:Discrete ~nodes ~term ~debug_enabled ~iter ~data ~follower ~candidate ~leader ~delay ~failure ~recover) 
+      printf "%s" (Parser.run ~time:Discrete ~nodes ~term ~debug_enabled ~iter ~data ~follower ~candidate ~leader ~delay ~failure ~recover))
 
 let () =  
   ["realtime",realtime;"discrete",discrete]
