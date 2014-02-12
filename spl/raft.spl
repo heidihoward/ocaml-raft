@@ -1,0 +1,14 @@
+automaton raft_startup(int nodes, int count) {
+	Initialize;
+	during {
+	  Election_Timeout;
+	  count = 0;
+	  do {
+	    Recieve_Vote;
+	    count = count + 1;
+      } until (count * 2 >= nodes);
+      Become_Leader;
+	} handle {
+	Leader_Discovery;
+	}
+}
