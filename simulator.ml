@@ -18,7 +18,7 @@ module State = StateList.State
 open Event (*needed to quickly access the event constructors like RaftEvent and SimulationEvent *)
 
 module EventItem = struct
-  type t = (MonoTime.t,IntID.t,State.t) Event.t
+  type t = (MonoTime.t,IntID.t,State.t,Client.t) Event.t
   let compare = Event.compare
 end
 
@@ -223,7 +223,7 @@ let kill (s:State.t) =
   debug "node has failed";
   [SimulationEvent (nxt_recover (s.time()), s.id, Wake)]
 
-let apply_E (st: State.t status) (e: (MonoTime.t,IntID.t,State.t) event) (t: MonoTime.t) =
+let apply_E (st: State.t status) (e: (MonoTime.t,IntID.t,State.t,Client.t) event) (t: MonoTime.t) =
   (* wait used in realtime simulation, just instant unit for DES *)
   MonoTime.wait_until t;
   match st with 

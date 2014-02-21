@@ -111,14 +111,21 @@ module ListLog :
       'a Bin_prot.Type_class.writer0 -> 'a t Bin_prot.Type_class.writer0
   end
 
+module Client :
+  sig
+    type t
+  end
 
 module Event :
   sig
-    type ('time, 'id, 'state) t =
-        RaftEvent of ('time * 'id * ('time, 'id, 'state) event)
+    type ('time, 'id, 'state,'client) t =
+        RaftEvent of ('time * 'id * ('time, 'id, 'state,'client) event)
       | SimulationEvent of ('time * 'id * failures)
-    and ('time, 'id, 'state) event = 'state -> 'state * ('time, 'id, 'state) t list
-    val compare : ('time, 'id, 'state) t -> ('time, 'id, 'state) t -> int
+      | ClientEvent of ('time * 'id * ('time, 'id, 'state,'client) client)
+    and ('time, 'id, 'state,'client) event = 'state -> 'state * ('time, 'id, 'state,'client) t list
+    and ('time, 'id, 'state,'client) client = 'client -> 'client * ('time, 'id, 'state,'client) t list
+
+    val compare : ('time, 'id, 'state, 'client') t -> ('time, 'id, 'state, 'client') t -> int
   end
 
 

@@ -83,11 +83,20 @@ module ListLog =
 end : LOG)
 *)
 
+module Client = struct
+  type t = int
+end
+
 module Event = struct 
   (* TODO: make this much better and actually inforce use of state calls *)
-  type ('a,'b,'c) t = RaftEvent of ('a * 'b * ('a,'b,'c) event)
-                    | SimulationEvent of ('a * 'b * failures)
-  and ('a,'b,'c) event = ('c -> ('c * ('a,'b,'c) t list))
+    type ('time, 'id, 'state,'client) t =
+        RaftEvent of ('time * 'id * ('time, 'id, 'state,'client) event)
+      | SimulationEvent of ('time * 'id * failures)
+      | ClientEvent of ('time * 'id * ('time, 'id, 'state,'client) client)
+    and ('time, 'id, 'state,'client) event = 'state -> 'state * ('time, 'id, 'state,'client) t list
+    and ('time, 'id, 'state,'client) client = 'client -> 'client * ('time, 'id, 'state,'client) t list
+
+
 
   let compare x y = match x,y with
   | (RaftEvent (xt,_,_),RaftEvent (yt,_,_)) 
