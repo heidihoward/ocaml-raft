@@ -1,6 +1,6 @@
 open Core.Std
 open Common
-module EventList = Eventlst.LinkedList
+open Eventlst_withtype
 
 (* [RaftSim] is a main body of the implementation, it handles the simulation, the
  * core protcol implementation and communication. This aspects need to be
@@ -14,6 +14,8 @@ module RaftSim =
 module StateList = Env.StateHandlerHist(MonoTime)(Mach)
 module State = StateList.State
 open Event (*needed to quickly access the event constructor E *)
+type event_item = (MonoTime.t,IntID.t,State.t) Event.t
+module EventList = (LinkedList(struct type t = event_item let compare = Event.compare end) : EVENTLIST with type item = event_item)
 
 let debug x = if (P.debug_mode) then (printf " %s  \n" x) else ()
 
@@ -243,7 +245,7 @@ let apply_N (sl: StateList.t) (e: failures) (t: MonoTime.t) (id:IntID.t) =
 (* Main excuation cycle *)  
 let rec run_multi ~term
   (sl: StateList.t) 
-  (el:(MonoTime.t,IntID.t,State.t) EventList.t)  =
+  (el: EventList.t)  =
   (* checking termination condition for tests *)
     if (StateList.leader_agreed sl) 
     then begin
@@ -271,7 +273,7 @@ let rec run_multi ~term
       | None -> run_multi ~term sl els 
 
 
-let init_eventlist num  :(MonoTime.t,IntID.t,State.t) EventList.t  =  
+let init_eventlist num  :EventList.t  =  
   let initial = List.init num ~f:(fun i ->
     E (MonoTime.init(), IntID.from_int i, RaftImpl.startFollow (Index.init()) ) ) in
   match P.nxt_failure with
@@ -289,5 +291,5 @@ let start () =
   run_multi ~term:(MonoTime.add time_now time_intval ) 
   (StateList.init P.nodes)  
   (init_eventlist P.nodes)
-  
+
 end
