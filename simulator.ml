@@ -1,6 +1,6 @@
 open Core.Std
 open Common
-open Eventlst_withtype
+open Eventlst
 
 (* [RaftSim] is a main body of the implementation, it handles the simulation, the
  * core protcol implementation and communication. This aspects need to be
@@ -14,8 +14,14 @@ module RaftSim =
 module StateList = Env.StateHandlerHist(MonoTime)(Mach)
 module State = StateList.State
 open Event (*needed to quickly access the event constructor E *)
-type event_item = (MonoTime.t,IntID.t,State.t) Event.t
-module EventList = (LinkedList(struct type t = event_item let compare = Event.compare end) : EVENTLIST with type item = event_item)
+
+module EventItem = struct
+  type t = (MonoTime.t,IntID.t,State.t) Event.t
+  let compare = Event.compare
+end
+
+module EventList = (LinkedList(EventItem) : EVENTLIST with type item = EventItem.t)
+
 
 let debug x = if (P.debug_mode) then (printf " %s  \n" x) else ()
 
