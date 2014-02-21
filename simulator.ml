@@ -11,6 +11,7 @@ module RaftSim =
   functor (Mach: Statemach.MACHINE) ->
   functor (P: PARAMETERS) -> struct    
 
+(*Setting up the StateList and State, which hold the state for the nodes *)
 module StateList = Env.StateHandlerHist(MonoTime)(Mach)
 module State = StateList.State
 
