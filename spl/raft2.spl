@@ -1,0 +1,73 @@
+automaton raft_general () {
+	either {
+	Startup; 
+	} or {
+	Recover;
+	} 
+	multiple (0..) {
+	StartElecton;
+	multiple (0..) {RestartElecton;}
+	either { 
+	StepDown_from_Candidate; 
+	} or {
+	WinElecton;
+    StepDown_from_Leader;
+	} }
+}
+
+function requestVote_Rcv_follower () {
+	RequestVote_Follower_Rcv;
+    either {
+      RPC_follower_outofdate;
+      RequestVote_Follower_VoteNotGranted;
+    } or {
+      Vote_already_granted;
+      RequestVote_Follower_VoteNotGranted;
+    } or {
+      Vote_granted;
+      RequestVote_Follower_VoteGranted;
+    } or {
+       Follower_outofdate;
+       UpdatedTerm;
+       Vote_granted;
+       RequestVote_Follower_VoteGranted;
+    }
+}
+
+function appendEntries_Rcv_follower () {
+	AppendEntries_Follower_Rcv;
+}
+
+automaton follower () {
+	either {
+	  Startup; 
+	} or {
+	  Recover;
+	} or {
+	  StepDown_from_candidate;
+	} or {
+	  StepDown_from_Leader;
+	}; 
+	multiple (0..) {
+         either {
+           requestVote_Rcv_follower ();
+         } or {
+           appendEntries_Rcv_follower ();
+         }
+    }
+    ElectionTimeout;
+    StartElecton;
+}
+
+automaton candidate () {
+	either {
+	StartElecton;	
+	} or {
+	RestartElecton; 
+	}
+
+}
+
+automaton leader () {
+	WinElection;
+}

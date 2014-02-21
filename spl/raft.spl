@@ -49,3 +49,4 @@ automaton raft_startup(int nodes, int count) {
 	Initialize;
 	follower(nodes,count);
 }
+

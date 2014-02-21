@@ -1,0 +1,17 @@
+digraph FUNCTION {
+ "S_seq_44" -> "S_final_29" [label="{RequestVote_Follower_VoteGranted} (31)",fontsize=10,];
+ "S_seq_43" -> "S_seq_44" [label="{Vote_granted} (30)",fontsize=10,];
+ "S_or_41" -> "S_seq_42" [label="{Follower_outofdate} (28)",fontsize=10,];
+ "S_or_38" -> "S_seq_39" [label="{Vote_granted} (25)",fontsize=10,];
+ "S_initial_28" -> "S_or_41" [label="{RequestVote_Follower_Rcv} (17)",fontsize=10,];
+ "S_initial_28" -> "S_or_38" [label="{RequestVote_Follower_Rcv} (17)",fontsize=10,];
+ "S_initial_28" -> "S_or_35" [label="{RequestVote_Follower_Rcv} (17)",fontsize=10,];
+ "S_initial_28" -> "S_or_32" [label="{RequestVote_Follower_Rcv} (17)",fontsize=10,];
+ "S_seq_36" -> "S_final_29" [label="{RequestVote_Follower_VoteNotGranted} (23)",fontsize=10,];
+ "S_seq_33" -> "S_final_29" [label="{RequestVote_Follower_VoteNotGranted} (20)",fontsize=10,];
+ "S_or_32" -> "S_seq_33" [label="{RPC_follower_outofdate} (19)",fontsize=10,];
+ "S_final_29" -> "S_multblexit_63" [label="(requestVote_Rcv_follower_return == 68) (45)",fontsize=10,arrowhead="odiamond",color="blue"];
+ "S_or_35" -> "S_seq_36" [label="{Vote_already_granted} (22)",fontsize=10,];
+ "S_seq_39" -> "S_final_29" [label="{RequestVote_Follower_VoteGranted} (26)",fontsize=10,];
+ "S_seq_42" -> "S_seq_43" [label="{UpdatedTerm} (29)",fontsize=10,];
+}

@@ -1,0 +1,4 @@
+digraph FUNCTION {
+ "S_final_47" -> "S_multblexit_63" [label="(appendEntries_Rcv_follower_return == 72) (47)",fontsize=10,arrowhead="odiamond",color="blue"];
+ "S_initial_46" -> "S_final_47" [label="{AppendEntries_Follower_Rcv} (33)",fontsize=10,];
+}

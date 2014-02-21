@@ -1,0 +1,69 @@
+digraph FUNCTION {
+subgraph leader {
+ "S_initial_84" -> "S_final_85" [label="{WinElection} (57)",fontsize=10,];
+
+}
+subgraph follower {
+ "S_or_71" -> "S_initial_46" [label="appendEntries_Rcv_follower_return=72 (47)",fontsize=10,arrowhead="tee",color="green"];
+ "S_multexit_64" -> "S_seq_75" [label="{ElectionTimeout} (50)",fontsize=10,];
+ "S_initial_49" -> "S_either_or_51" [label="{StepDown_from_Leader} (41)",fontsize=10,];
+ "S_initial_49" -> "S_either_or_51" [label="{Startup} (35)",fontsize=10,];
+ "S_initial_49" -> "S_either_or_51" [label="{Recover} (37)",fontsize=10,];
+ "S_initial_49" -> "S_either_or_51" [label="{StepDown_from_candidate} (39)",fontsize=10,];
+ "S_either_or_51" -> "S_multexit_64" [label="multiple_65=0 (43)",fontsize=10,arrowhead="tee",color="green"];
+ "S_either_or_51" -> "S_or_71" [label="multiple_65=0 (43)",fontsize=10,arrowhead="tee",color="green"];
+ "S_either_or_51" -> "S_or_67" [label="multiple_65=0 (43)",fontsize=10,arrowhead="tee",color="green"];
+ "S_seq_75" -> "S_final_50" [label="{StartElecton} (51)",fontsize=10,];
+
+ "S_or_67" -> "S_initial_28" [label="requestVote_Rcv_follower_return=68 (45)",fontsize=10,arrowhead="tee",color="green"];
+ "S_multblexit_63" -> "S_multexit_64" [label="multiple_65=(multiple_65 + 1) (43)",fontsize=10,arrowhead="tee",color="green"];
+ "S_multblexit_63" -> "S_or_71" [label="multiple_65=(multiple_65 + 1) (43)",fontsize=10,arrowhead="tee",color="green"];
+ "S_multblexit_63" -> "S_or_67" [label="multiple_65=(multiple_65 + 1) (43)",fontsize=10,arrowhead="tee",color="green"];
+}
+subgraph requestVote_Rcv_follower {
+ "S_seq_44" -> "S_final_29" [label="{RequestVote_Follower_VoteGranted} (31)",fontsize=10,];
+ "S_seq_43" -> "S_seq_44" [label="{Vote_granted} (30)",fontsize=10,];
+ "S_or_41" -> "S_seq_42" [label="{Follower_outofdate} (28)",fontsize=10,];
+ "S_or_38" -> "S_seq_39" [label="{Vote_granted} (25)",fontsize=10,];
+ "S_initial_28" -> "S_or_41" [label="{RequestVote_Follower_Rcv} (17)",fontsize=10,];
+ "S_initial_28" -> "S_or_38" [label="{RequestVote_Follower_Rcv} (17)",fontsize=10,];
+ "S_initial_28" -> "S_or_35" [label="{RequestVote_Follower_Rcv} (17)",fontsize=10,];
+ "S_initial_28" -> "S_or_32" [label="{RequestVote_Follower_Rcv} (17)",fontsize=10,];
+ "S_seq_36" -> "S_final_29" [label="{RequestVote_Follower_VoteNotGranted} (23)",fontsize=10,];
+ "S_seq_33" -> "S_final_29" [label="{RequestVote_Follower_VoteNotGranted} (20)",fontsize=10,];
+ "S_or_32" -> "S_seq_33" [label="{RPC_follower_outofdate} (19)",fontsize=10,];
+ "S_final_29" -> "S_multblexit_63" [label="(requestVote_Rcv_follower_return == 68) (45)",fontsize=10,arrowhead="odiamond",color="blue"];
+ "S_or_35" -> "S_seq_36" [label="{Vote_already_granted} (22)",fontsize=10,];
+ "S_seq_39" -> "S_final_29" [label="{RequestVote_Follower_VoteGranted} (26)",fontsize=10,];
+ "S_seq_42" -> "S_seq_43" [label="{UpdatedTerm} (29)",fontsize=10,];
+}
+subgraph raft_general {
+ "S_seq_14" -> "S_multentry_16" [label="multiple_20=0 (7)",fontsize=10,arrowhead="tee",color="green"];
+ "S_seq_14" -> "S_or_25" [label="multiple_20=0 (7)",fontsize=10,arrowhead="tee",color="green"];
+ "S_seq_14" -> "S_or_23" [label="multiple_20=0 (7)",fontsize=10,arrowhead="tee",color="green"];
+
+ "S_multentry_9" -> "S_seq_14" [label="{StartElecton} (6)",fontsize=10,];
+ "S_seq_26" -> "S_multblexit_11" [label="{StepDown_from_Leader} (14)",fontsize=10,];
+ "S_or_23" -> "S_multblexit_11" [label="{StepDown_from_Candidate} (11)",fontsize=10,];
+ "S_multblexit_18" -> "S_multentry_16" [label="multiple_20=(multiple_20 + 1) (7)",fontsize=10,arrowhead="tee",color="green"];
+ "S_multblexit_18" -> "S_or_25" [label="multiple_20=(multiple_20 + 1) (7)",fontsize=10,arrowhead="tee",color="green"];
+ "S_multblexit_18" -> "S_or_23" [label="multiple_20=(multiple_20 + 1) (7)",fontsize=10,arrowhead="tee",color="green"];
+ "S_multblexit_11" -> "S_multentry_9" [label="multiple_13=(multiple_13 + 1) (5)",fontsize=10,arrowhead="tee",color="green"];
+ "S_multblexit_11" -> "S_final_2" [label="multiple_13=(multiple_13 + 1) (5)",fontsize=10,arrowhead="tee",color="green"];
+ "S_either_or_3" -> "S_multentry_9" [label="multiple_13=0 (5)",fontsize=10,arrowhead="tee",color="green"];
+ "S_either_or_3" -> "S_final_2" [label="multiple_13=0 (5)",fontsize=10,arrowhead="tee",color="green"];
+ "S_or_25" -> "S_seq_26" [label="{WinElecton} (13)",fontsize=10,];
+ "S_multentry_16" -> "S_multblexit_18" [label="{RestartElecton} (8)",fontsize=10,];
+ "S_initial_1" -> "S_either_or_3" [label="{Startup} (1)",fontsize=10,];
+ "S_initial_1" -> "S_either_or_3" [label="{Recover} (3)",fontsize=10,];
+}
+subgraph appendEntries_Rcv_follower {
+ "S_final_47" -> "S_multblexit_63" [label="(appendEntries_Rcv_follower_return == 72) (47)",fontsize=10,arrowhead="odiamond",color="blue"];
+ "S_initial_46" -> "S_final_47" [label="{AppendEntries_Follower_Rcv} (33)",fontsize=10,];
+}
+subgraph candidate {
+
+ "S_initial_77" -> "S_final_78" [label="{RestartElecton} (55)",fontsize=10,];
+ "S_initial_77" -> "S_final_78" [label="{StartElecton} (53)",fontsize=10,];
+}
+}
