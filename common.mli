@@ -114,18 +114,11 @@ module ListLog :
 
 module Event :
   sig
-    type ('a, 'b, 'c) t =
-        E of ('a * 'b * ('a, 'b, 'c) event)
-      | N of ('a * 'b * failures)
-    and ('a, 'b, 'c) event = 'c -> 'c * ('a, 'b, 'c) t list
-    val compare : ('a, 'b, 'c) t -> ('a, 'd, 'e) t -> int
+    type ('time, 'id, 'state) t =
+        E of ('time * 'id * ('time, 'id, 'state) event)
+      | N of ('time * 'id * failures)
+    and ('time, 'id, 'state) event = 'state -> 'state * ('time, 'id, 'state) t list
+    val compare : ('time, 'id, 'state) t -> ('time, 'id, 'state) t -> int
   end
 
-module EventList :
-  sig
-    type ('a, 'b, 'c) t
-    val from_list : ('a, 'b, 'c) Event.t list -> ('a, 'b, 'c) t
-    val to_list : ('a, 'b, 'c) t -> ('a, 'b, 'c) Event.t list
-    val hd : ('a, 'b, 'c) t -> (('a, 'b, 'c) Event.t * (('a, 'b, 'c) t)) option 
-    val add : ('a, 'b, 'c) Event.t list -> ('a, 'b, 'c) t -> ('a, 'b, 'c) t
-  end
+

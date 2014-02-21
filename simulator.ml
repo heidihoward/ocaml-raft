@@ -1,5 +1,6 @@
 open Core.Std
 open Common
+module EventList = Eventlst.LinkedList
 
 (* [RaftSim] is a main body of the implementation, it handles the simulation, the
  * core protcol implementation and communication. This aspects need to be
@@ -277,8 +278,8 @@ let init_eventlist num  :(MonoTime.t,IntID.t,State.t) EventList.t  =
   | Some _ ->
     let failure_sim = List.init num ~f:(fun i -> 
       N (nxt_failure (MonoTime.init()), IntID.from_int i, Kill)) in
-    EventList.from_list (initial@failure_sim)
-  | None -> EventList.from_list (initial)
+    EventList.init (initial@failure_sim)
+  | None -> EventList.init (initial)
 
 
 let start () =
@@ -288,4 +289,5 @@ let start () =
   run_multi ~term:(MonoTime.add time_now time_intval ) 
   (StateList.init P.nodes)  
   (init_eventlist P.nodes)
+  
 end

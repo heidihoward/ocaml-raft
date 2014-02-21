@@ -100,20 +100,6 @@ module Event = struct
 end 
 
 
-module EventList = struct
-
-  type ('a,'b,'c) t = ('a,'b,'c) Event.t  list
-
-  let from_list x = List.sort ~cmp:Event.compare x
-  let to_list x = x
-
-  let hd el = match el with
-    | [] -> None 
-    | x::xs -> Some(x,xs)
-
-  let add a l = 
-    List.merge l (from_list a) ~cmp:Event.compare
-end
 
 
 
