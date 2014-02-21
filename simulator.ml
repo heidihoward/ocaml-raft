@@ -15,6 +15,8 @@ module RaftSim =
 module StateList = Env.StateHandlerHist(MonoTime)(Mach)
 module State = StateList.State
 
+module Client = Client.ClientHandler(MonoTime)(Mach)
+
 open Event (*needed to quickly access the event constructors like RaftEvent and SimulationEvent *)
 
 module EventItem = struct
@@ -253,7 +255,8 @@ let apply_N (sl: StateList.t) (e: failures) (t: MonoTime.t) (id:IntID.t) =
 (* Main excuation cycle *)  
 let rec run_multi ~term
   (sl: StateList.t) 
-  (el: EventList.t)  =
+  (el: EventList.t)
+  (cl: Client.t)  =
   (* checking termination condition for tests *)
     if (StateList.leader_agreed sl) 
     then begin
@@ -270,15 +273,15 @@ let rec run_multi ~term
   | Some (SimulationEvent (t,id,e),els) -> 
       let sl_new, el_new = apply_N sl e t id in
       StateList.check_safety sl;
-      run_multi ~term sl_new (EventList.add el_new els) 
+      run_multi ~term sl_new (EventList.add el_new els) cl
   (* next event is some computation at a node *)
   | Some (RaftEvent (t,id,e),els) -> if (t>=term) 
     then begin debug "terminating as terminate time has been reached"; (get_time_span sl) end
     (* will not be terminating so simluate event *)
     else  
       match (apply_E (StateList.find sl id) e t) with
-      | Some (s_new,el_new) -> run_multi ~term (StateList.add sl id s_new) (EventList.add el_new els) 
-      | None -> run_multi ~term sl els 
+      | Some (s_new,el_new) -> run_multi ~term (StateList.add sl id s_new) (EventList.add el_new els) cl
+      | None -> run_multi ~term sl els cl
 
 
 let init_eventlist num  :EventList.t  =  
@@ -299,5 +302,6 @@ let start () =
   run_multi ~term:(MonoTime.add time_now time_intval ) 
   (StateList.init P.nodes)  
   (init_eventlist P.nodes)
+  (Client.init P.nodes)
 
 end

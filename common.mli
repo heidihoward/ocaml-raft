@@ -111,11 +111,6 @@ module ListLog :
       'a Bin_prot.Type_class.writer0 -> 'a t Bin_prot.Type_class.writer0
   end
 
-module Client :
-  sig
-    type t
-  end
-
 module Event :
   sig
     type ('time, 'id, 'state,'client) t =

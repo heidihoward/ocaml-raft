@@ -1,5 +1,4 @@
 open Core.Std
-open Common
 
 (** [EVENTLIST] is a datastructure for holding item, where the only removal operation is to take item from head*)
 module type EVENTLIST =
