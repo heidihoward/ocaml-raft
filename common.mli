@@ -115,8 +115,8 @@ module ListLog :
 module Event :
   sig
     type ('time, 'id, 'state) t =
-        E of ('time * 'id * ('time, 'id, 'state) event)
-      | N of ('time * 'id * failures)
+        RaftEvent of ('time * 'id * ('time, 'id, 'state) event)
+      | SimulationEvent of ('time * 'id * failures)
     and ('time, 'id, 'state) event = 'state -> 'state * ('time, 'id, 'state) t list
     val compare : ('time, 'id, 'state) t -> ('time, 'id, 'state) t -> int
   end

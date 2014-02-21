@@ -1,7 +1,7 @@
 open Core.Std
 open Common
 
-(** [EVENTLIST] is a datastructure for holding Events, there thing with a compare operator *)
+(** [EVENTLIST] is a datastructure for holding item, where the only removal operation is to take item from head*)
 module type EVENTLIST =
   sig
     type item
@@ -14,9 +14,10 @@ module type EVENTLIST =
     val init : item list -> t
   end
 
-module LinkedList (E: sig type t with compare end) = struct
+(**)
+module LinkedList (Item: sig type t with compare end) = struct
 
-  type item = E.t
+  type item = Item.t
   type t = item list
 
   let hd el = match el with
@@ -24,7 +25,7 @@ module LinkedList (E: sig type t with compare end) = struct
     | x::xs -> Some(x,xs)
 
   let add a l = 
-    List.merge l (List.sort a ~cmp:E.compare) ~cmp:E.compare
+    List.merge l (List.sort a ~cmp:Item.compare) ~cmp:Item.compare
 
   let init init_events = add init_events []
 

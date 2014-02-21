@@ -85,15 +85,15 @@ end : LOG)
 
 module Event = struct 
   (* TODO: make this much better and actually inforce use of state calls *)
-  type ('a,'b,'c) t = E of ('a * 'b * ('a,'b,'c) event)
-                    | N of ('a * 'b * failures)
+  type ('a,'b,'c) t = RaftEvent of ('a * 'b * ('a,'b,'c) event)
+                    | SimulationEvent of ('a * 'b * failures)
   and ('a,'b,'c) event = ('c -> ('c * ('a,'b,'c) t list))
 
   let compare x y = match x,y with
-  | (E (xt,_,_),E (yt,_,_)) 
-  | (N (xt,_,_),N (yt,_,_)) 
-  | (N (xt,_,_),E (yt,_,_)) 
-  | (E (xt,_,_),N (yt,_,_)) 
+  | (RaftEvent (xt,_,_),RaftEvent (yt,_,_)) 
+  | (SimulationEvent (xt,_,_),SimulationEvent (yt,_,_)) 
+  | (SimulationEvent (xt,_,_),RaftEvent (yt,_,_)) 
+  | (RaftEvent (xt,_,_),SimulationEvent (yt,_,_)) 
   -> compare xt yt
 
   

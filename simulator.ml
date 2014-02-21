@@ -13,7 +13,8 @@ module RaftSim =
 
 module StateList = Env.StateHandlerHist(MonoTime)(Mach)
 module State = StateList.State
-open Event (*needed to quickly access the event constructor E *)
+
+open Event (*needed to quickly access the event constructors like RaftEvent and SimulationEvent *)
 
 module EventItem = struct
   type t = (MonoTime.t,IntID.t,State.t) Event.t
@@ -39,7 +40,7 @@ let unicast (dist:IntID.t) (t:MonoTime.t) (e) =
   let arriv = MonoTime.add t delay in
   debug ("dispatching msg to "^(IntID.to_string dist) ^ " to arrive at "^
   (MonoTime.to_string arriv));
-  E (arriv ,dist ,e ) 
+  RaftEvent (arriv ,dist ,e ) 
 
 let broadcast (dests:IntID.t list) (t:MonoTime.t) e  = 
   List.map dests ~f:(fun dst -> unicast dst t e) 
@@ -67,12 +68,12 @@ let rec  startCand (s:State.t) =
   let reqs = Comms.broadcast snew.allNodes (snew.time()) 
     (requestVoteRq args) in
   let t = MonoTime.add (snew.time()) (timeout Candidate) in
-  (snew, E (t, s.id, checkTimer (Candidate_Timeout snew.term) )::reqs )
+  (snew, RaftEvent (t, s.id, checkTimer (Candidate_Timeout snew.term) )::reqs )
 
 and checkTimer c (s:State.t)  = debug "Checking timer"; 
   let next_timer c_new (s:State.t) = 
     let t =  MonoTime.add (s.time()) (timeout Follower) in
-    (State.tick Reset s, [ E (t, s.id, checkTimer c_new )]) in
+    (State.tick Reset s, [ RaftEvent (t, s.id, checkTimer c_new )]) in
   (* TODO: this about the case where the nodes has gone to candidate and back to
    * follower, how do we check for this case *)
   match c,s.mode with
@@ -94,14 +95,14 @@ and dispatchHeartbeat (s:State.t) =
   let reqs = Comms.broadcast s.allNodes (s.time()) 
     (heartbeatRq args) in
   let t = MonoTime.add (s.time()) (timeout Leader) in
-  (s, E (t, s.id, checkTimer (Leader_Timeout s.term) )::reqs )
+  (s, RaftEvent (t, s.id, checkTimer (Leader_Timeout s.term) )::reqs )
 
 
 and startFollow term (s:State.t)  = debug "Entering Follower mode";
   (* used for setdown too so need to reset follower state *)
   let t = MonoTime.add (s.time()) (timeout Follower) in
   let s = State.tick (StepDown term) s in 
-  (s,[ E (t, s.id,checkTimer (Follower_Timeout s.term) )])
+  (s,[ RaftEvent (t, s.id,checkTimer (Follower_Timeout s.term) )])
 
 and startLeader (s:State.t) = debug "Election Won - Becoming Leader";
   dispatchHeartbeat (State.tick StartLeader s)
@@ -214,12 +215,12 @@ let get_time_span (sl:StateList.t) =
 let wake (s:State.t) =
   debug "node is restarting after failing";
   let timer = MonoTime.add (s.time()) (timeout Follower) in
-   [ E (timer, s.id,RaftImpl.checkTimer (Follower_Timeout s.term) );
-     N (nxt_failure (s.time()), s.id, Kill) ]
+   [ RaftEvent (timer, s.id,RaftImpl.checkTimer (Follower_Timeout s.term) );
+     SimulationEvent (nxt_failure (s.time()), s.id, Kill) ]
 
 let kill (s:State.t) = 
   debug "node has failed";
-  [N (nxt_recover (s.time()), s.id, Wake)]
+  [SimulationEvent (nxt_recover (s.time()), s.id, Wake)]
 
 let apply_E (st: State.t status) (e: (MonoTime.t,IntID.t,State.t) event) (t: MonoTime.t) =
   (* wait used in realtime simulation, just instant unit for DES *)
@@ -265,12 +266,12 @@ let rec run_multi ~term
   match EventList.hd el with
   | None -> debug "terminating as no events remain"; (get_time_span sl)
   (* next event is a simulated failure/recovery *)
-  | Some (N (t,id,e),els) -> 
+  | Some (SimulationEvent (t,id,e),els) -> 
       let sl_new, el_new = apply_N sl e t id in
       StateList.check_safety sl;
       run_multi ~term sl_new (EventList.add el_new els) 
   (* next event is some computation at a node *)
-  | Some (E (t,id,e),els) -> if (t>=term) 
+  | Some (RaftEvent (t,id,e),els) -> if (t>=term) 
     then begin debug "terminating as terminate time has been reached"; (get_time_span sl) end
     (* will not be terminating so simluate event *)
     else  
@@ -281,11 +282,11 @@ let rec run_multi ~term
 
 let init_eventlist num  :EventList.t  =  
   let initial = List.init num ~f:(fun i ->
-    E (MonoTime.init(), IntID.from_int i, RaftImpl.startFollow (Index.init()) ) ) in
+    RaftEvent (MonoTime.init(), IntID.from_int i, RaftImpl.startFollow (Index.init()) ) ) in
   match P.nxt_failure with
   | Some _ ->
     let failure_sim = List.init num ~f:(fun i -> 
-      N (nxt_failure (MonoTime.init()), IntID.from_int i, Kill)) in
+      SimulationEvent (nxt_failure (MonoTime.init()), IntID.from_int i, Kill)) in
     EventList.init (initial@failure_sim)
   | None -> EventList.init (initial)
 
