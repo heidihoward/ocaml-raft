@@ -26,6 +26,9 @@ end
 
 module EventList = (LinkedList(EventItem) : EVENTLIST with type item = EventItem.t)
 
+  type eventsig = State.t -> (State.t * EventList.item list)
+  type clientsig = Client.t -> (Client.t * EventList.item list)
+
 
 let debug x = if (P.debug_mode) then (printf " %s  \n" x) else ()
 
@@ -33,13 +36,13 @@ let debug x = if (P.debug_mode) then (printf " %s  \n" x) else ()
 let timeout (m:role) = MonoTime.span_of_float (P.timeout () m)
 
 module type COMMS = sig
-    val unicast: [`Node of IntID.t | `Client] -> MonoTime.t -> (MonoTime.t, IntID.t, State.t, Client.t) event -> EventList.item
-    val broadcast: IntID.t list -> MonoTime.t -> (MonoTime.t, IntID.t, State.t, Client.t) event -> EventList.item
+    val unicast_replica: IntID.t -> MonoTime.t -> eventsig -> EventList.item
+    val unicast_client: MonoTime.t -> clientsig -> EventList.item
+    val broadcast: IntID.t list -> MonoTime.t -> eventsig -> EventList.item list
   end
 
 module type RAFT = sig
-  type eventsig = State.t -> (State.t * EventList.item list)
-  type clientsig = Client.t -> (Client.t * EventList.item list)
+
 
   type checker = Follower_Timeout of Index.t 
              | Candidate_Timeout of Index.t
@@ -52,9 +55,9 @@ module type RAFT = sig
   val startLeader: eventsig
   val stepDown: Index.t -> eventsig
   val requestVoteRq: Rpcs.RequestVoteArg.t -> eventsig
-  val requestVoteRs: Rpcs.RequestVoteRes.t -> eventsig
+  val requestVoteRs: Rpcs.RequestVoteRes.t -> IntID.t -> eventsig
   val heartbeatRq: Rpcs.HeartbeatArg.t -> eventsig
-  val heartbeatRs: Rpcs.HeartbeatArg.t -> eventsig
+  val heartbeatRs: Rpcs.HeartbeatRes.t -> eventsig
   val clientRq: Rpcs.ClientArg.t -> eventsig
   val clientRs: Rpcs.ClientRes.t -> clientsig
 
@@ -64,20 +67,24 @@ module RaftImpl : RAFT = struct
 
 module Comms : COMMS = struct 
 
-let unicast (dist: [`Node of IntID.t | `Client]) (t:MonoTime.t) (e) = 
+let unicast_replica (dist: IntID.t) (t:MonoTime.t) (e) = 
   (*TODO: modify these to allow the user to specify some deley
    * distribution/bound *)
   let delay = MonoTime.span_of_float (P.pkt_delay()) in
   let arriv = MonoTime.add t delay in
-  match dist with
-  | `Node dist -> 
   debug ("dispatching msg to "^(IntID.to_string dist) ^ " to arrive at "^
   (MonoTime.to_string arriv));
   RaftEvent (arriv ,dist ,e ) 
-  | `Client -> ClientEvent (arriv, e)
+
+let unicast_client (t:MonoTime.t) (e) =
+  let delay = MonoTime.span_of_float (P.pkt_delay()) in
+  let arriv = MonoTime.add t delay in
+  debug ("dispatching msg to client to arrive at "^
+  (MonoTime.to_string arriv));
+  ClientEvent (arriv, e)
 
 let broadcast (dests:IntID.t list) (t:MonoTime.t) e  = 
-  List.map dests ~f:(fun dst -> unicast (`Node dst) t e) 
+  List.map dests ~f:(fun dst -> unicast_replica(dst) t e) 
 
 end 
 
@@ -89,9 +96,6 @@ let checkElection (s:State.t) =
 type checker = Follower_Timeout of Index.t 
              | Candidate_Timeout of Index.t
              | Leader_Timeout of Index.t
-
-type eventsig = State.t -> (State.t * EventList.item list)
-type clientsig = Client.t -> (Client.t * EventList.item list)
 
 let rec  startCand (s:State.t) = 
   debug "Entering Candidate Mode / Restarting Electon";
@@ -175,7 +179,7 @@ and requestVoteRq (args: Rpcs.RequestVoteArg.t) (s:State.t) =
       { term = s_new.term;
         votegranted = vote;
       }) in
-  (s_new, (Comms.unicast (`Node args.cand_id) (s_new.time()) (requestVoteRs res
+  (s_new, (Comms.unicast_replica(args.cand_id) (s_new.time()) (requestVoteRs res
   s_new.id))::e_new)
   
 and requestVoteRs (res: Rpcs.RequestVoteRes.t) id (s:State.t) = 
@@ -198,11 +202,11 @@ and heartbeatRq (args: Rpcs.HeartbeatArg.t) (s:State.t) =
     let (s_new:State.t) = State.tick Set s_new |> State.tick (SetLeader args.lead_id) in
     let res = Rpcs.HeartbeatRes.(
     { term = s_new.term} ) in
-    (s_new,(Comms.unicast (`Node args.lead_id) (s_new.time()) (heartbeatRs res ))::e_new)
+    (s_new,(Comms.unicast_replica(args.lead_id) (s_new.time()) (heartbeatRs res ))::e_new)
   else
     let res = Rpcs.HeartbeatRes.(
     { term = s_new.term} ) in
-    (s_new,(Comms.unicast (`Node args.lead_id) (s_new.time()) (heartbeatRs res))::e_new)
+    (s_new,(Comms.unicast_replica(args.lead_id) (s_new.time()) (heartbeatRs res))::e_new)
 
 and heartbeatRs (res: Rpcs.HeartbeatRes.t) (s:State.t) =
   debug (Rpcs.HeartbeatRes.to_string res);
@@ -214,7 +218,7 @@ and heartbeatRs (res: Rpcs.HeartbeatRes.t) (s:State.t) =
   match s.mode with
   | Follower  | Candidate ->
     let res = { Rpcs.ClientRes.success = false; leader = s.leader } in
-    (s, [Comms.unicast `Client (s.time()) (clientRs res)] )
+    (s, [Comms.unicast_client (s.time()) (clientRs res)] )
   | Leader -> (s,[])
 
 and clientRs (res: Rpcs.ClientRes.t) (s:Client.t) = 
