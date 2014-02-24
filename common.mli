@@ -116,7 +116,7 @@ module Event :
     type ('time, 'id, 'state,'client) t =
         RaftEvent of ('time * 'id * ('time, 'id, 'state,'client) event)
       | SimulationEvent of ('time * 'id * failures)
-      | ClientEvent of ('time * 'id * ('time, 'id, 'state,'client) client)
+      | ClientEvent of ('time * ('time, 'id, 'state,'client) client)
     and ('time, 'id, 'state,'client) event = 'state -> 'state * ('time, 'id, 'state,'client) t list
     and ('time, 'id, 'state,'client) client = 'client -> 'client * ('time, 'id, 'state,'client) t list
 

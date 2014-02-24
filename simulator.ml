@@ -1,6 +1,6 @@
 open Core.Std
 open Common
-open Eventlst
+open Eventlst 
 
 (* [RaftSim] is a main body of the implementation, it handles the simulation, the
  * core protcol implementation and communication. This aspects need to be
@@ -32,21 +32,52 @@ let debug x = if (P.debug_mode) then (printf " %s  \n" x) else ()
 (* TODO: consider spliting this up into 3 functions*)
 let timeout (m:role) = MonoTime.span_of_float (P.timeout () m)
 
-module RaftImpl = struct
+module type COMMS = sig
+    val unicast: [`Node of IntID.t | `Client] -> MonoTime.t -> (MonoTime.t, IntID.t, State.t, Client.t) event -> EventList.item
+    val broadcast: IntID.t list -> MonoTime.t -> (MonoTime.t, IntID.t, State.t, Client.t) event -> EventList.item
+  end
 
-module Comms = struct 
+module type RAFT = sig
+  type eventsig = State.t -> (State.t * EventList.item list)
+  type clientsig = Client.t -> (Client.t * EventList.item list)
 
-let unicast (dist:IntID.t) (t:MonoTime.t) (e) = 
+  type checker = Follower_Timeout of Index.t 
+             | Candidate_Timeout of Index.t
+             | Leader_Timeout of Index.t
+
+  val startCand: eventsig
+  val checkTimer: checker -> eventsig
+  val dispatchHeartbeat: eventsig
+  val startFollow: Index.t -> eventsig
+  val startLeader: eventsig
+  val stepDown: Index.t -> eventsig
+  val requestVoteRq: Rpcs.RequestVoteArg.t -> eventsig
+  val requestVoteRs: Rpcs.RequestVoteRes.t -> eventsig
+  val heartbeatRq: Rpcs.HeartbeatArg.t -> eventsig
+  val heartbeatRs: Rpcs.HeartbeatArg.t -> eventsig
+  val clientRq: Rpcs.ClientArg.t -> eventsig
+  val clientRs: Rpcs.ClientRes.t -> clientsig
+
+end
+
+module RaftImpl : RAFT = struct
+
+module Comms : COMMS = struct 
+
+let unicast (dist: [`Node of IntID.t | `Client]) (t:MonoTime.t) (e) = 
   (*TODO: modify these to allow the user to specify some deley
    * distribution/bound *)
   let delay = MonoTime.span_of_float (P.pkt_delay()) in
   let arriv = MonoTime.add t delay in
+  match dist with
+  | `Node dist -> 
   debug ("dispatching msg to "^(IntID.to_string dist) ^ " to arrive at "^
   (MonoTime.to_string arriv));
   RaftEvent (arriv ,dist ,e ) 
+  | `Client -> ClientEvent (arriv, e)
 
 let broadcast (dests:IntID.t list) (t:MonoTime.t) e  = 
-  List.map dests ~f:(fun dst -> unicast dst t e) 
+  List.map dests ~f:(fun dst -> unicast (`Node dst) t e) 
 
 end 
 
@@ -58,6 +89,9 @@ let checkElection (s:State.t) =
 type checker = Follower_Timeout of Index.t 
              | Candidate_Timeout of Index.t
              | Leader_Timeout of Index.t
+
+type eventsig = State.t -> (State.t * EventList.item list)
+type clientsig = Client.t -> (Client.t * EventList.item list)
 
 let rec  startCand (s:State.t) = 
   debug "Entering Candidate Mode / Restarting Electon";
@@ -141,7 +175,7 @@ and requestVoteRq (args: Rpcs.RequestVoteArg.t) (s:State.t) =
       { term = s_new.term;
         votegranted = vote;
       }) in
-  (s_new, (Comms.unicast args.cand_id (s_new.time()) (requestVoteRs res
+  (s_new, (Comms.unicast (`Node args.cand_id) (s_new.time()) (requestVoteRs res
   s_new.id))::e_new)
   
 and requestVoteRs (res: Rpcs.RequestVoteRes.t) id (s:State.t) = 
@@ -164,31 +198,31 @@ and heartbeatRq (args: Rpcs.HeartbeatArg.t) (s:State.t) =
     let (s_new:State.t) = State.tick Set s_new |> State.tick (SetLeader args.lead_id) in
     let res = Rpcs.HeartbeatRes.(
     { term = s_new.term} ) in
-    (s_new,(Comms.unicast args.lead_id (s_new.time()) (heartbeatRs res ))::e_new)
+    (s_new,(Comms.unicast (`Node args.lead_id) (s_new.time()) (heartbeatRs res ))::e_new)
   else
     let res = Rpcs.HeartbeatRes.(
     { term = s_new.term} ) in
-    (s_new,(Comms.unicast args.lead_id (s_new.time()) (heartbeatRs res))::e_new)
+    (s_new,(Comms.unicast (`Node args.lead_id) (s_new.time()) (heartbeatRs res))::e_new)
 
 and heartbeatRs (res: Rpcs.HeartbeatRes.t) (s:State.t) =
   debug (Rpcs.HeartbeatRes.to_string res);
   let s_new,e_new = stepDown res.term s in
   (s_new,e_new)
 
-and clientRq (args: Rpcs.ClientArg.t) (s:State.t) = 
+ and clientRq (args: Rpcs.ClientArg.t) (s:State.t) = 
   debug ("Recieved client request to commit "^args.cmd);
   match s.mode with
   | Follower  | Candidate ->
     let res = { Rpcs.ClientRes.success = false; leader = s.leader } in
-    clientRs res s
+    (s, [Comms.unicast `Client (s.time()) (clientRs res)] )
   | Leader -> (s,[])
 
-and clientRs (res: Rpcs.ClientRes.t) (s:State.t) = 
+and clientRs (res: Rpcs.ClientRes.t) (s:Client.t) = 
   debug ("Simulating clients response");
   match res.success,res.leader with
   | true,_ -> ( debug "successfully committed"; (s,[]) )
   | false,None -> ( debug "giving up"; (s,[]) )
-  | false,Some id -> (debug "trying again,but actually giving up"; (s,[]) )
+  | false,Some id -> (debug "trying again,but actually giving up"; (s,[]) ) 
 
 end
 
@@ -215,7 +249,7 @@ let get_time_span (sl:StateList.t) =
   let duration = MonoTime.diff (state.time()) start_time in
   MonoTime.span_to_string (duration)
 
-let wake (s:State.t) =
+let wake (s:State.t) : EventList.item list =
   debug "node is restarting after failing";
   let timer = MonoTime.add (s.time()) (timeout Follower) in
    [ RaftEvent (timer, s.id,RaftImpl.checkTimer (Follower_Timeout s.term) );
@@ -225,7 +259,8 @@ let kill (s:State.t) =
   debug "node has failed";
   [SimulationEvent (nxt_recover (s.time()), s.id, Wake)]
 
-let apply_E (st: State.t status) (e: (MonoTime.t,IntID.t,State.t,Client.t) event) (t: MonoTime.t) =
+let apply_RaftEvent (st: State.t status) (e: (MonoTime.t,IntID.t,State.t,Client.t) event) (t: MonoTime.t) 
+   : (State.t * EventList.item list) option =
   (* wait used in realtime simulation, just instant unit for DES *)
   MonoTime.wait_until t;
   match st with 
@@ -237,9 +272,10 @@ let apply_E (st: State.t status) (e: (MonoTime.t,IntID.t,State.t,Client.t) event
  | Down s -> (*node is down so event is lost *)
      debug "node is unavaliable";
      None
- | Notfound -> exit 1
+ | Notfound -> assert false
 
-let apply_N (sl: StateList.t) (e: failures) (t: MonoTime.t) (id:IntID.t) =
+let apply_SimulationEvent (sl: StateList.t) (e: failures) (t: MonoTime.t) (id:IntID.t) 
+   : StateList.t * EventList.item list =
   MonoTime.wait_until t;
   match e with 
   | Wake -> 
@@ -271,7 +307,7 @@ let rec run_multi ~term
   | None -> debug "terminating as no events remain"; (get_time_span sl)
   (* next event is a simulated failure/recovery *)
   | Some (SimulationEvent (t,id,e),els) -> 
-      let sl_new, el_new = apply_N sl e t id in
+      let sl_new, el_new = apply_SimulationEvent sl e t id in
       StateList.check_safety sl;
       run_multi ~term sl_new (EventList.add el_new els) cl
   (* next event is some computation at a node *)
@@ -279,7 +315,7 @@ let rec run_multi ~term
     then begin debug "terminating as terminate time has been reached"; (get_time_span sl) end
     (* will not be terminating so simluate event *)
     else  
-      match (apply_E (StateList.find sl id) e t) with
+      match (apply_RaftEvent (StateList.find sl id) e t) with
       | Some (s_new,el_new) -> run_multi ~term (StateList.add sl id s_new) (EventList.add el_new els) cl
       | None -> run_multi ~term sl els cl
 
