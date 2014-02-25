@@ -1,4 +1,0 @@
-digraph FUNCTION {
- "S_initial_84" -> "S_final_85" [label="{WinElection} (57)",fontsize=10,];
-
-}

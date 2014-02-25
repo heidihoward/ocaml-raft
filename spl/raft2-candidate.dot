@@ -1,5 +1,0 @@
-digraph FUNCTION {
-
- "S_initial_77" -> "S_final_78" [label="{RestartElecton} (55)",fontsize=10,];
- "S_initial_77" -> "S_final_78" [label="{StartElecton} (53)",fontsize=10,];
-}
