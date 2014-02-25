@@ -14,7 +14,7 @@ automaton raft_general () {
     StepDown_from_Leader;
 	} }
 }
-
+/*
 function requestVote_Rcv_follower () {
 	RequestVote_Follower_Rcv;
     either {
@@ -70,4 +70,4 @@ automaton candidate () {
 
 automaton leader () {
 	WinElection;
-}
+} */

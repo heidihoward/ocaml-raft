@@ -1,0 +1,28 @@
+state { label="S_seq_14"; type="default" }
+edge { from="S_seq_14"; to="S_multentry_16"; assign="multiple_20=0"}
+edge { from="S_seq_14"; to="S_or_25"; assign="multiple_20=0"}
+edge { from="S_seq_14"; to="S_or_23"; assign="multiple_20=0"}
+state { label="S_final_2"; type="default" }
+state { label="S_multentry_9"; type="default" }
+edge { from="S_multentry_9"; to="S_seq_14"; msg="StartElecton"}
+state { label="S_seq_26"; type="default" }
+edge { from="S_seq_26"; to="S_multblexit_11"; msg="StepDown_from_Leader"}
+state { label="S_or_23"; type="default" }
+edge { from="S_or_23"; to="S_multblexit_11"; msg="StepDown_from_Candidate"}
+state { label="S_multblexit_18"; type="default" }
+edge { from="S_multblexit_18"; to="S_multentry_16"; assign="multiple_20=(multiple_20 + 1)"}
+edge { from="S_multblexit_18"; to="S_or_25"; assign="multiple_20=(multiple_20 + 1)"}
+edge { from="S_multblexit_18"; to="S_or_23"; assign="multiple_20=(multiple_20 + 1)"}
+state { label="S_multblexit_11"; type="default" }
+edge { from="S_multblexit_11"; to="S_multentry_9"; assign="multiple_13=(multiple_13 + 1)"}
+edge { from="S_multblexit_11"; to="S_final_2"; assign="multiple_13=(multiple_13 + 1)"}
+state { label="S_either_or_3"; type="default" }
+edge { from="S_either_or_3"; to="S_multentry_9"; assign="multiple_13=0"}
+edge { from="S_either_or_3"; to="S_final_2"; assign="multiple_13=0"}
+state { label="S_or_25"; type="default" }
+edge { from="S_or_25"; to="S_seq_26"; msg="WinElecton"}
+state { label="S_multentry_16"; type="default" }
+edge { from="S_multentry_16"; to="S_multblexit_18"; msg="RestartElecton"}
+state { label="S_initial_1"; type="default" }
+edge { from="S_initial_1"; to="S_either_or_3"; msg="Startup"}
+edge { from="S_initial_1"; to="S_either_or_3"; msg="Recover"}
