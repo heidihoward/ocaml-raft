@@ -1,0 +1,52 @@
+function candidate(int nodes, int count) {
+	during {
+	  count = 0;
+	  do {
+	    Send_RequestVoteRPC;
+	    either {
+	      Recieve_Vote;
+	      count = count + 1; 
+	    } or {
+	      No_Vote;
+	    }
+      } until (count * 2 >= nodes);
+      Become_Leader;
+      exit;
+	} handle {
+	  Leader_Discovery;
+	  follower(nodes,count);
+	} handle {
+	  Failure;
+	  exit;
+	}
+
+
+}
+
+function follower(int nodes,int count) {
+	while (true) { 
+       either {
+       Receive_HeartbeatRPC;
+       } or {
+       ElectionTimeout;
+       candidate(nodes,count);
+       }
+    }
+}
+
+function leader(int nodes, int count) {
+	during {
+      while (true) {
+       Heartbeat_Timeout;
+       Broadcast_HeartbeatRPC; }
+	} handle {
+	Leader_Discovery;
+	follower(nodes,count);
+	}
+}
+
+automaton raft_startup(int nodes, int count) {
+	Initialize;
+	follower(nodes,count);
+}
+

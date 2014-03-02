@@ -1,6 +1,8 @@
 open Core.Std
 open Common
 
+(** This module specifics the arguments and results of RPC's *)
+
 (*module packet = 
  functor (Pkt: sig type t with sexp) ->  struct
   
@@ -9,8 +11,6 @@ open Common
 
 end 
 *)
-
-
 
 module RequestVoteArg  = struct
   type t = { term: Index.t;
@@ -43,12 +43,17 @@ module HeartbeatRes = struct
 end
 
 module ClientArg = struct
-  type t = { cmd: string }
+  type t = { cmd: Sexp.t } with sexp
+  let to_string t = 
+    "--> Client Request "^(sexp_of_t t |> Sexp.to_string)   
 end
 
 module ClientRes = struct
   type t = { success: bool;
-             leader:  IntID.t option }
+             node_id: IntID.t;
+             leader:  IntID.t option; } with sexp
+  let to_string t = 
+    "--> Client Response "^(sexp_of_t t |> Sexp.to_string)   
 end
 
 type t =  RequestVoteArg of RequestVoteArg.t 

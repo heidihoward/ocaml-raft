@@ -60,6 +60,7 @@ module type RAFT = sig
   val heartbeatRs: Rpcs.HeartbeatRes.t -> eventsig
   val clientRq: Rpcs.ClientArg.t -> eventsig
   val clientRs: Rpcs.ClientRes.t -> clientsig
+  val clientCommit: clientsig
 
 end
 
@@ -214,19 +215,40 @@ and heartbeatRs (res: Rpcs.HeartbeatRes.t) (s:State.t) =
   (s_new,e_new)
 
  and clientRq (args: Rpcs.ClientArg.t) (s:State.t) = 
-  debug ("Recieved client request to commit "^args.cmd);
+  debug (Rpcs.ClientArg.to_string args);
   match s.mode with
   | Follower  | Candidate ->
-    let res = { Rpcs.ClientRes.success = false; leader = s.leader } in
+    let res = { Rpcs.ClientRes.success = false; node_id = s.id; leader = s.leader } in
+    debug("I'm not the leader so can't commit");
     (s, [Comms.unicast_client (s.time()) (clientRs res)] )
-  | Leader -> (s,[])
+  | Leader -> 
+    let res = { Rpcs.ClientRes.success = true; node_id = s.id; leader = s.leader } in
+    debug("I'm the leader so will pretend to commit");
+    (s, [Comms.unicast_client (s.time()) (clientRs res)] )
 
 and clientRs (res: Rpcs.ClientRes.t) (s:Client.t) = 
   debug ("Simulating clients response");
-  match res.success,res.leader with
-  | true,_ -> ( debug "successfully committed"; (s,[]) )
-  | false,None -> ( debug "giving up"; (s,[]) )
-  | false,Some id -> (debug "trying again,but actually giving up"; (s,[]) ) 
+  debug (Rpcs.ClientRes.to_string res);
+  let timer = MonoTime.add (s.time()) (MonoTime.span_of_int 5) in
+  match res.success with
+  | true -> debug "successfully committed"; 
+    let s_new = Client.tick (Successful res.node_id) s in
+    (s_new,[ClientEvent (timer,clientCommit) ]) 
+  | false -> debug "unsucessful, try again";
+    let s_new = Client.tick (Unsuccessful (res.node_id,res.leader) ) s in
+    (s_new,[ClientEvent (timer,clientCommit)]) 
+
+
+and clientCommit (s: Client.t) =
+  match (s.workload) with
+  | cmd::later -> 
+    debug ("attempting to commit"^(Mach.cmd_to_string cmd)) ;
+    let args = {Rpcs.ClientArg.cmd = (Mach.sexp_of_cmd cmd)} in
+    (match s.leader with
+    | Leader id -> (s, [Comms.unicast_replica id (s.time()) (clientRq args) ])
+    | TryAsking (id::_) -> (s, [Comms.unicast_replica id (s.time()) (clientRq args) ]) )
+  | [] -> 
+    debug "successfully committed all commands "; (s,[])
 
 end
 
@@ -291,6 +313,15 @@ let apply_SimulationEvent (sl: StateList.t) (e: failures) (t: MonoTime.t) (id:In
       let e_new = wake (StateList.find_wst sl_new id) in
       (sl_new,e_new)
 
+let apply_ClientEvent (cl: Client.t) (e: (MonoTime.t,IntID.t,State.t,Client.t) client) (t: MonoTime.t) 
+   : (Client.t * EventList.item list) =
+  (* wait used in realtime simulation, just instant unit for DES *)
+  MonoTime.wait_until t;
+     let cl = Client.tick (SetTime t) cl in
+     let cl_new,e_new = e cl in
+     debug (Client.print cl_new);
+     (cl_new,e_new)
+
 
 (* Main excuation cycle *)  
 let rec run_multi ~term
@@ -318,21 +349,30 @@ let rec run_multi ~term
   | Some (RaftEvent (t,id,e),els) -> if (t>=term) 
     then begin debug "terminating as terminate time has been reached"; (get_time_span sl) end
     (* will not be terminating so simluate event *)
-    else  
+    else (
       match (apply_RaftEvent (StateList.find sl id) e t) with
       | Some (s_new,el_new) -> run_multi ~term (StateList.add sl id s_new) (EventList.add el_new els) cl
-      | None -> run_multi ~term sl els cl
+      | None -> run_multi ~term sl els cl )
+
+ | Some (ClientEvent (t,e),els) -> if (t>=term) 
+    then begin debug "terminating as terminate time has been reached"; (get_time_span sl) end
+    (* will not be terminating so simluate event *)
+    else  
+      let (cl_new,el_new) = apply_ClientEvent cl e t in
+      run_multi ~term sl (EventList.add el_new els) cl_new
 
 
 let init_eventlist num  :EventList.t  =  
-  let initial = List.init num ~f:(fun i ->
+  let initial_RaftEvent = 
+    List.init num ~f:(fun i ->
     RaftEvent (MonoTime.init(), IntID.from_int i, RaftImpl.startFollow (Index.init()) ) ) in
-  match P.nxt_failure with
-  | Some _ ->
-    let failure_sim = List.init num ~f:(fun i -> 
-      SimulationEvent (nxt_failure (MonoTime.init()), IntID.from_int i, Kill)) in
-    EventList.init (initial@failure_sim)
-  | None -> EventList.init (initial)
+  let initial_SimulationEvent = 
+    match P.nxt_failure with
+    | Some _ ->
+      List.init num ~f:(fun i -> SimulationEvent (nxt_failure (MonoTime.init()), IntID.from_int i, Kill)) 
+    | None -> [] in
+  let inital_ClientEvent = [ClientEvent (MonoTime.init(), RaftImpl.clientCommit)] in
+  EventList.init (initial_SimulationEvent@initial_RaftEvent@inital_ClientEvent)
 
 
 let start () =
