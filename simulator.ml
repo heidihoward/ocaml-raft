@@ -50,14 +50,14 @@ module type RAFT = sig
 
   val startCand: eventsig
   val checkTimer: checker -> eventsig
-  val dispatchHeartbeat: eventsig
+  val dispatchAppendEntries: eventsig
   val startFollow: Index.t -> eventsig
   val startLeader: eventsig
   val stepDown: Index.t -> eventsig
   val requestVoteRq: Rpcs.RequestVoteArg.t -> eventsig
   val requestVoteRs: Rpcs.RequestVoteRes.t -> IntID.t -> eventsig
-  val heartbeatRq: Rpcs.HeartbeatArg.t -> eventsig
-  val heartbeatRs: Rpcs.HeartbeatRes.t -> eventsig
+  val appendEntriesRq: Rpcs.AppendEntriesArg.t -> eventsig
+  val appendEntriesRs: Rpcs.AppendEntriesRes.t -> eventsig
   val clientRq: Rpcs.ClientArg.t -> eventsig
   val clientRs: Rpcs.ClientRes.t -> clientsig
   val clientCommit: clientsig
@@ -120,22 +120,23 @@ and checkTimer c (s:State.t)  = debug "Checking timer";
    * follower, how do we check for this case *)
   match c,s.mode with
   | Follower_Timeout term, Follower when term = s.term -> 
-    (* if heartbeat is true, we have rec a packet in the last election timeout*)
+    (* if AppendEntries is true, we have rec a packet in the last election timeout*)
     if s.timer then next_timer (Follower_Timeout s.term) s  
     (* we have timedout so become candidate *)
     else (startCand s)
   | Candidate_Timeout term, Candidate when term = s.term -> (debug "restating
   election"; startCand s)
-  | Leader_Timeout term, Leader when term = s.term -> (dispatchHeartbeat s)
+  | Leader_Timeout term, Leader when term = s.term -> (dispatchAppendEntries s)
   | _ -> debug "Timer no longer valid"; (s,[])
 
-and dispatchHeartbeat (s:State.t) =
-  let args = Rpcs.HeartbeatArg.(
+(* this function send heartbeat versions of AppendEntries to all other nodes *)
+and dispatchAppendEntries (s:State.t) =
+  let args = Rpcs.AppendEntriesArg.(
       { term = s.term;
         lead_id = s.id;
       }) in
   let reqs = Comms.broadcast s.allNodes (s.time()) 
-    (heartbeatRq args) in
+    (appendEntriesRq args) in
   let t = MonoTime.add (s.time()) (timeout Leader) in
   (s, RaftEvent (t, s.id, checkTimer (Leader_Timeout s.term) )::reqs )
 
@@ -147,7 +148,7 @@ and startFollow term (s:State.t)  = debug "Entering Follower mode";
   (s,[ RaftEvent (t, s.id,checkTimer (Follower_Timeout s.term) )])
 
 and startLeader (s:State.t) = debug "Election Won - Becoming Leader";
-  dispatchHeartbeat (State.tick StartLeader s)
+  dispatchAppendEntries (State.tick StartLeader s)
 
 and stepDown term (s:State.t) = 
   if (term > s.term) 
@@ -195,22 +196,29 @@ and requestVoteRs (res: Rpcs.RequestVoteRes.t) id (s:State.t) =
       (if (checkElection s) then startLeader s else  (s, [])) end
     else (s, [])
 
-and heartbeatRq (args: Rpcs.HeartbeatArg.t) (s:State.t) =
+and appendEntriesRq (args: Rpcs.AppendEntriesArg.t) (s:State.t) =
   debug ("Recieve hearbeat from "^IntID.to_string args.lead_id);
-  debug (Rpcs.HeartbeatArg.to_string args);
-  let (s_new:State.t),e_new = stepDown args.term s in
-  if (args.term = s_new.term) then 
+  debug (Rpcs.AppendEntriesArg.to_string args);
+  if (args.term >= s.term) then 
+    begin
+    debug ("this AppendEntries is up to date");
+    (*if required then stepDown from leader or follower or/and update term *)
+    let (s_new:State.t),e_new = stepDown args.term s in
     let (s_new:State.t) = State.tick Set s_new |> State.tick (SetLeader args.lead_id) in
-    let res = Rpcs.HeartbeatRes.(
+    let res = Rpcs.AppendEntriesRes.(
     { term = s_new.term} ) in
-    (s_new,(Comms.unicast_replica(args.lead_id) (s_new.time()) (heartbeatRs res ))::e_new)
+    (s_new,(Comms.unicast_replica(args.lead_id) (s_new.time()) (appendEntriesRs res ))::e_new)
+    end
   else
-    let res = Rpcs.HeartbeatRes.(
-    { term = s_new.term} ) in
-    (s_new,(Comms.unicast_replica(args.lead_id) (s_new.time()) (heartbeatRs res))::e_new)
+    begin
+    debug("this AppendEntries is behind the time, so ignore");
+    let res = Rpcs.AppendEntriesRes.(
+    { term = s.term} ) in
+    (s,[Comms.unicast_replica(args.lead_id) (s.time()) (appendEntriesRs res)])
+    end
 
-and heartbeatRs (res: Rpcs.HeartbeatRes.t) (s:State.t) =
-  debug (Rpcs.HeartbeatRes.to_string res);
+and appendEntriesRs (res: Rpcs.AppendEntriesRes.t) (s:State.t) =
+  debug (Rpcs.AppendEntriesRes.to_string res);
   let s_new,e_new = stepDown res.term s in
   (s_new,e_new)
 
@@ -333,7 +341,7 @@ let rec run_multi ~term
   (el: EventList.t)
   (cl: Client.t)  =
   (* checking termination condition for tests *)
-(*)    if (StateList.leader_agreed sl) 
+(*    if (StateList.leader_agreed sl) 
     then begin
       debug "terminating as leader has been agreed";
        (* for graph gen.  printf " %s \n" (get_time_span sl); *)

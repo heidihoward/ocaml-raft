@@ -29,17 +29,17 @@ module RequestVoteRes = struct
     "--> RequestVote Response "^(sexp_of_t t |> Sexp.to_string)
 end
 
-module HeartbeatArg = struct
+module AppendEntriesArg = struct
   type t = { term: Index.t;
              lead_id: IntID.t;} with sexp
   let to_string t =
-    "--> Heartbeat Request "^(sexp_of_t t |> Sexp.to_string)
+    "--> AppendEntries Request "^(sexp_of_t t |> Sexp.to_string)
 end 
 
-module HeartbeatRes = struct
+module AppendEntriesRes = struct
   type t = { term: Index.t; } with sexp
   let to_string t = 
-    "--> Heartbeat Response "^(sexp_of_t t |> Sexp.to_string)
+    "--> AppendEntries Response "^(sexp_of_t t |> Sexp.to_string)
 end
 
 module ClientArg = struct
@@ -58,7 +58,7 @@ end
 
 type t =  RequestVoteArg of RequestVoteArg.t 
           | RequestVoteRes of RequestVoteRes.t 
-          | HeartbeatArg of HeartbeatArg.t 
-          | HeartbeatRes of HeartbeatRes.t
+          | AppendEntriesArg of AppendEntriesArg.t 
+          | AppendEntriesRes of AppendEntriesRes.t
           | ClientArg of ClientArg.t
           | ClientRes of ClientRes.t
