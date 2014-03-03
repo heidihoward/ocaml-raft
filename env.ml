@@ -12,10 +12,10 @@ module PureState  =
           term : Index.t;
           mode : role;
           votedFor : IntID.t option;
-          log : Mach.cmd ListLog.t;
+          log : (Index.t * Index.t * Mach.cmd) list;
           lastlogIndex : Index.t;
           lastlogTerm : Index.t;
-          lastApplied : Index.t;
+          commitIndex : Index.t;
           votesResponded : IntID.t list;
           votesGranted : IntID.t list;
           nextIndex : Index.t;
@@ -45,7 +45,9 @@ module PureState  =
    | SetLeader of IntID.t
    | SetTerm of Index.t
    | Restart
-   | Commit of Mach.cmd
+   | Commit of Index.t
+   | AppendEntries of Index.t * Index.t * (Index.t * Index.t * Mach.cmd) list
+   | AppendEntry of (Index.t * Index.t * Mach.cmd)
 
 
   let init me all =
@@ -54,10 +56,10 @@ module PureState  =
       time = MonoTime.init;
       timer = false;
       votedFor = None;
-      log = ListLog.init(); 
+      log = []; 
       lastlogIndex = Index.init();
       lastlogTerm = Index.init();
-      lastApplied = Index.init();
+      commitIndex = Index.init();
       votesResponded = [];
       votesGranted = [];
       nextIndex = Index.init();
@@ -77,7 +79,7 @@ module PureState  =
       log = s.log; 
       lastlogIndex = Index.init();
       lastlogTerm = Index.init();
-      lastApplied = Index.init();
+      commitIndex = Index.init();
       votesResponded = [];
       votesGranted = [];
       nextIndex = Index.init();
@@ -102,11 +104,18 @@ module PureState  =
     " | Votes Recieved: "^ (List.to_string ~f:IntID.to_string s.votesGranted)^
     " | Leader: "^(string_of_option (IntID.to_string) s.leader)^"\n"^
     " | State Machine: "^(Mach.to_string s.state_mach)^
-    " | Replicated Log: "^(ListLog.to_string s.log ~f:(Mach.cmd_to_string))^
+    " | Replicated Log: "^(List.to_string s.log 
+      ~f:(fun (x,y,z) -> "Index: "^(Index.to_string x)^
+                         "Term: "^(Index.to_string y)^
+                         "Cmd: "^(Mach.cmd_to_string z)) )^
     "\n-------------------------------------------------------"
  (* sexp_of_t s |> Sexp.to_string *)
 
-
+  let rec log_add original new_list = 
+   (*combine logs, if two items with same index, give proirity to new *)
+   match new_list with
+   | (index,term,cmd)::rest -> log_add ((index,term,cmd)::(List.filter original ~f:(fun (i,_,_) -> not(index=i)))) rest
+   | [] -> original
 
   let tick tk s =
   match tk with
@@ -154,9 +163,21 @@ module PureState  =
           votedFor = None }
     | Restart -> 
         refresh s
-    | Commit x ->
-        { s with
-        state_mach = Mach.commit s.state_mach x}
+    | Commit new_index -> (
+        let new_mach = 
+        (List.filter s.log ~f:( fun (x,_,cmd) -> (x > s.commitIndex) && (x <= new_index ) ) 
+        |> List.sort ~cmp:(fun (x,_,_) (y,_,_) -> Index.compare x y) 
+        |> List.map ~f:(fun (_,_,x) -> x)
+        |> Mach.commit_many s.state_mach) in
+        { s with state_mach = new_mach; commitIndex=new_index} )
+    | AppendEntries (last_index, last_term, entries) -> (
+        match entries with
+        | x::xs -> { s with log = log_add s.log entries; lastlogTerm=last_term; lastlogIndex=last_index }
+        | [] -> s )
+    | AppendEntry (index, term, cmd) -> 
+       {s with log = (index,term,cmd)::s.log ; lastlogTerm=term; lastlogIndex=index}
+
+
 
 end
 

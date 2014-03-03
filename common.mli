@@ -5,10 +5,7 @@ open Core.Std
  * *)
 
 (* [role] is the basic mode of operation of a node *)
-type role = Follower | Candidate | Leader
-val __role_of_sexp__ : Sexplib.Type.t -> role
-val role_of_sexp : Sexplib.Type.t -> role
-val sexp_of_role : role -> Sexplib.Type.t
+type role = Follower | Candidate | Leader with sexp
 
 (** [status] wraps around State.t to simulate node failures *)
 type 'a status = Live of 'a | Down of 'a | Notfound
@@ -46,69 +43,32 @@ module type PARAMETERS =
 (** [Index] is a single monotonically increasing discrete value *) 
 module Index :
   sig
-    type t
+    type t with sexp, bin_io, compare
     val succ : t -> t
     val init : unit -> t
     val to_string : t -> string
-
-    val bin_t : t Bin_prot.Type_class.t0
-    val bin_read_t : t Bin_prot.Read.reader
-    val __bin_read_t__ : (int -> t) Bin_prot.Read.reader
-    val bin_reader_t : t Bin_prot.Type_class.reader0
-    val bin_size_t : t Bin_prot.Size.sizer
-    val bin_write_t : t Bin_prot.Write.writer
-    val bin_writer_t : t Bin_prot.Type_class.writer0
-    val t_of_sexp : Sexplib.Type.t -> t
-    val sexp_of_t : t -> Sexplib.Type.t
   end
 
 (** [IntID] is the identifier used for nodes, this could later be used to store
  * location information *)
 module IntID : 
   sig
-    type t
+    type t with sexp, bin_io
     val from_int : int -> t
     val to_int : t -> int
     val equal : t -> t -> bool
     val to_string : t -> string
-
-    val bin_t : t Bin_prot.Type_class.t0
-    val bin_read_t : t Bin_prot.Read.reader
-    val __bin_read_t__ : (int -> t) Bin_prot.Read.reader
-    val bin_reader_t : t Bin_prot.Type_class.reader0
-    val bin_size_t : t Bin_prot.Size.sizer
-    val bin_write_t : t Bin_prot.Write.writer
-    val bin_writer_t : t Bin_prot.Type_class.writer0
-    val t_of_sexp : Sexplib.Type.t -> t
-    val sexp_of_t : t -> Sexplib.Type.t
   end
 
 (** [ListLog] is a cut down version of list used for the replication log to ensure
    * append only *)
 module ListLog :
   sig
-    type 'a t 
+    type 'a t with sexp, bin_io
     val init : unit -> 'a t
     val cons : 'a -> 'a t -> 'a t
     val to_string : f:('a -> string) -> 'a t -> string
 
-    val t_of_sexp : (Sexplib.Type.t -> 'a) -> Sexplib.Type.t -> 'a t
-    val sexp_of_t : ('a -> Sexplib.Type.t) -> 'a t -> Sexplib.Type.t
-    val bin_t : 'a Bin_prot.Type_class.t0 -> 'a t Bin_prot.Type_class.t0
-    val bin_read_t :
-      'a Bin_prot.Read.reader -> 'a t Bin_prot.Read.reader
-    val __bin_read_t__ :
-      'a Bin_prot.Read.reader ->
-      (int -> 'a t) Bin_prot.Read.reader
-    val bin_reader_t :
-      'a Bin_prot.Type_class.reader0 -> 'a t Bin_prot.Type_class.reader0
-    val bin_size_t :
-      'a Bin_prot.Size.sizer -> 'a t Bin_prot.Size.sizer
-    val bin_write_t :
-      'a Bin_prot.Write.writer ->
-      'a t Bin_prot.Write.writer
-    val bin_writer_t :
-      'a Bin_prot.Type_class.writer0 -> 'a t Bin_prot.Type_class.writer0
   end
 
 module Event :

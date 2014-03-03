@@ -70,6 +70,7 @@ end
 module ListLog = struct
   include List
   let init () = []
+  let append t x = x::t
 end 
 
 (* This is no used but its too beautiful to delete 

@@ -19,10 +19,10 @@ module State :
           term : Index.t;
           mode : role;
           votedFor : IntID.t option;
-          log : Mach.cmd ListLog.t;
+          log : (Index.t * Index.t * Mach.cmd) list;
           lastlogIndex : Index.t;
           lastlogTerm : Index.t;
-          lastApplied : Index.t;
+          commitIndex : Index.t;
           votesResponded : IntID.t list;
           votesGranted : IntID.t list;
           nextIndex : Index.t;
@@ -38,11 +38,7 @@ module State :
           allNodes : IntID.t list;
           leader : IntID.t option;
           state_mach : Mach.t;
-        }
-
-        val __t_of_sexp__ : Sexplib.Type.t -> t
-        val t_of_sexp : Sexplib.Type.t -> t
-        val sexp_of_t : t -> Sexplib.Type.t
+        } with sexp
         
         (** [statecall] are created to modify state *)
         type statecall =
@@ -58,7 +54,10 @@ module State :
           | SetLeader of IntID.t
           | SetTerm of Index.t
           | Restart
-          | Commit of Mach.cmd
+          | Commit of Index.t
+   | AppendEntries of Index.t * Index.t * (Index.t * Index.t * Mach.cmd) list
+   | AppendEntry of (Index.t * Index.t * Mach.cmd)
+
         
         (** [init] id (list of other ids) will create the state *)
         val init : IntID.t -> IntID.t list -> t

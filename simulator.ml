@@ -222,9 +222,13 @@ and heartbeatRs (res: Rpcs.HeartbeatRes.t) (s:State.t) =
     debug("I'm not the leader so can't commit");
     (s, [Comms.unicast_client (s.time()) (clientRs res)] )
   | Leader -> 
-    let res = { Rpcs.ClientRes.success = true; node_id = s.id; leader = s.leader } in
     debug("I'm the leader so will pretend to commit");
-    (s, [Comms.unicast_client (s.time()) (clientRs res)] )
+    let entry_index = Index.succ s.lastlogIndex in
+    let log_entry = (entry_index, s.term, (Mach.cmd_of_sexp args.cmd)) in
+    let s_new = State.tick (AppendEntry log_entry) s in
+    let s_new = State.tick (Commit entry_index) s_new in
+    let res = { Rpcs.ClientRes.success = true; node_id = s.id; leader = s.leader } in
+    (s_new, [Comms.unicast_client (s.time()) (clientRs res)] )
 
 and clientRs (res: Rpcs.ClientRes.t) (s:Client.t) = 
   debug ("Simulating clients response");
@@ -329,13 +333,20 @@ let rec run_multi ~term
   (el: EventList.t)
   (cl: Client.t)  =
   (* checking termination condition for tests *)
-    if (StateList.leader_agreed sl) 
+(*)    if (StateList.leader_agreed sl) 
     then begin
       debug "terminating as leader has been agreed";
        (* for graph gen.  printf " %s \n" (get_time_span sl); *)
         (get_time_span sl)
         end
-    else
+    else *)
+    if (cl.workload=[]) then
+     begin
+      debug "terminating as all commands have been commited ";
+       (* for graph gen.  printf " %s \n" (get_time_span sl); *)
+        (get_time_span sl)
+        end
+    else 
   (* we will not be terminating as the term condition has been reached so get
    * the next event in the event queue and apply it *)
   match EventList.hd el with
