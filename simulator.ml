@@ -134,6 +134,7 @@ and dispatchAppendEntries (s:State.t) =
   let args = Rpcs.AppendEntriesArg.(
       { term = s.term;
         lead_id = s.id;
+        entries = []; (*emprt list means this is heartbeat *)
       }) in
   let reqs = Comms.broadcast s.allNodes (s.time()) 
     (appendEntriesRq args) in
@@ -201,9 +202,11 @@ and appendEntriesRq (args: Rpcs.AppendEntriesArg.t) (s:State.t) =
   debug (Rpcs.AppendEntriesArg.to_string args);
   if (args.term >= s.term) then 
     begin
-    debug ("this AppendEntries is up to date");
+    debug ("this AppendEntries is up to date and therefore valid");
     (*if required then stepDown from leader or follower or/and update term *)
     let (s_new:State.t),e_new = stepDown args.term s in
+    match args.entries with
+    | [] -> 
     let (s_new:State.t) = State.tick Set s_new |> State.tick (SetLeader args.lead_id) in
     let res = Rpcs.AppendEntriesRes.(
     { term = s_new.term} ) in

@@ -127,6 +127,7 @@ module PureState  =
         let t = Index.succ s.term in
        { s with term=t }
     | Vote id -> 
+         assert(s.votedFor = None);
         { s with votedFor = Some id}
     | VoteFrom id ->
         { s with votesGranted = id::s.votesGranted }

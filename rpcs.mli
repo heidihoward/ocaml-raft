@@ -20,7 +20,7 @@ module RequestVoteRes :
 
 module AppendEntriesArg :
   sig
-    type t = { term : Index.t; lead_id : IntID.t; } with sexp
+    type t = { term : Index.t; lead_id : IntID.t; entries: (Index.t * Index.t * Sexp.t) list} with sexp
     val to_string : t -> string
   end
 

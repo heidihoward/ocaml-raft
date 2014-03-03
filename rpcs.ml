@@ -31,7 +31,8 @@ end
 
 module AppendEntriesArg = struct
   type t = { term: Index.t;
-             lead_id: IntID.t;} with sexp
+             lead_id: IntID.t;
+             entries: (Index.t * Index.t * Sexp.t) list} with sexp
   let to_string t =
     "--> AppendEntries Request "^(sexp_of_t t |> Sexp.to_string)
 end 
