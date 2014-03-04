@@ -18,8 +18,8 @@ module PureState  =
           commitIndex : Index.t;
           votesResponded : IntID.t list;
           votesGranted : IntID.t list;
-          nextIndex : Index.t;
-          lastAgreeIndex : Index.t;
+          nextIndex : (IntID.t * Index.t) list;
+          matchIndex : (IntID.t * Index.t) list;
           (** Simulation specfic state, need removing/altering for real
            * implementation *)
           time : unit -> MonoTime.t;
@@ -46,8 +46,9 @@ module PureState  =
    | SetTerm of Index.t
    | Restart
    | Commit of Index.t
-   | AppendEntries of Index.t * Index.t * (Index.t * Index.t * Mach.cmd) list
+   | AppendEntries of (Index.t * Index.t * Mach.cmd) list
    | AppendEntry of (Index.t * Index.t * Mach.cmd)
+   | RemoveEntries of Index.t * Index.t
 
 
   let init me all =
@@ -62,8 +63,8 @@ module PureState  =
       commitIndex = Index.init();
       votesResponded = [];
       votesGranted = [];
-      nextIndex = Index.init();
-      lastAgreeIndex = Index.init(); 
+      nextIndex  = [];
+      matchIndex = [];
       id = me;
       allNodes = all;
       leader = None;
@@ -82,8 +83,8 @@ module PureState  =
       commitIndex = Index.init();
       votesResponded = [];
       votesGranted = [];
-      nextIndex = Index.init();
-      lastAgreeIndex = Index.init(); 
+      nextIndex  = [];
+      matchIndex = [];
       id = s.id; 
       allNodes = s.allNodes;
       leader = None;
@@ -137,7 +138,9 @@ module PureState  =
         timer = false; 
         votedFor = None;
         votesResponded=[];
-        votesGranted=[] }
+        votesGranted=[];
+        nextIndex  = [];
+        matchIndex = []; }
     | StartCandidate -> 
         { s with mode=Candidate;
         timer = false;
@@ -154,7 +157,9 @@ module PureState  =
         votedFor = None;
         votesResponded=[];
         votesGranted=[];
-        leader = Some s.id
+        leader = Some s.id;
+        nextIndex  = List.map s.allNodes ~f:(fun id -> (id,Index.succ (s.lastlogIndex)) );
+        matchIndex = List.map s.allNodes ~f:(fun id -> (id,Index.init()) );
         }
     | SetLeader ld ->
         { s with leader= Some ld}
@@ -165,6 +170,7 @@ module PureState  =
     | Restart -> 
         refresh s
     (* RAFT SPEC: If leaderCommit > commitIndex, set commitIndex = min(leaderCommit, last log index) *)
+    (*TODO: once this works, put all log list stuff into its own module *)
     | Commit new_index -> (
         let new_index = 
           (if (new_index < s.lastlogIndex) then new_index else s.lastlogIndex) in
@@ -174,12 +180,14 @@ module PureState  =
         |> List.map ~f:(fun (_,_,x) -> x)
         |> Mach.commit_many s.state_mach) in
         { s with state_mach = new_mach; commitIndex=new_index} )
-    | AppendEntries (last_index, last_term, entries) -> (
-        match entries with
-        | x::xs -> { s with log = log_add s.log entries; lastlogTerm=last_term; lastlogIndex=last_index }
-        | [] -> s )
+    | AppendEntries entries -> 
+        let (last_term,last_index,_) = List.hd_exn (List.sort entries ~cmp:(fun (x,_,_) (y,_,_)-> Index.compare x y)) in 
+        { s with log = entries@s.log; lastlogTerm=last_term; lastlogIndex=last_index }
     | AppendEntry (index, term, cmd) -> 
        {s with log = (index,term,cmd)::s.log ; lastlogTerm=term; lastlogIndex=index}
+    | RemoveEntries (index,term) ->
+       let new_log = List.filter s.log ~f:(fun (i,_,_) -> i <= index) in
+       {s with log = new_log; lastlogTerm=term; lastlogIndex=index}
 
 
 

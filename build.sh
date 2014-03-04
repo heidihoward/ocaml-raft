@@ -1,8 +1,7 @@
-cd lib
-
-rm _build/*
+rm -r _build/*
 rm *.{byte,native}
 
 
-corebuild common.byte client.byte eventlst.byte rpcs.byte statemach.byte clock.byte env.byte simulator.byte cmdstart.byte
+corebuild -Is lib,test,slp lib/common.byte lib/client.byte lib/eventlst.byte lib/splaytree.byte lib/rpcs.byte lib/statemach.byte lib/clock.byte lib/env.byte lib/simulator.byte lib/cmdstart.byte
 
+corebuild -Is lib,test test/test_splaytree.byte

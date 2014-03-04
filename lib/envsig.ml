@@ -25,8 +25,8 @@ module State :
           commitIndex : Index.t;
           votesResponded : IntID.t list;
           votesGranted : IntID.t list;
-          nextIndex : Index.t;
-          lastAgreeIndex : Index.t;
+          nextIndex : (IntID.t * Index.t) list;
+          matchIndex : (IntID.t * Index.t) list;
           (** Simulation specfic state, need removing/altering for real
            * implementation *)
           time : unit -> MonoTime.t;
@@ -55,8 +55,10 @@ module State :
           | SetTerm of Index.t
           | Restart
           | Commit of Index.t
-   | AppendEntries of Index.t * Index.t * (Index.t * Index.t * Mach.cmd) list
-   | AppendEntry of (Index.t * Index.t * Mach.cmd)
+          | AppendEntries of (Index.t * Index.t * Mach.cmd) list
+          | AppendEntry of (Index.t * Index.t * Mach.cmd)
+           | RemoveEntries of Index.t * Index.t
+
 
         
         (** [init] id (list of other ids) will create the state *)

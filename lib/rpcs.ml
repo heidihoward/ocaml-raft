@@ -24,7 +24,8 @@ end
 
 module RequestVoteRes = struct
   type t = { term: Index.t;
-             votegranted: bool} with sexp
+             votegranted: bool;
+             replyto: RequestVoteArg.t} with sexp
   let to_string t =
     "--> RequestVote Response "^(sexp_of_t t |> Sexp.to_string)
 end
@@ -42,7 +43,8 @@ end
 
 module AppendEntriesRes = struct
   type t = { success: bool;
-             term: Index.t; } with sexp
+             term: Index.t;
+             replyto: AppendEntriesArg.t; } with sexp
   let to_string t = 
     "--> AppendEntries Response "^(sexp_of_t t |> Sexp.to_string)
 end
@@ -56,7 +58,8 @@ end
 module ClientRes = struct
   type t = { success: bool;
              node_id: IntID.t;
-             leader:  IntID.t option; } with sexp
+             leader:  IntID.t option; 
+             replyto: ClientArg.t } with sexp
   let to_string t = 
     "--> Client Response "^(sexp_of_t t |> Sexp.to_string)   
 end

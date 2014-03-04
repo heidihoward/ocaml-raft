@@ -14,7 +14,8 @@ module RequestVoteArg :
 
 module RequestVoteRes :
   sig
-    type t = { term : Index.t; votegranted : bool; } with sexp
+    type t = { term : Index.t; votegranted : bool; 
+                 replyto: RequestVoteArg.t} with sexp
     val to_string : t -> string
   end
 
@@ -25,13 +26,14 @@ module AppendEntriesArg :
               prevLogIndex: Index.t;
              prevLogTerm: Index.t; 
              leaderCommit: Index.t;
-             entries: (Index.t * Index.t * Sexp.t) list} with sexp
+             entries: (Index.t * Index.t * Sexp.t) list; } with sexp
     val to_string : t -> string
   end
 
 module AppendEntriesRes :
   sig
-    type t = { success: bool; term : Index.t; } with sexp
+    type t = { success: bool; term : Index.t; 
+                 replyto: AppendEntriesArg.t } with sexp
     val to_string : t -> string
   end
 
@@ -41,7 +43,8 @@ val to_string : t -> string
 end
 
 module ClientRes :
-  sig type t = { success : bool; node_id: IntID.t; leader : IntID.t option; } with sexp
+  sig type t = { success : bool; node_id: IntID.t; leader : IntID.t option;
+               replyto: ClientArg.t } with sexp
   val to_string : t -> string
    end
 

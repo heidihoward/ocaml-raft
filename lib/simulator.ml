@@ -184,6 +184,7 @@ and requestVoteRq (args: Rpcs.RequestVoteArg.t) (s:State.t) =
     Rpcs.RequestVoteRes.(
       { term = s_new.term;
         votegranted = vote;
+        replyto = args;
       }) in
   (s_new, (Comms.unicast_replica(args.cand_id) (s_new.time()) (requestVoteRs res
   s_new.id))::e_new)
@@ -201,6 +202,11 @@ and requestVoteRs (res: Rpcs.RequestVoteRes.t) id (s:State.t) =
     else (s, [])
 
 and appendEntriesRq (args: Rpcs.AppendEntriesArg.t) (s:State.t) =
+  (* in terms of log consistenty there our 4 states: 
+     - perfect consisenty - just append entries
+     - consistent to (term,index) - just remove extra entries and append
+     - inconsistent at (term,index) - reply false
+     - not even at (term,index) let - reply false *)
   debug ("Recieve hearbeat from "^IntID.to_string args.lead_id);
   debug (Rpcs.AppendEntriesArg.to_string args);
   if (args.term >= s.term) then 
@@ -221,53 +227,72 @@ and appendEntriesRq (args: Rpcs.AppendEntriesArg.t) (s:State.t) =
      in
     debug("we are now in the same term");
     (*TODO: investigate ordering of theres event, in particular commit Index and AppendEntries *)
-    begin
-    if (args.prevLogTerm=s.lastlogTerm)&&(args.prevLogIndex=s.lastlogIndex) then (
-        (* RAFT SPEC:  Append any new entries not already in the log *)
-       match args.entries with
-       | [] -> 
-        debug("this is a heartbeat message");
-        (* RAFT SPEC: If leaderCommit > commitIndex, set commitIndex = min(leaderCommit, last log index) *)
-        let s_new = (
-          if (args.leaderCommit > s.commitIndex) then 
-            State.tick (Commit args.leaderCommit) s_new 
-          else
-            s_new ) in
-        let res = Rpcs.AppendEntriesRes.(
-        { term = s_new.term; success=true; } ) in
-        (s_new,(Comms.unicast_replica(args.lead_id) (s_new.time()) (appendEntriesRs res ))::e_new)
-
-    ) else (
-      (* RAFT SPEC: Reply false if log doesn’t contain an entry at prevLogIndex
+    match List.find s_new.log ~f:(fun (index,_,_) -> (index=args.prevLogIndex)) with
+    | Some (index,term,cmd) when term=args.prevLogIndex -> 
+          (* begin by removing surplus entries if required *)
+          let s_new = (
+            if (index=s_new.lastlogIndex)&&(term=s_new.lastlogTerm) then (
+              debug("My log is perfectally consistent with the leader so no removals needed"); s_new
+            ) else (   
+              debug ("My log is consistent until prevLogIndex");
+              (* RAFT SPEC: If an existing entry conflicts with a new one (same index 
+              but different terms), delete the existing entry and all that 
+              follow it (§5.3) *)
+              State.tick (RemoveEntries (args.prevLogIndex,args.prevLogTerm)) s_new ) ) in 
+          (* next add entries if required *)
+          let s_new = (
+            match args.entries with
+            | [] -> debug("this is a heartbeat message"); s_new
+            | x::xs -> debug ("this is not a heartbeat");
+                let entries_cmd = List.map args.entries ~f:(fun (i,t,c) -> (i,t, Mach.cmd_of_sexp c)) in
+                State.tick (AppendEntries entries_cmd) s_new  ) in
+          (* RAFT SPEC: If leaderCommit > commitIndex, set commitIndex = min(leaderCommit, last log index) *)
+          let s_new = (
+              if (args.leaderCommit > s.commitIndex) then 
+                State.tick (Commit args.leaderCommit) s_new 
+              else
+                s_new ) in
+          (*works finished now sent reply *)
+          let res = Rpcs.AppendEntriesRes.(
+                { term = s_new.term; success=true; replyto = args;} ) in
+          (s_new,(Comms.unicast_replica(args.lead_id) (s_new.time()) (appendEntriesRs res ))::e_new)
+    | Some _ | None -> (
+          debug ("not consistent at prevLogIndex so fail");
+        (* RAFT SPEC: Reply false if log doesn’t contain an entry at prevLogIndex
          whose term matches prevLogTerm (§5.3) *)
-      (* RAFT SPEC: If an existing entry conflicts with a new one (same index 
-          but different terms), delete the existing entry and all that 
-            follow it (§5.3) *)
-      (*TODO: workout when entry should actually be removed *)
-      let res = Rpcs.AppendEntriesRes.(
-      { term = s.term; success= false} ) in
-      (s_new,[Comms.unicast_replica(args.lead_id) (s_new.time()) (appendEntriesRs res)])
-     ) end
+        (*TODO: workout when entry should actually be removed *)
+       let res = Rpcs.AppendEntriesRes.(
+        { term = s_new.term; success= false; replyto = args;} ) in
+        (s_new,[Comms.unicast_replica(args.lead_id) (s_new.time()) (appendEntriesRs res)])
+     )
     end
   else
     (* RAFT SPEC: Reply false if term < currentTerm (§5.1) *)
     begin
     debug("this AppendEntries is behind the time, so ignore");
     let res = Rpcs.AppendEntriesRes.(
-    { term = s.term; success= false} ) in
+    { term = s.term; success= false; replyto = args} ) in
     (s,[Comms.unicast_replica(args.lead_id) (s.time()) (appendEntriesRs res)])
     end
 
 and appendEntriesRs (res: Rpcs.AppendEntriesRes.t) (s:State.t) =
   debug (Rpcs.AppendEntriesRes.to_string res);
-  let s_new,e_new = stepDown res.term s in
-  (s_new,e_new)
+  let s_new,e_new = 
+    (if (res.term>s.term) then stepDown res.term s else (s,[]) ) in
+  match res.success with
+  | true -> 
+    debug "Successfully added to followers log"; 
+    (s_new,e_new)
+  | false -> 
+    debug "Unsuccessful to adding to followers log";
+    (s_new,e_new)
+
 
  and clientRq (args: Rpcs.ClientArg.t) (s:State.t) = 
   debug (Rpcs.ClientArg.to_string args);
   match s.mode with
   | Follower  | Candidate ->
-    let res = { Rpcs.ClientRes.success = false; node_id = s.id; leader = s.leader } in
+    let res = { Rpcs.ClientRes.success = false; node_id = s.id; leader = s.leader; replyto = args; } in
     debug("I'm not the leader so can't commit");
     (s, [Comms.unicast_client (s.time()) (clientRs res)] )
   | Leader -> 
@@ -276,7 +301,7 @@ and appendEntriesRs (res: Rpcs.AppendEntriesRes.t) (s:State.t) =
     let log_entry = (entry_index, s.term, (Mach.cmd_of_sexp args.cmd)) in
     let s_new = State.tick (AppendEntry log_entry) s in
     let s_new = State.tick (Commit entry_index) s_new in
-    let res = { Rpcs.ClientRes.success = true; node_id = s.id; leader = s.leader } in
+    let res = { Rpcs.ClientRes.success = true; node_id = s.id; leader = s.leader; replyto=args; } in
     (s_new, [Comms.unicast_client (s.time()) (clientRs res)] )
 
 and clientRs (res: Rpcs.ClientRes.t) (s:Client.t) = 
