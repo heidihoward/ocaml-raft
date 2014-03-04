@@ -32,13 +32,17 @@ end
 module AppendEntriesArg = struct
   type t = { term: Index.t;
              lead_id: IntID.t;
+             prevLogIndex: Index.t;
+             prevLogTerm: Index.t;
+             leaderCommit: Index.t;
              entries: (Index.t * Index.t * Sexp.t) list} with sexp
   let to_string t =
     "--> AppendEntries Request "^(sexp_of_t t |> Sexp.to_string)
 end 
 
 module AppendEntriesRes = struct
-  type t = { term: Index.t; } with sexp
+  type t = { success: bool;
+             term: Index.t; } with sexp
   let to_string t = 
     "--> AppendEntries Response "^(sexp_of_t t |> Sexp.to_string)
 end

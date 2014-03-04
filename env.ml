@@ -164,7 +164,10 @@ module PureState  =
           votedFor = None }
     | Restart -> 
         refresh s
+    (* RAFT SPEC: If leaderCommit > commitIndex, set commitIndex = min(leaderCommit, last log index) *)
     | Commit new_index -> (
+        let new_index = 
+          (if (new_index < s.lastlogIndex) then new_index else s.lastlogIndex) in
         let new_mach = 
         (List.filter s.log ~f:( fun (x,_,cmd) -> (x > s.commitIndex) && (x <= new_index ) ) 
         |> List.sort ~cmp:(fun (x,_,_) (y,_,_) -> Index.compare x y) 

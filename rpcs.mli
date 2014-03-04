@@ -20,13 +20,18 @@ module RequestVoteRes :
 
 module AppendEntriesArg :
   sig
-    type t = { term : Index.t; lead_id : IntID.t; entries: (Index.t * Index.t * Sexp.t) list} with sexp
+    type t = { term : Index.t; 
+               lead_id : IntID.t; 
+              prevLogIndex: Index.t;
+             prevLogTerm: Index.t; 
+             leaderCommit: Index.t;
+             entries: (Index.t * Index.t * Sexp.t) list} with sexp
     val to_string : t -> string
   end
 
 module AppendEntriesRes :
   sig
-    type t = { term : Index.t; } with sexp
+    type t = { success: bool; term : Index.t; } with sexp
     val to_string : t -> string
   end
 

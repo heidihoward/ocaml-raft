@@ -134,6 +134,9 @@ and dispatchAppendEntries (s:State.t) =
   let args = Rpcs.AppendEntriesArg.(
       { term = s.term;
         lead_id = s.id;
+        prevLogIndex = s.lastlogIndex;
+        prevLogTerm = s.lastlogTerm;
+        leaderCommit = s.commitIndex;
         entries = []; (*emprt list means this is heartbeat *)
       }) in
   let reqs = Comms.broadcast s.allNodes (s.time()) 
@@ -204,19 +207,54 @@ and appendEntriesRq (args: Rpcs.AppendEntriesArg.t) (s:State.t) =
     begin
     debug ("this AppendEntries is up to date and therefore valid");
     (*if required then stepDown from leader or follower or/and update term *)
-    let (s_new:State.t),e_new = stepDown args.term s in
-    match args.entries with
-    | [] -> 
-    let (s_new:State.t) = State.tick Set s_new |> State.tick (SetLeader args.lead_id) in
-    let res = Rpcs.AppendEntriesRes.(
-    { term = s_new.term} ) in
-    (s_new,(Comms.unicast_replica(args.lead_id) (s_new.time()) (appendEntriesRs res ))::e_new)
+    let (s_new:State.t),e_new = 
+      ( debug "handling the new term info";
+      (* RAFT SPEC: If RPC request or response contains term T > currentTerm: 
+          set currentTerm = T, convert to follower (§5.1) *)
+      match s.mode with
+      | Leader | Candidate -> 
+        stepDown args.term s
+      | Follower -> 
+           (State.tick Set s 
+        |> State.tick (SetLeader args.lead_id)
+        |> State.tick (SetTerm args.term) ,[]) )
+     in
+    debug("we are now in the same term");
+    (*TODO: investigate ordering of theres event, in particular commit Index and AppendEntries *)
+    begin
+    if (args.prevLogTerm=s.lastlogTerm)&&(args.prevLogIndex=s.lastlogIndex) then (
+        (* RAFT SPEC:  Append any new entries not already in the log *)
+       match args.entries with
+       | [] -> 
+        debug("this is a heartbeat message");
+        (* RAFT SPEC: If leaderCommit > commitIndex, set commitIndex = min(leaderCommit, last log index) *)
+        let s_new = (
+          if (args.leaderCommit > s.commitIndex) then 
+            State.tick (Commit args.leaderCommit) s_new 
+          else
+            s_new ) in
+        let res = Rpcs.AppendEntriesRes.(
+        { term = s_new.term; success=true; } ) in
+        (s_new,(Comms.unicast_replica(args.lead_id) (s_new.time()) (appendEntriesRs res ))::e_new)
+
+    ) else (
+      (* RAFT SPEC: Reply false if log doesn’t contain an entry at prevLogIndex
+         whose term matches prevLogTerm (§5.3) *)
+      (* RAFT SPEC: If an existing entry conflicts with a new one (same index 
+          but different terms), delete the existing entry and all that 
+            follow it (§5.3) *)
+      (*TODO: workout when entry should actually be removed *)
+      let res = Rpcs.AppendEntriesRes.(
+      { term = s.term; success= false} ) in
+      (s_new,[Comms.unicast_replica(args.lead_id) (s_new.time()) (appendEntriesRs res)])
+     ) end
     end
   else
+    (* RAFT SPEC: Reply false if term < currentTerm (§5.1) *)
     begin
     debug("this AppendEntries is behind the time, so ignore");
     let res = Rpcs.AppendEntriesRes.(
-    { term = s.term} ) in
+    { term = s.term; success= false} ) in
     (s,[Comms.unicast_replica(args.lead_id) (s.time()) (appendEntriesRs res)])
     end
 
