@@ -61,7 +61,7 @@ module IntID :
   end
 
 (** [ListLog] is a cut down version of list used for the replication log to ensure
-   * append only *)
+   * append only *) (*
 module ListLog :
   sig
     type 'a t with sexp, bin_io
@@ -69,7 +69,7 @@ module ListLog :
     val cons : 'a -> 'a t -> 'a t
     val to_string : f:('a -> string) -> 'a t -> string
 
-  end
+  end *)
 
 module Event :
   sig

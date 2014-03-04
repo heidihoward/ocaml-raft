@@ -66,12 +66,16 @@ module IntID  = struct
   let to_string = string_of_int
 end  
 
-
-module ListLog = struct
-  include List
+(*
+module Log = struct
+  type 'a t = (Index.t,Index.t,'a) list with sexp
   let init () = []
-  let append t x = x::t
-end 
+  let append new_ele lst = new_ele :: lst
+  let appends elements lst = elements @ lst
+  let last_index_term = function 
+  | [] -> ( Index.init(),Index.init() )
+  | (i,t,_)::_ -> (i,t)
+end  *)
 
 (* This is no used but its too beautiful to delete 
 module ListLog =
