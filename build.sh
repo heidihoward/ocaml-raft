@@ -1,3 +1,5 @@
+cd lib
+
 rm _build/*
 rm *.{byte,native}
 
