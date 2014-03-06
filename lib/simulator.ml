@@ -48,12 +48,17 @@ module type RAFT = sig
              | Candidate_Timeout of Index.t
              | Leader_Timeout of Index.t
 
+  (** Helper Functions - Called by the EventFunction to perform some computation
+    at that specific time and location *)
+
   val startCand: eventsig
-  val checkTimer: checker -> eventsig
   val dispatchAppendEntries: eventsig
-  val startFollow: Index.t -> eventsig
   val startLeader: eventsig
-  val stepDown: Index.t -> eventsig
+
+  (** Event Functions , this have some kinda terporal/spacail info => 
+     get stored in the EventList **)
+  val checkTimer: checker -> eventsig
+  val startFollow: Index.t -> eventsig
   val requestVoteRq: Rpcs.RequestVoteArg.t -> eventsig
   val requestVoteRs: Rpcs.RequestVoteRes.t -> IntID.t -> eventsig
   val appendEntriesRq: Rpcs.AppendEntriesArg.t -> eventsig
@@ -154,12 +159,19 @@ and startFollow term (s:State.t)  = debug "Entering Follower mode";
 and startLeader (s:State.t) = debug "Election Won - Becoming Leader";
   dispatchAppendEntries (State.tick StartLeader s)
 
-and stepDown term (s:State.t) = 
-  if (term > s.term) 
-  then match s.mode with | Leader | Candidate -> startFollow term s
-                         | Follower -> ((State.tick (SetTerm term) s),[])
-  
+and stepDown term lead_id_maybe (s:State.t) = 
+  if (term > s.term) then 
+    let s_new,e_new = (
+      match s.mode with  
+      | Leader | Candidate -> 
+        startFollow term s
+      | Follower -> 
+        (State.tick (SetTerm term) s,[])  ) in
+    match lead_id_maybe with
+    | Some id -> (State.tick (SetLeader id) s_new), e_new
+    | None -> s_new,e_new
   else (s,[])
+           
   (* TODO check if this case it handled correctly *)
   (* else if (term=s.term) && (s.mode=Leader) then startFollower term s *) 
 
@@ -171,7 +183,7 @@ and requestVoteRq (args: Rpcs.RequestVoteArg.t) (s:State.t) =
   debug (Rpcs.RequestVoteArg.to_string args);
   (* TODO: this is a Simulated Response so allows granting vote
    * , need todo properly *)
-  let (s_new:State.t),e_new =  stepDown args.term s in
+  let (s_new:State.t),e_new = stepDown args.term None s in
   let vote = (args.term = s_new.term) && (args.last_index >= s.lastlogIndex ) 
     && (args.last_term >= s.lastlogTerm ) && (s.votedFor = None) in
   let s_new = 
@@ -214,17 +226,8 @@ and appendEntriesRq (args: Rpcs.AppendEntriesArg.t) (s:State.t) =
     debug ("this AppendEntries is up to date and therefore valid");
     (*if required then stepDown from leader or follower or/and update term *)
     let (s_new:State.t),e_new = 
-      ( debug "handling the new term info";
-      (* RAFT SPEC: If RPC request or response contains term T > currentTerm: 
-          set currentTerm = T, convert to follower (§5.1) *)
-      match s.mode with
-      | Leader | Candidate -> 
-        stepDown args.term s
-      | Follower -> 
-           (State.tick Set s 
-        |> State.tick (SetLeader args.lead_id)
-        |> State.tick (SetTerm args.term) ,[]) )
-     in
+        debug "handling the new term info";
+        stepDown args.term (Some args.lead_id) s in
     debug("we are now in the same term");
     (*TODO: investigate ordering of theres event, in particular commit Index and AppendEntries *)
     match List.find s_new.log ~f:(fun (index,_,_) -> (index=args.prevLogIndex)) with
@@ -254,7 +257,7 @@ and appendEntriesRq (args: Rpcs.AppendEntriesArg.t) (s:State.t) =
                 s_new ) in
           (*works finished now sent reply *)
           let res = Rpcs.AppendEntriesRes.(
-                { term = s_new.term; success=true; replyto = args;} ) in
+                { term = s_new.term; success=true; replyto = args; follower_id = s.id;} ) in
           (s_new,(Comms.unicast_replica(args.lead_id) (s_new.time()) (appendEntriesRs res ))::e_new)
     | Some _ | None -> (
           debug ("not consistent at prevLogIndex so fail");
@@ -262,7 +265,7 @@ and appendEntriesRq (args: Rpcs.AppendEntriesArg.t) (s:State.t) =
          whose term matches prevLogTerm (§5.3) *)
         (*TODO: workout when entry should actually be removed *)
        let res = Rpcs.AppendEntriesRes.(
-        { term = s_new.term; success= false; replyto = args;} ) in
+        { term = s_new.term; success= false; replyto = args; follower_id = s.id;} ) in
         (s_new,[Comms.unicast_replica(args.lead_id) (s_new.time()) (appendEntriesRs res)])
      )
     end
@@ -271,21 +274,28 @@ and appendEntriesRq (args: Rpcs.AppendEntriesArg.t) (s:State.t) =
     begin
     debug("this AppendEntries is behind the time, so ignore");
     let res = Rpcs.AppendEntriesRes.(
-    { term = s.term; success= false; replyto = args} ) in
+    { term = s.term; success= false; replyto = args; follower_id = s.id;} ) in
     (s,[Comms.unicast_replica(args.lead_id) (s.time()) (appendEntriesRs res)])
     end
 
 and appendEntriesRs (res: Rpcs.AppendEntriesRes.t) (s:State.t) =
   debug (Rpcs.AppendEntriesRes.to_string res);
-  let s_new,e_new = 
-    (if (res.term>s.term) then stepDown res.term s else (s,[]) ) in
+  (* 3 term cases: *)
+  if (res.term>s.term) then (
+    debug "step down, no longer leader";
+    (stepDown res.term None s)
+  ) else if (res.term<s.term) then (
+    debug "this message is delayed so ignore it";
+    (s,[])
+  ) else (
+    (* we have same terms so proceed *)
   match res.success with
   | true -> 
     debug "Successfully added to followers log"; 
-    (s_new,e_new)
+    (s,[])
   | false -> 
     debug "Unsuccessful to adding to followers log";
-    (s_new,e_new)
+    ( State.tick (AppendFailure (res.follower_id, res.replyto.prevLogIndex)) s, []) )
 
 
  and clientRq (args: Rpcs.ClientArg.t) (s:State.t) = 

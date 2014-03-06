@@ -21,7 +21,8 @@ module RequestVoteRes :
 
 module AppendEntriesArg :
   sig
-    type t = { term : Index.t; 
+    type t = { 
+               term : Index.t; 
                lead_id : IntID.t; 
               prevLogIndex: Index.t;
              prevLogTerm: Index.t; 
@@ -33,6 +34,7 @@ module AppendEntriesArg :
 module AppendEntriesRes :
   sig
     type t = { success: bool; term : Index.t; 
+                 follower_id: IntID.t;
                  replyto: AppendEntriesArg.t } with sexp
     val to_string : t -> string
   end

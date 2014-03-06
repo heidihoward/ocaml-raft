@@ -1,0 +1,4 @@
+automaton ping() { Initialize; multiple (1..) {
+Transmit_Ping;
+Receive_Ping; }
+}

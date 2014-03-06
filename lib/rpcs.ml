@@ -13,7 +13,8 @@ end
 *)
 
 module RequestVoteArg  = struct
-  type t = { term: Index.t;
+  type t = { 
+             term: Index.t;
              cand_id: IntID.t;
              last_index: Index.t;
              last_term: Index.t; } with sexp
@@ -31,7 +32,8 @@ module RequestVoteRes = struct
 end
 
 module AppendEntriesArg = struct
-  type t = { term: Index.t;
+  type t = { 
+             term: Index.t;
              lead_id: IntID.t;
              prevLogIndex: Index.t;
              prevLogTerm: Index.t;
@@ -44,6 +46,7 @@ end
 module AppendEntriesRes = struct
   type t = { success: bool;
              term: Index.t;
+             follower_id: IntID.t;
              replyto: AppendEntriesArg.t; } with sexp
   let to_string t = 
     "--> AppendEntries Response "^(sexp_of_t t |> Sexp.to_string)

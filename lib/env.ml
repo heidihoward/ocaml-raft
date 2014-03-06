@@ -49,6 +49,7 @@ module PureState  =
    | AppendEntries of (Index.t * Index.t * Mach.cmd) list
    | AppendEntry of (Index.t * Index.t * Mach.cmd)
    | RemoveEntries of Index.t * Index.t
+   | AppendFailure of IntID.t * Index.t
 
 
   let init me all =
@@ -188,6 +189,14 @@ module PureState  =
     | RemoveEntries (index,term) ->
        let new_log = List.filter s.log ~f:(fun (i,_,_) -> i <= index) in
        {s with log = new_log; lastlogTerm=term; lastlogIndex=index}
+    | AppendFailure (id,index_tried) -> 
+       match (List.Assoc.find s.matchIndex id) with
+       | Some index -> 
+          if (index=index_tried) then
+            { s with matchIndex = (List.Assoc.add s.matchIndex id (Index.pred index)  )}
+          else 
+            s
+       | None -> assert false
 
 
 

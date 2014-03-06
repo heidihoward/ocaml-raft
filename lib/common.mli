@@ -45,6 +45,7 @@ module Index :
   sig
     type t with sexp, bin_io, compare
     val succ : t -> t
+    val pred : t -> t
     val init : unit -> t
     val to_string : t -> string
   end

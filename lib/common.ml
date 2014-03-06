@@ -53,6 +53,7 @@ end
 module Index = struct
   type t = int with compare,sexp,bin_io
   let succ = succ
+  let pred = pred
   let init () = 0
   (*TODO: consider is elections can start fast with randon inital value *)
   let to_string = string_of_int

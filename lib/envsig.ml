@@ -58,6 +58,7 @@ module State :
           | AppendEntries of (Index.t * Index.t * Mach.cmd) list
           | AppendEntry of (Index.t * Index.t * Mach.cmd)
            | RemoveEntries of Index.t * Index.t
+              | AppendFailure of IntID.t * Index.t
 
 
         
