@@ -295,11 +295,16 @@ and appendEntriesRs (res: Rpcs.AppendEntriesRes.t) id (s:State.t) =
   | true -> 
     debug "Successfully added to followers log"; 
     assert (s.mode=Leader);
-    (s,[])
+    let new_index = (
+      match res.replyto.entries with
+     | [] -> (*it was a heartbeat so nextIndex is already correct *)
+        res.replyto.prevLogIndex
+     | (i,_,_)::_ -> i) in
+    (State.tick (ReplicationSuccess (res.follower_id, new_index)) s,[])
   | false -> 
     debug "Unsuccessful at adding to followers log";
     match s.mode with
-    | Leader -> ( State.tick (AppendFailure (res.follower_id, res.replyto.prevLogIndex)) s, []) 
+    | Leader -> ( State.tick (ReplicationFailure (res.follower_id, res.replyto.prevLogIndex)) s, []) 
     | Candidate | Follower -> (s,[]) )
 
 

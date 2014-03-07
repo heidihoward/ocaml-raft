@@ -57,8 +57,9 @@ module State :
           | Commit of Index.t
           | AppendEntries of (Index.t * Index.t * Mach.cmd) list
           | AppendEntry of (Index.t * Index.t * Mach.cmd)
-           | RemoveEntries of Index.t * Index.t
-              | AppendFailure of IntID.t * Index.t
+          | RemoveEntries of Index.t * Index.t
+          | ReplicationFailure of IntID.t * Index.t
+          | ReplicationSuccess of IntID.t * Index.t
 
 
         

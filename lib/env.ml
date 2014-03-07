@@ -49,7 +49,8 @@ module PureState  =
    | AppendEntries of (Index.t * Index.t * Mach.cmd) list
    | AppendEntry of (Index.t * Index.t * Mach.cmd)
    | RemoveEntries of Index.t * Index.t
-   | AppendFailure of IntID.t * Index.t
+   | ReplicationFailure of IntID.t * Index.t
+   | ReplicationSuccess of IntID.t * Index.t
 
 
   let init me all =
@@ -187,14 +188,20 @@ module PureState  =
     | RemoveEntries (index,term) ->
        let new_log = Log.cut_entries index s.log in
        {s with log = new_log; lastlogTerm=term; lastlogIndex=index}
-    | AppendFailure (id,index_tried) -> 
-       match (List.Assoc.find s.matchIndex id) with
+    | ReplicationFailure (id,index_tried) -> (
+       match (List.Assoc.find s.nextIndex id) with 
        | Some index -> 
-          if (index=index_tried) then
-            { s with matchIndex = (List.Assoc.add s.matchIndex id (Index.pred index)  )}
-          else 
-            s
-       | None -> assert false
+          assert (index=index_tried);
+            { s with nextIndex = (List.Assoc.add s.nextIndex id (Index.pred index)  )}
+       | None -> assert false )
+    | ReplicationSuccess (id,index_new) -> 
+        match (List.Assoc.find s.nextIndex id) with
+        | Some index -> 
+          assert (index<=index_new);
+            { s with 
+            matchIndex = List.Assoc.add s.matchIndex id index_new ;
+            nextIndex = (List.Assoc.add s.nextIndex id (Index.succ index_new)); }
+        | None -> assert false
 
 
 
