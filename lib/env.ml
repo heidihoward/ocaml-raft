@@ -224,7 +224,7 @@ module PureState  =
 
 
 end
-
+(*
 module StateHandler =
   functor (MonoTime: Clock.TIME) ->
   functor (Mach: Statemach.MACHINE ) -> struct
@@ -299,7 +299,7 @@ module State = PureState(MonoTime)(Mach)
 
   let check_safety _ = ()  
 end
-
+*)
 module StateHandlerHist =
   functor (MonoTime: Clock.TIME) ->
   functor (Mach: Statemach.MACHINE ) -> struct
@@ -339,6 +339,7 @@ module State = PureState(MonoTime)(Mach)
       | None -> false  (* if hd doesn't know leader *)
       | Some _ ->
           (* check all live nodes agree on leader and term *)
+          (* TODO: this condition is too strong *)
       List.for_all live ~f:(fun s -> s.leader=hd.leader && s.term=hd.term)
     else false
  
@@ -405,6 +406,13 @@ module State = PureState(MonoTime)(Mach)
     let _ = election_safety states [] in
     ()
 
+  let get_leader sl =
+    match List.hd (get_live sl) with
+    | None -> None
+    | Some state ->
+        match (state.leader) with
+        | None -> None 
+        | Some leader_id -> Some (find_wst sl leader_id)
 
 
 end

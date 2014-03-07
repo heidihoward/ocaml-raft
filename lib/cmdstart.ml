@@ -30,6 +30,10 @@ let common () =
         ~doc:"distribution Node failure Statistical Distribution"
      +> flag "-recover" (optional Parser.distribution)
         ~doc:"distribution Node recovery Statistical Distribution"
+     +> flag "-termOnElec" no_arg
+         ~doc:"Terminate when a leader has successfully been established"
+      +> flag "-termOnClient" no_arg
+         ~doc:"Terminate when a client workload is empty"
 
  )
 
@@ -41,8 +45,8 @@ let realtime =
     empty
      ++ common ()
       )
-    (fun nodes term debug_enabled iter data follower candidate leader delay failure recover () ->  
-      printf "%s" (Parser.run ~time:Real ~nodes ~term ~debug_enabled ~iter ~data ~follower ~candidate ~leader ~delay ~failure ~recover)) 
+    (fun nodes term debug_enabled iter data follower candidate leader delay failure recover term_ele term_client () ->  
+      printf "%s" (Parser.run ~time:Real ~nodes ~term ~debug_enabled ~iter ~data ~follower ~candidate ~leader ~delay ~failure ~recover ~term_ele ~term_client )) 
 
 let discrete =
   Command.basic
@@ -52,8 +56,8 @@ let discrete =
     empty
      ++ common ()
       )
-    (fun nodes term debug_enabled iter data follower candidate leader delay failure recover () ->  
-      printf "%s" (Parser.run ~time:Discrete ~nodes ~term ~debug_enabled ~iter ~data ~follower ~candidate ~leader ~delay ~failure ~recover))
+    (fun nodes term debug_enabled iter data follower candidate leader delay failure recover term_ele term_client () ->  
+      printf "%s" (Parser.run ~time:Discrete ~nodes ~term ~debug_enabled ~iter ~data ~follower ~candidate ~leader ~delay ~failure ~recover ~term_ele ~term_client ))
 
 let () =  
   ["realtime",realtime;"discrete",discrete]

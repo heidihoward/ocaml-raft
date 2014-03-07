@@ -7,6 +7,7 @@ open Core.Std
 type role = Follower | Candidate | Leader with sexp
 type 'a status = Live of 'a | Down of 'a | Notfound 
 type failures = Wake | Kill
+type termination = LeaderEst | WorkloadEmpty
 
 let string_of_role = function
   | Follower -> "Follower"
@@ -48,6 +49,7 @@ module type PARAMETERS = sig
   val debug_mode: bool
   val nxt_failure: (unit -> float) option
   val nxt_recover: (unit -> float) option
+  val term_conditions : termination -> bool
 end
 
 module Index = struct

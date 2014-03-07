@@ -98,4 +98,6 @@ module State :
         val leader_agreed: t -> bool
 
         val check_safety: t -> unit
+
+        val get_leader: t -> State.t option
       end

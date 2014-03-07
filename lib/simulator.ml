@@ -373,11 +373,16 @@ let nxt_recover (t:MonoTime.t) =
   let delay = MonoTime.span_of_float (dl ()) in
   MonoTime.add t delay
 
-let get_time_span (sl:StateList.t) = 
+let span_to_string (time:MonoTime.t) =
+   let duration = MonoTime.diff (time) start_time in
+    MonoTime.span_to_string (duration)
+
+let state_span (sl:StateList.t) = 
   (* TODO: fix this so it finds the first live node *)
-  let state = match (StateList.find sl (IntID.from_int 0)) with Live x -> x in
-  let duration = MonoTime.diff (state.time()) start_time in
-  MonoTime.span_to_string (duration)
+  (*let state = match (StateList.find sl (IntID.from_int 0)) with Live x -> x in*)
+  match StateList.get_leader sl with
+    | None -> assert false
+    | Some (state) -> span_to_string (state.time()) 
 
 let wake (s:State.t) : EventList.item list =
   debug "node is restarting after failing";
@@ -433,24 +438,24 @@ let rec run_multi ~term
   (el: EventList.t)
   (cl: Client.t)  =
   (* checking termination condition for tests *)
-(*    if (StateList.leader_agreed sl) 
-    then begin
+    if (P.term_conditions LeaderEst)&&(StateList.leader_agreed sl) then 
+    begin
       debug "terminating as leader has been agreed";
        (* for graph gen.  printf " %s \n" (get_time_span sl); *)
-        (get_time_span sl)
+        (state_span sl)
         end
-    else *)
-    if (cl.workload=[]) then
+    else if (P.term_conditions WorkloadEmpty)&&(cl.workload=[]) then
      begin
       debug "terminating as all commands have been commited ";
        (* for graph gen.  printf " %s \n" (get_time_span sl); *)
-        (get_time_span sl)
+        (span_to_string (cl.time()))  
+        (* MonoTime.span_to_string (cl.time ()) *)
         end
     else 
   (* we will not be terminating as the term condition has been reached so get
    * the next event in the event queue and apply it *)
   match EventList.hd el with
-  | None -> debug "terminating as no events remain"; (get_time_span sl)
+  | None -> assert false (* debug "terminating as no events remain"; (span_to_string (cl.time())) *)
   (* next event is a simulated failure/recovery *)
   | Some (SimulationEvent (t,id,e),els) -> 
       let sl_new, el_new = apply_SimulationEvent sl e t id in
@@ -458,7 +463,7 @@ let rec run_multi ~term
       run_multi ~term sl_new (EventList.add el_new els) cl
   (* next event is some computation at a node *)
   | Some (RaftEvent (t,id,e),els) -> if (t>=term) 
-    then begin debug "terminating as terminate time has been reached"; (get_time_span sl) end
+    then begin debug "terminating as terminate time has been reached"; (span_to_string t) end
     (* will not be terminating so simluate event *)
     else (
       match (apply_RaftEvent (StateList.find sl id) e t) with
@@ -466,7 +471,7 @@ let rec run_multi ~term
       | None -> run_multi ~term sl els cl )
 
  | Some (ClientEvent (t,e),els) -> if (t>=term) 
-    then begin debug "terminating as terminate time has been reached"; (get_time_span sl) end
+    then begin debug "terminating as terminate time has been reached"; (span_to_string t) end
     (* will not be terminating so simluate event *)
     else  
       let (cl_new,el_new) = apply_ClientEvent cl e t in

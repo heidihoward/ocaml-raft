@@ -10,6 +10,8 @@ type role = Follower | Candidate | Leader with sexp
 (** [status] wraps around State.t to simulate node failures *)
 type 'a status = Live of 'a | Down of 'a | Notfound
 
+type termination = LeaderEst |   WorkloadEmpty 
+
 (** [failures] hows the holds the two possible N actions *)
 type failures = Wake | Kill
 
@@ -38,6 +40,7 @@ module type PARAMETERS =
     val debug_mode : bool
     val nxt_failure : (unit -> float) option
     val nxt_recover : (unit -> float) option
+    val term_conditions : termination -> bool
   end
 
 (** [Index] is a single monotonically increasing discrete value *) 
