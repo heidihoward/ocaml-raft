@@ -94,6 +94,7 @@ module PureState  =
 
 
   let id_print = function  None -> "none" | Some x -> IntID.to_string x
+  let id_index_print (id,index) = (" ID: "^(IntID.to_string id)^"Index: "^(Index.to_string index) )
 
   let print s = 
     "-------------------------------------------------------\n"^
@@ -106,10 +107,12 @@ module PureState  =
     " | Votes Recieved: "^ (List.to_string ~f:IntID.to_string s.votesGranted)^
     " | Leader: "^(string_of_option (IntID.to_string) s.leader)^"\n"^
     " | State Machine: "^(Mach.to_string s.state_mach)^
+    " | Match Index: "^(List.to_string s.matchIndex ~f:id_index_print)^
+    " | Next Index: "^(List.to_string s.matchIndex ~f:id_index_print)^
     " | Replicated Log: "^(List.to_string s.log 
       ~f:(fun (x,y,z) -> "Index: "^(Index.to_string x)^
-                         "Term: "^(Index.to_string y)^
-                         "Cmd: "^(Mach.cmd_to_string z)) )^
+                         " Term: "^(Index.to_string y)^
+                         " Cmd: "^(Mach.cmd_to_string z)^"\n") )^
     "\n-------------------------------------------------------"
  (* sexp_of_t s |> Sexp.to_string *)
 

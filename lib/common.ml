@@ -67,8 +67,9 @@ module IntID  = struct
   let to_string = string_of_int
 end  
 
-(*
+
 module Log = struct
+  (*highest element is always at head *)
   type 'a t = (Index.t,Index.t,'a) list with sexp
   let init () = []
   let append new_ele lst = new_ele :: lst
@@ -76,7 +77,14 @@ module Log = struct
   let last_index_term = function 
   | [] -> ( Index.init(),Index.init() )
   | (i,t,_)::_ -> (i,t)
-end  *)
+  let consistency_check log prev_index prev_term =
+    match log with 
+    | [] -> `Consistent
+    | _::_ -> 
+      match List.find s_new.log ~f:(fun (index,_,_) -> (index=prev_index)) with
+    | Some (index,term,cmd) when term=args.prev_term -> `Consistent
+    | _ -> `Inconsistent
+end  
 
 (* This is no used but its too beautiful to delete 
 module ListLog =

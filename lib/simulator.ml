@@ -62,7 +62,7 @@ module type RAFT = sig
   val requestVoteRq: Rpcs.RequestVoteArg.t -> eventsig
   val requestVoteRs: Rpcs.RequestVoteRes.t -> IntID.t -> eventsig
   val appendEntriesRq: Rpcs.AppendEntriesArg.t -> eventsig
-  val appendEntriesRs: Rpcs.AppendEntriesRes.t -> eventsig
+  val appendEntriesRs: Rpcs.AppendEntriesRes.t -> IntID.t -> eventsig
   val clientRq: Rpcs.ClientArg.t -> eventsig
   val clientRs: Rpcs.ClientRes.t -> clientsig
   val clientCommit: clientsig
@@ -229,8 +229,10 @@ and appendEntriesRq (args: Rpcs.AppendEntriesArg.t) (s:State.t) =
         debug "handling the new term info";
         stepDown args.term (Some args.lead_id) s in
     debug("we are now in the same term");
+    assert (s_new.mode=Follower && s_new.term=args.term && s_new.leader=Some args.lead_id);
     (*TODO: investigate ordering of theres event, in particular commit Index and AppendEntries *)
     match List.find s_new.log ~f:(fun (index,_,_) -> (index=args.prevLogIndex)) with
+    | None when (s_new=[]) 
     | Some (index,term,cmd) when term=args.prevLogIndex -> 
           (* begin by removing surplus entries if required *)
           let s_new = (
@@ -258,7 +260,7 @@ and appendEntriesRq (args: Rpcs.AppendEntriesArg.t) (s:State.t) =
           (*works finished now sent reply *)
           let res = Rpcs.AppendEntriesRes.(
                 { term = s_new.term; success=true; replyto = args; follower_id = s.id;} ) in
-          (s_new,(Comms.unicast_replica(args.lead_id) (s_new.time()) (appendEntriesRs res ))::e_new)
+          (s_new,(Comms.unicast_replica(args.lead_id) (s_new.time()) (appendEntriesRs res s.id))::e_new)
     | Some _ | None -> (
           debug ("not consistent at prevLogIndex so fail");
         (* RAFT SPEC: Reply false if log doesn’t contain an entry at prevLogIndex
@@ -266,8 +268,8 @@ and appendEntriesRq (args: Rpcs.AppendEntriesArg.t) (s:State.t) =
         (*TODO: workout when entry should actually be removed *)
        let res = Rpcs.AppendEntriesRes.(
         { term = s_new.term; success= false; replyto = args; follower_id = s.id;} ) in
-        (s_new,[Comms.unicast_replica(args.lead_id) (s_new.time()) (appendEntriesRs res)])
-     )
+        (s_new,[Comms.unicast_replica(args.lead_id) (s_new.time()) (appendEntriesRs res s.id)]) )
+
     end
   else
     (* RAFT SPEC: Reply false if term < currentTerm (§5.1) *)
@@ -275,27 +277,31 @@ and appendEntriesRq (args: Rpcs.AppendEntriesArg.t) (s:State.t) =
     debug("this AppendEntries is behind the time, so ignore");
     let res = Rpcs.AppendEntriesRes.(
     { term = s.term; success= false; replyto = args; follower_id = s.id;} ) in
-    (s,[Comms.unicast_replica(args.lead_id) (s.time()) (appendEntriesRs res)])
+    (s,[Comms.unicast_replica(args.lead_id) (s.time()) (appendEntriesRs res s.id)])
     end
 
-and appendEntriesRs (res: Rpcs.AppendEntriesRes.t) (s:State.t) =
+and appendEntriesRs (res: Rpcs.AppendEntriesRes.t) id (s:State.t) =
   debug (Rpcs.AppendEntriesRes.to_string res);
   (* 3 term cases: *)
   if (res.term>s.term) then (
-    debug "step down, no longer leader";
+    debug "step down, I'm no longer leader, ignore packet";
     (stepDown res.term None s)
   ) else if (res.term<s.term) then (
     debug "this message is delayed so ignore it";
     (s,[])
   ) else (
+    (* assert(s.mode=Leader); *)
     (* we have same terms so proceed *)
   match res.success with
   | true -> 
     debug "Successfully added to followers log"; 
+    assert (s.mode=Leader);
     (s,[])
   | false -> 
-    debug "Unsuccessful to adding to followers log";
-    ( State.tick (AppendFailure (res.follower_id, res.replyto.prevLogIndex)) s, []) )
+    debug "Unsuccessful at adding to followers log";
+    match s.mode with
+    | Leader -> ( State.tick (AppendFailure (res.follower_id, res.replyto.prevLogIndex)) s, []) 
+    | Candidate | Follower -> (s,[]) )
 
 
  and clientRq (args: Rpcs.ClientArg.t) (s:State.t) = 
