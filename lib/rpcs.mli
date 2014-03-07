@@ -1,6 +1,8 @@
 open Core.Std
 open Common
 
+type cmd
+
 module RequestVoteArg :
   sig
     type t = {

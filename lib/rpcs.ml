@@ -12,6 +12,8 @@ open Common
 end 
 *)
 
+type cmd with sexp
+
 module RequestVoteArg  = struct
   type t = { 
              term: Index.t;

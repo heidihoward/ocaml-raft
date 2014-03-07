@@ -231,12 +231,11 @@ and appendEntriesRq (args: Rpcs.AppendEntriesArg.t) (s:State.t) =
     debug("we are now in the same term");
     assert (s_new.mode=Follower && s_new.term=args.term && s_new.leader=Some args.lead_id);
     (*TODO: investigate ordering of theres event, in particular commit Index and AppendEntries *)
-    match List.find s_new.log ~f:(fun (index,_,_) -> (index=args.prevLogIndex)) with
-    | None when (s_new=[]) 
-    | Some (index,term,cmd) when term=args.prevLogIndex -> 
+    match (Log.consistency_check s_new.log args.prevLogIndex args.prevLogTerm) with
+    | `Consistent-> 
           (* begin by removing surplus entries if required *)
           let s_new = (
-            if (index=s_new.lastlogIndex)&&(term=s_new.lastlogTerm) then (
+            if (args.prevLogIndex=s_new.lastlogIndex)&&(args.prevLogTerm=s_new.lastlogTerm) then (
               debug("My log is perfectally consistent with the leader so no removals needed"); s_new
             ) else (   
               debug ("My log is consistent until prevLogIndex");
@@ -249,7 +248,7 @@ and appendEntriesRq (args: Rpcs.AppendEntriesArg.t) (s:State.t) =
             match args.entries with
             | [] -> debug("this is a heartbeat message"); s_new
             | x::xs -> debug ("this is not a heartbeat");
-                let entries_cmd = List.map args.entries ~f:(fun (i,t,c) -> (i,t, Mach.cmd_of_sexp c)) in
+                let entries_cmd = List.map args.entries ~f:(fun (i,t,c_sexp) -> (i,t,Mach.cmd_of_sexp c_sexp)) in
                 State.tick (AppendEntries entries_cmd) s_new  ) in
           (* RAFT SPEC: If leaderCommit > commitIndex, set commitIndex = min(leaderCommit, last log index) *)
           let s_new = (
@@ -261,7 +260,7 @@ and appendEntriesRq (args: Rpcs.AppendEntriesArg.t) (s:State.t) =
           let res = Rpcs.AppendEntriesRes.(
                 { term = s_new.term; success=true; replyto = args; follower_id = s.id;} ) in
           (s_new,(Comms.unicast_replica(args.lead_id) (s_new.time()) (appendEntriesRs res s.id))::e_new)
-    | Some _ | None -> (
+    | `Inconsistent -> (
           debug ("not consistent at prevLogIndex so fail");
         (* RAFT SPEC: Reply false if log doesn’t contain an entry at prevLogIndex
          whose term matches prevLogTerm (§5.3) *)

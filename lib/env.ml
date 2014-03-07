@@ -12,7 +12,7 @@ module PureState  =
           term : Index.t;
           mode : role;
           votedFor : IntID.t option;
-          log : (Index.t * Index.t * Mach.cmd) list;
+          log : Mach.cmd Log.t;
           lastlogIndex : Index.t;
           lastlogTerm : Index.t;
           commitIndex : Index.t;
@@ -58,7 +58,7 @@ module PureState  =
       time = MonoTime.init;
       timer = false;
       votedFor = None;
-      log = []; 
+      log = Log.init(); 
       lastlogIndex = Index.init();
       lastlogTerm = Index.init();
       commitIndex = Index.init();
@@ -109,18 +109,15 @@ module PureState  =
     " | State Machine: "^(Mach.to_string s.state_mach)^
     " | Match Index: "^(List.to_string s.matchIndex ~f:id_index_print)^
     " | Next Index: "^(List.to_string s.matchIndex ~f:id_index_print)^
-    " | Replicated Log: "^(List.to_string s.log 
-      ~f:(fun (x,y,z) -> "Index: "^(Index.to_string x)^
-                         " Term: "^(Index.to_string y)^
-                         " Cmd: "^(Mach.cmd_to_string z)^"\n") )^
+    " | Replicated Log: "^(Log.to_string ~cmd_to_string:Mach.cmd_to_string s.log)^
     "\n-------------------------------------------------------"
  (* sexp_of_t s |> Sexp.to_string *)
 
-  let rec log_add original new_list = 
+ (* let rec log_add original new_list = 
    (*combine logs, if two items with same index, give proirity to new *)
    match new_list with
    | (index,term,cmd)::rest -> log_add ((index,term,cmd)::(List.filter original ~f:(fun (i,_,_) -> not(index=i)))) rest
-   | [] -> original
+   | [] -> original *)
 
   let tick tk s =
   match tk with
@@ -179,18 +176,16 @@ module PureState  =
         let new_index = 
           (if (new_index < s.lastlogIndex) then new_index else s.lastlogIndex) in
         let new_mach = 
-        (List.filter s.log ~f:( fun (x,_,cmd) -> (x > s.commitIndex) && (x <= new_index ) ) 
-        |> List.sort ~cmp:(fun (x,_,_) (y,_,_) -> Index.compare x y) 
-        |> List.map ~f:(fun (_,_,x) -> x)
-        |> Mach.commit_many s.state_mach) in
+          Mach.commit_many s.state_mach (Log.to_commit s.commitIndex new_index s.log) in
         { s with state_mach = new_mach; commitIndex=new_index} )
     | AppendEntries entries -> 
-        let (last_term,last_index,_) = List.hd_exn (List.sort entries ~cmp:(fun (x,_,_) (y,_,_)-> Index.compare x y)) in 
-        { s with log = entries@s.log; lastlogTerm=last_term; lastlogIndex=last_index }
+        let last_term,last_index = Log.last_index_term s.log in 
+        let new_log = Log.appends entries s.log in
+        { s with log = new_log; lastlogTerm=last_term; lastlogIndex=last_index }
     | AppendEntry (index, term, cmd) -> 
-       {s with log = (index,term,cmd)::s.log ; lastlogTerm=term; lastlogIndex=index}
+       {s with log = Log.append (index,term,cmd) s.log ; lastlogTerm=term; lastlogIndex=index}
     | RemoveEntries (index,term) ->
-       let new_log = List.filter s.log ~f:(fun (i,_,_) -> i <= index) in
+       let new_log = Log.cut_entries index s.log in
        {s with log = new_log; lastlogTerm=term; lastlogIndex=index}
     | AppendFailure (id,index_tried) -> 
        match (List.Assoc.find s.matchIndex id) with

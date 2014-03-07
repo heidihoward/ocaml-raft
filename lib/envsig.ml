@@ -19,7 +19,7 @@ module State :
           term : Index.t;
           mode : role;
           votedFor : IntID.t option;
-          log : (Index.t * Index.t * Mach.cmd) list;
+          log : Mach.cmd Log.t;
           lastlogIndex : Index.t;
           lastlogTerm : Index.t;
           commitIndex : Index.t;
