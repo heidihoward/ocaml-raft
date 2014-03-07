@@ -136,16 +136,22 @@ and checkTimer c (s:State.t)  = debug "Checking timer";
 
 (* this function send heartbeat versions of AppendEntries to all other nodes *)
 and dispatchAppendEntries (s:State.t) =
-  let args = Rpcs.AppendEntriesArg.(
-      { term = s.term;
+  let dispatch id = 
+    let next_index = List.Assoc.find_exn s.nextIndex id in
+    let (prev_index,prev_term) = Log.specific_index_term (Index.pred (List.Assoc.find_exn s.nextIndex id)) s.log in
+    let args = Rpcs.AppendEntriesArg.(
+      (*just a heartbeat message *)
+        { term = s.term;
         lead_id = s.id;
-        prevLogIndex = s.lastlogIndex;
-        prevLogTerm = s.lastlogTerm;
+        prevLogIndex = prev_index;
+        prevLogTerm = prev_term;
         leaderCommit = s.commitIndex;
-        entries = []; (*emprt list means this is heartbeat *)
-      }) in
-  let reqs = Comms.broadcast s.allNodes (s.time()) 
+        entries = List.map (Log.get_entries next_index s.log) 
+          ~f:(fun (i,t,c_sexp) -> (i,t,Mach.sexp_of_cmd c_sexp)) ; (*emprt list means this is heartbeat *)
+        } ) in
+  Comms.unicast_replica id (s.time()) 
     (appendEntriesRq args) in
+  let reqs = List.map s.allNodes ~f:dispatch in
   let t = MonoTime.add (s.time()) (timeout Leader) in
   (s, RaftEvent (t, s.id, checkTimer (Leader_Timeout s.term) )::reqs )
 

@@ -28,14 +28,22 @@ module ClientHandler =
   | Successful leader_id -> 
     { state with leader = Leader leader_id; 
       workload = (List.tl_exn state.workload) }
-  | Unsuccessful (id,leader_id) -> 
-    (match leader_id with 
+  | Unsuccessful (id,leader_id) -> (
+    match leader_id with 
     | Some id -> 
       {state with leader= Leader id}
     | None -> (
-      match state.allNodes with
-      | current::next -> {state with leader = TryAsking next}
-      | [] -> {state with leader = TryAsking state.allNodes} ))
+      match state.leader with
+      | TryAsking nodes -> (
+            match nodes with 
+            | [] -> assert false
+            | _::[] -> {state with leader = TryAsking state.allNodes} 
+            | _::next -> {state with leader = TryAsking next}  )     
+      | Leader old_lead_id -> 
+          if (old_lead_id=id) then 
+            {state with leader = TryAsking state.allNodes} 
+          else
+            state ))
   | SetTime t -> 
     { state with time=(MonoTime.store t)}
 

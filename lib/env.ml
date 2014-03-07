@@ -33,6 +33,9 @@ module PureState  =
           state_mach : Mach.t;
         } with sexp
    
+
+
+
   type statecall = 
    | IncrementTerm
    | Reset | Set
@@ -110,6 +113,9 @@ module PureState  =
     " | State Machine: "^(Mach.to_string s.state_mach)^
     " | Match Index: "^(List.to_string s.matchIndex ~f:id_index_print)^
     " | Next Index: "^(List.to_string s.matchIndex ~f:id_index_print)^
+    " | Last Log Index: "^(Index.to_string s.lastlogIndex)^
+    " | Last Log Term: "^(Index.to_string s.lastlogTerm)^
+    " | Commit Index: "^(Index.to_string s.commitIndex)^
     " | Replicated Log: "^(Log.to_string ~cmd_to_string:Mach.cmd_to_string s.log)^
     "\n-------------------------------------------------------"
  (* sexp_of_t s |> Sexp.to_string *)
@@ -119,6 +125,17 @@ module PureState  =
    match new_list with
    | (index,term,cmd)::rest -> log_add ((index,term,cmd)::(List.filter original ~f:(fun (i,_,_) -> not(index=i)))) rest
    | [] -> original *)
+
+ let update_commitIndex match_list commitIndex =
+    let mag = (List.length match_list / 2) in
+    let discard (id,index) = 
+      (if index > commitIndex then Some index else None) in
+    let new_list = 
+      List.sort ~cmp:Index.compare 
+        (List.filter_map ~f:discard match_list) in
+    match List.nth new_list mag with 
+    | Some index -> index
+    | None -> commitIndex
 
   let tick tk s =
   match tk with
@@ -197,10 +214,11 @@ module PureState  =
     | ReplicationSuccess (id,index_new) -> 
         match (List.Assoc.find s.nextIndex id) with
         | Some index -> 
-          assert (index<=index_new);
+          let new_matchIndex = List.Assoc.add s.matchIndex id index_new in
             { s with 
-            matchIndex = List.Assoc.add s.matchIndex id index_new ;
-            nextIndex = (List.Assoc.add s.nextIndex id (Index.succ index_new)); }
+            matchIndex = new_matchIndex ;
+            nextIndex = (List.Assoc.add s.nextIndex id (Index.succ index_new));
+            commitIndex = update_commitIndex new_matchIndex s.commitIndex; }
         | None -> assert false
 
 

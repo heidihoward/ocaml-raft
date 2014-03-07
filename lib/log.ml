@@ -11,6 +11,11 @@ open Common
   | [] -> ( Index.init(),Index.init() )
   | (i,t,_)::_ -> (i,t)
 
+  let specific_index_term index lst =
+  	match (List.find lst ~f:(fun (i,_,_) -> i=index)) with
+  | Some (i,t,_) -> (i,t)
+  | None -> ( Index.init(), Index.init())
+
   let consistency_check log prev_index prev_term =
     match log with 
     | [] -> `Consistent
@@ -30,8 +35,11 @@ open Common
     List.filter log ~f:( fun (x,_,_) -> (x > old_index) && (x <= new_index ) ) 
     |> List.sort ~cmp:(fun (x,_,_) (y,_,_) -> Index.compare x y) 
     |> List.map ~f:(fun (_,_,cmd) -> cmd)
+
+
   let cut_entries new_last_index log =
     List.filter log ~f:(fun (i,_,_) -> i <= new_last_index)
 
-
+  let get_entries from_index log =
+  	List.filter log ~f:(fun (i,_,_) -> i >= from_index)
 
