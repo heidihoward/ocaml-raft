@@ -47,9 +47,9 @@ module ClientHandler =
   | SetTime t -> 
     { state with time=(MonoTime.store t)}
 
-  let init nodes =
+  let init nodes workload_size =
     let ids = List.init nodes ~f:IntID.from_int in
-            { workload = Mach.sample_workload; 
+            { workload = Mach.gen_workload workload_size; 
               time = MonoTime.init; 
               allNodes = ids ; 
               leader = TryAsking ids} 

@@ -168,10 +168,12 @@ and startLeader (s:State.t) = debug "Election Won - Becoming Leader";
 
 and stepDown term lead_id_maybe (s:State.t) = 
   let s_new,e_new = (
-      if (term > s.term) then 
+      if (term >= s.term) then 
         match s.mode with  
-      | Leader | Candidate -> 
+      | Leader -> 
+        assert (term <> s.term);  
         startFollow term s
+      | Candidate ->   startFollow term s
       | Follower -> 
         (State.tick (SetTerm term) s,[])  
       else 
@@ -212,7 +214,7 @@ and requestVoteRs (res: Rpcs.RequestVoteRes.t) id (s:State.t) =
   debug (Rpcs.RequestVoteRes.to_string res);
   (* TODO: consider how term check may effect old votes in the network *)
   if (res.term > s.term)  then startFollow res.term s
-  else if (res.votegranted) 
+  else if (res.votegranted)&&(s.mode=Candidate) 
     then begin 
       debug "Vote was granted";
       let s = State.tick (VoteFrom id) s in
@@ -236,7 +238,9 @@ and appendEntriesRq (args: Rpcs.AppendEntriesArg.t) (s:State.t) =
         stepDown args.term (Some args.lead_id) s in
     let s_new,e_timeout = refreshTimer s_new in
     debug("we are now in the same term");
-    assert (s_new.mode=Follower && s_new.term=args.term && s_new.leader=Some args.lead_id);
+    assert (s_new.mode=Follower);
+    assert (s_new.term=args.term); 
+    assert (s_new.leader=Some args.lead_id);
     (*TODO: investigate ordering of theres event, in particular commit Index and AppendEntries *)
     match (Log.consistency_check s_new.log args.prevLogIndex args.prevLogTerm) with
     | `Consistent-> 
@@ -509,6 +513,6 @@ let start () =
   run_multi ~term:(MonoTime.add time_now time_intval ) 
   (StateList.init P.nodes)  
   (init_eventlist P.nodes)
-  (Client.init P.nodes)
+  (Client.init P.nodes P.workload_size)
 
 end

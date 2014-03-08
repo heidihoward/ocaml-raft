@@ -34,6 +34,8 @@ let common () =
          ~doc:"Terminate when a leader has successfully been established"
       +> flag "-termOnClient" no_arg
          ~doc:"Terminate when a client workload is empty"
+      +> flag "-cmds" (optional_with_default 5 int)
+          ~doc:"Size of test workload"
 
  )
 
@@ -45,8 +47,8 @@ let realtime =
     empty
      ++ common ()
       )
-    (fun nodes term debug_enabled iter data follower candidate leader delay failure recover term_ele term_client () ->  
-      printf "%s" (Parser.run ~time:Real ~nodes ~term ~debug_enabled ~iter ~data ~follower ~candidate ~leader ~delay ~failure ~recover ~term_ele ~term_client )) 
+    (fun nodes term debug_enabled iter data follower candidate leader delay failure recover term_ele term_client cmds () ->  
+      printf "%s" (Parser.run ~time:Real ~nodes ~term ~debug_enabled ~iter ~data ~follower ~candidate ~leader ~delay ~failure ~recover ~term_ele ~term_client ~cmds)) 
 
 let discrete =
   Command.basic
@@ -56,8 +58,8 @@ let discrete =
     empty
      ++ common ()
       )
-    (fun nodes term debug_enabled iter data follower candidate leader delay failure recover term_ele term_client () ->  
-      printf "%s" (Parser.run ~time:Discrete ~nodes ~term ~debug_enabled ~iter ~data ~follower ~candidate ~leader ~delay ~failure ~recover ~term_ele ~term_client ))
+    (fun nodes term debug_enabled iter data follower candidate leader delay failure recover term_ele term_client cmds () ->  
+      printf "%s" (Parser.run ~time:Discrete ~nodes ~term ~debug_enabled ~iter ~data ~follower ~candidate ~leader ~delay ~failure ~recover ~term_ele ~term_client ~cmds))
 
 let () =  
   ["realtime",realtime;"discrete",discrete]

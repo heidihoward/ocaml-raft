@@ -50,6 +50,7 @@ module type PARAMETERS = sig
   val nxt_failure: (unit -> float) option
   val nxt_recover: (unit -> float) option
   val term_conditions : termination -> bool
+  val workload_size: int
 end
 
 module Index = struct

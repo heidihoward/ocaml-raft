@@ -178,8 +178,9 @@ module PureState  =
     | StartLeader -> 
         { s with mode=Leader;
         votedFor = None;
-        votesResponded=[];
-        votesGranted=[];
+        (* hack for debug *)
+       (* votesResponded=[]; *)
+       (* votesGranted=[]; *)
         leader = Some s.id;
         nextIndex  = List.map s.allNodes ~f:(fun id -> (id,Index.succ (s.lastlogIndex)) );
         matchIndex = List.map s.allNodes ~f:(fun id -> (id,Index.init()) );
@@ -205,7 +206,7 @@ module PureState  =
         let last_term,last_index = (
           match entries with 
           | [] -> s.lastlogTerm, s.lastlogIndex
-          | (i,t,_)::_ -> i,t ) in 
+          | (i,t,_)::_ -> t,i ) in 
         let new_log = Log.appends entries s.log in
         { s with log = new_log; lastlogTerm=last_term; lastlogIndex=last_index; }
     | AppendEntry (index, term, cmd) -> 
