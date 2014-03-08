@@ -55,7 +55,7 @@ module ClientHandler =
               leader = TryAsking ids} 
 
   let print (s:t) = 
-    "-------------------------------------------------------\n"^
+    "-- CLIENT STATE -----------------------------------------------\n"^
     " | Time: "^(MonoTime.to_string (s.time()))^
     " | All Nodes: "^(List.to_string ~f:IntID.to_string s.allNodes)^
     " | Leader: "^(print_leader s.leader)^"\n"^

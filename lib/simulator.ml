@@ -259,10 +259,12 @@ and appendEntriesRq (args: Rpcs.AppendEntriesArg.t) (s:State.t) =
                 State.tick (AppendEntries entries_cmd) s_new  ) in
           (* RAFT SPEC: If leaderCommit > commitIndex, set commitIndex = min(leaderCommit, last log index) *)
           let s_new = (
-              if (args.leaderCommit > s.commitIndex) then 
-                State.tick (Commit args.leaderCommit) s_new 
-              else
-                s_new ) in
+              if (args.leaderCommit > s.commitIndex) then (
+                debug "updating commitIndex";
+                State.tick (Commit args.leaderCommit) s_new )
+              else (
+                debug "not updating commitIndex";
+                s_new )) in
           (*works finished now sent reply *)
           let res = Rpcs.AppendEntriesRes.(
                 { term = s_new.term; success=true; replyto = args; follower_id = s.id;} ) in
@@ -299,7 +301,7 @@ and appendEntriesRs (res: Rpcs.AppendEntriesRes.t) id (s:State.t) =
     (* assert(s.mode=Leader); *)
     (* we have same terms so proceed *)
   match res.success with
-  | true -> 
+  | true -> (
     debug "Successfully added to followers log"; 
     assert (s.mode=Leader);
     let new_index = (
@@ -307,7 +309,14 @@ and appendEntriesRs (res: Rpcs.AppendEntriesRes.t) id (s:State.t) =
      | [] -> (*it was a heartbeat so nextIndex is already correct *)
         res.replyto.prevLogIndex
      | (i,_,_)::_ -> i) in
-    (State.tick (ReplicationSuccess (res.follower_id, new_index)) s,[])
+    let s_new = State.tick (ReplicationSuccess (res.follower_id, new_index)) s in
+    match (s_new.outstanding_request) with
+    | Some (i,res) ->
+        if (i>=s_new.commitIndex) then
+          let s_new = State.tick RemoveClientRes s_new in
+          (s_new, [Comms.unicast_client (s.time()) (clientRs res)])
+        else (s_new,[])
+    | None -> (s_new,[]) )
   | false -> 
     debug "Unsuccessful at adding to followers log";
     match s.mode with
@@ -329,7 +338,8 @@ and appendEntriesRs (res: Rpcs.AppendEntriesRes.t) id (s:State.t) =
     let s_new = State.tick (AppendEntry log_entry) s in
     let s_new = State.tick (Commit entry_index) s_new in
     let res = { Rpcs.ClientRes.success = true; node_id = s.id; leader = s.leader; replyto=args; } in
-    (s_new, [Comms.unicast_client (s.time()) (clientRs res)] )
+    let s_new = State.tick (AddClientRequest (entry_index,res)) s_new in
+    (s_new, [] )
 
 and clientRs (res: Rpcs.ClientRes.t) (s:Client.t) = 
   debug ("Simulating clients response");

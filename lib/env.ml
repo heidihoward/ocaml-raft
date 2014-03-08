@@ -33,6 +33,7 @@ module PureState  =
           allNodes : IntID.t list;
           leader : IntID.t option;
           state_mach : Mach.t;
+          outstanding_request : (Index.t * Rpcs.ClientRes.t) option
         } with sexp
    
 
@@ -56,6 +57,8 @@ module PureState  =
    | RemoveEntries of Index.t * Index.t
    | ReplicationFailure of IntID.t * Index.t
    | ReplicationSuccess of IntID.t * Index.t
+   | AddClientRequest of Index.t * Rpcs.ClientRes.t
+   | RemoveClientRes 
 
 
   let init me all =
@@ -75,7 +78,8 @@ module PureState  =
       id = me;
       allNodes = all;
       leader = None;
-      state_mach = Mach.init()
+      state_mach = Mach.init();
+      outstanding_request = None
     } 
 
   let refresh s:t =
@@ -95,7 +99,8 @@ module PureState  =
       id = s.id; 
       allNodes = s.allNodes;
       leader = None;
-      state_mach = s.state_mach
+      state_mach = s.state_mach;
+      outstanding_request = None
     } 
 
 
@@ -103,7 +108,7 @@ module PureState  =
   let id_index_print (id,index) = (" ID: "^(IntID.to_string id)^"Index: "^(Index.to_string index) )
 
   let print s = 
-    "-------------------------------------------------------\n"^
+    "-- NODE STATE ------------------------------------------------------------------------\n"^
     " | Time: "^(MonoTime.to_string (s.time()))^
     " | ID: "^(IntID.to_string s.id)^
     " | Term: "^(Index.to_string s.term)^
@@ -118,8 +123,9 @@ module PureState  =
     " | Last Log Index: "^(Index.to_string s.lastlogIndex)^
     " | Last Log Term: "^(Index.to_string s.lastlogTerm)^
     " | Commit Index: "^(Index.to_string s.commitIndex)^
+    " | Outstanding Client Request: "^(string_of_option (fun (i,_) -> Index.to_string i ) s.outstanding_request)^"\n"^
     " | Replicated Log: "^(Log.to_string ~cmd_to_string:Mach.cmd_to_string s.log)^
-    "\n-------------------------------------------------------"
+    "\n-------------------------------------------------------------------------------------"
  (* sexp_of_t s |> Sexp.to_string *)
 
  (* let rec log_add original new_list = 
@@ -196,7 +202,10 @@ module PureState  =
         { s with state_mach = new_mach; commitIndex=new_index} )
     | AppendEntries entries -> 
         assert (s.mode=Follower);
-        let last_term,last_index = Log.last_index_term s.log in 
+        let last_term,last_index = (
+          match entries with 
+          | [] -> s.lastlogTerm, s.lastlogIndex
+          | (i,t,_)::_ -> i,t ) in 
         let new_log = Log.appends entries s.log in
         { s with log = new_log; lastlogTerm=last_term; lastlogIndex=last_index; }
     | AppendEntry (index, term, cmd) -> 
@@ -212,7 +221,7 @@ module PureState  =
           assert (index=index_tried);
             { s with nextIndex = (List.Assoc.add s.nextIndex id (Index.pred index)  )}
        | None -> assert false )
-    | ReplicationSuccess (id,index_new) -> 
+    | ReplicationSuccess (id,index_new) -> (
         assert(s.mode=Leader);
         match (List.Assoc.find s.nextIndex id),(List.Assoc.find s.matchIndex id) with
         | Some next_index, Some match_index -> 
@@ -224,8 +233,11 @@ module PureState  =
             matchIndex = new_matchIndex ;
             nextIndex = (List.Assoc.add s.nextIndex id (Index.succ index_new));
             commitIndex = update_commitIndex new_matchIndex s.commitIndex; }
-        | _ -> assert false
-
+        | _ -> assert false )
+    | AddClientRequest (index,res) ->
+      {s with outstanding_request = Some (index,res); }
+    | RemoveClientRes -> 
+      { s with outstanding_request = None}
 
 
 end
