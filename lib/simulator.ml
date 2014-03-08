@@ -43,21 +43,17 @@ module type COMMS = sig
 
 module type RAFT = sig
 
-
-  type checker = Follower_Timeout of Index.t 
-             | Candidate_Timeout of Index.t
-             | Leader_Timeout of Index.t
-
   (** Helper Functions - Called by the EventFunction to perform some computation
     at that specific time and location *)
 
   val startCand: eventsig
   val dispatchAppendEntries: eventsig
   val startLeader: eventsig
+  val refreshTimer: eventsig
 
   (** Event Functions , this have some kinda terporal/spacail info => 
      get stored in the EventList **)
-  val checkTimer: checker -> eventsig
+  val checkTimer: int -> eventsig
   val startFollow: Index.t -> eventsig
   val requestVoteRq: Rpcs.RequestVoteArg.t -> eventsig
   val requestVoteRs: Rpcs.RequestVoteRes.t -> IntID.t -> eventsig
@@ -99,40 +95,45 @@ let checkElection (s:State.t) =
   (* TODO: check exactly def of majority, maybe off by one error here *)
   (List.length s.votesGranted) > ((List.length s.allNodes)+1)/2
 
-type checker = Follower_Timeout of Index.t 
-             | Candidate_Timeout of Index.t
-             | Leader_Timeout of Index.t
 
 let rec  startCand (s:State.t) = 
   debug "Entering Candidate Mode / Restarting Electon";
-  let snew =  State.tick StartCandidate s in
+  let s_new =  State.tick StartCandidate s in
   let args = Rpcs.RequestVoteArg.(
-    { term = snew.term;
-      cand_id = snew.id;
-      last_index = snew.lastlogIndex;
-      last_term = snew.lastlogTerm; 
+    { term = s_new.term;
+      cand_id = s_new.id;
+      last_index = s_new.lastlogIndex;
+      last_term = s_new.lastlogTerm; 
     }) in
-  let reqs = Comms.broadcast snew.allNodes (snew.time()) 
+  let reqs = Comms.broadcast s_new.allNodes (s_new.time()) 
     (requestVoteRq args) in
-  let t = MonoTime.add (snew.time()) (timeout Candidate) in
-  (snew, RaftEvent (t, s.id, checkTimer (Candidate_Timeout snew.term) )::reqs )
+  let s_new,timeout_event = refreshTimer s_new in
+  (s_new, timeout_event@reqs )
 
-and checkTimer c (s:State.t)  = debug "Checking timer"; 
-  let next_timer c_new (s:State.t) = 
-    let t =  MonoTime.add (s.time()) (timeout Follower) in
-    (State.tick Reset s, [ RaftEvent (t, s.id, checkTimer c_new )]) in
-  (* TODO: this about the case where the nodes has gone to candidate and back to
-   * follower, how do we check for this case *)
-  match c,s.mode with
-  | Follower_Timeout term, Follower when term = s.term -> 
-    (* if AppendEntries is true, we have rec a packet in the last election timeout*)
-    if s.timer then next_timer (Follower_Timeout s.term) s  
-    (* we have timedout so become candidate *)
-    else (startCand s)
-  | Candidate_Timeout term, Candidate when term = s.term -> (debug "restating
-  election"; startCand s)
-  | Leader_Timeout term, Leader when term = s.term -> (dispatchAppendEntries s)
-  | _ -> debug "Timer no longer valid"; (s,[])
+and refreshTimer (s:State.t) = 
+  let s_new = State.tick Set s in
+  let timeout = MonoTime.add (s.time()) (timeout s.mode) in
+  let (event:EventList.item) = RaftEvent (timeout, s.id, checkTimer s_new.timer) in 
+  (s_new,[event])
+
+and checkTimer (timer_num:int) (s:State.t) = 
+  debug "Checking timer"; 
+  if (s.timer=timer_num) then (
+    debug "timer is valid, need execuating";
+    match s.mode with
+      | Follower -> 
+          debug "follower hasn't heard from leader so becoming candidate"; 
+          startCand s
+      | Candidate -> 
+          debug "election hasn't yet been won, as timer has benn invalidated"; 
+          startCand s
+      | Leader -> 
+          debug "heartbeat dispatch due to timeout";
+          dispatchAppendEntries s )
+   else (
+    debug "timer no longer valid"; 
+    (s,[]) )
+
 
 (* this function send heartbeat versions of AppendEntries to all other nodes *)
 and dispatchAppendEntries (s:State.t) =
@@ -152,31 +153,32 @@ and dispatchAppendEntries (s:State.t) =
   Comms.unicast_replica id (s.time()) 
     (appendEntriesRq args) in
   let reqs = List.map s.allNodes ~f:dispatch in
-  let t = MonoTime.add (s.time()) (timeout Leader) in
-  (s, RaftEvent (t, s.id, checkTimer (Leader_Timeout s.term) )::reqs )
+  let s_new,timeout_event = refreshTimer s in
+  (s_new, timeout_event@reqs )
 
 
 and startFollow term (s:State.t)  = debug "Entering Follower mode";
   (* used for setdown too so need to reset follower state *)
-  let t = MonoTime.add (s.time()) (timeout Follower) in
   let s = State.tick (StepDown term) s in 
-  (s,[ RaftEvent (t, s.id,checkTimer (Follower_Timeout s.term) )])
+  refreshTimer s
 
 and startLeader (s:State.t) = debug "Election Won - Becoming Leader";
-  dispatchAppendEntries (State.tick StartLeader s)
+  let s_new,dispatch_pkts = dispatchAppendEntries (State.tick StartLeader s) in
+  (s_new, dispatch_pkts)
 
 and stepDown term lead_id_maybe (s:State.t) = 
-  if (term > s.term) then 
-    let s_new,e_new = (
-      match s.mode with  
+  let s_new,e_new = (
+      if (term > s.term) then 
+        match s.mode with  
       | Leader | Candidate -> 
         startFollow term s
       | Follower -> 
-        (State.tick (SetTerm term) s,[])  ) in
+        (State.tick (SetTerm term) s,[])  
+      else 
+        (s,[])) in
     match lead_id_maybe with
     | Some id -> (State.tick (SetLeader id) s_new), e_new
     | None -> s_new,e_new
-  else (s,[])
            
   (* TODO check if this case it handled correctly *)
   (* else if (term=s.term) && (s.mode=Leader) then startFollower term s *) 
@@ -187,17 +189,15 @@ and requestVoteRq (args: Rpcs.RequestVoteArg.t) (s:State.t) =
   debug ("I've got a vote request from: "^ IntID.to_string args.cand_id^ 
          " term number: "^Index.to_string args.term);
   debug (Rpcs.RequestVoteArg.to_string args);
-  (* TODO: this is a Simulated Response so allows granting vote
-   * , need todo properly *)
   let (s_new:State.t),e_new = stepDown args.term None s in
   let vote = (args.term = s_new.term) && (args.last_index >= s.lastlogIndex ) 
     && (args.last_term >= s.lastlogTerm ) && (s.votedFor = None) in
-  let s_new = 
+  let s_new,e_new = 
    ( if vote then 
-      (State.tick (Vote args.cand_id) s 
-      |> State.tick Set )
+      refreshTimer (State.tick (Vote args.cand_id) s_new)
     else 
-      s_new )in
+      (*no changes required *)
+      s_new,e_new )in
   let res = 
     Rpcs.RequestVoteRes.(
       { term = s_new.term;
@@ -231,9 +231,10 @@ and appendEntriesRq (args: Rpcs.AppendEntriesArg.t) (s:State.t) =
     begin
     debug ("this AppendEntries is up to date and therefore valid");
     (*if required then stepDown from leader or follower or/and update term *)
-    let (s_new:State.t),e_new = 
+    let (s_new:State.t),e_stepdown = 
         debug "handling the new term info";
         stepDown args.term (Some args.lead_id) s in
+    let s_new,e_timeout = refreshTimer s_new in
     debug("we are now in the same term");
     assert (s_new.mode=Follower && s_new.term=args.term && s_new.leader=Some args.lead_id);
     (*TODO: investigate ordering of theres event, in particular commit Index and AppendEntries *)
@@ -265,7 +266,7 @@ and appendEntriesRq (args: Rpcs.AppendEntriesArg.t) (s:State.t) =
           (*works finished now sent reply *)
           let res = Rpcs.AppendEntriesRes.(
                 { term = s_new.term; success=true; replyto = args; follower_id = s.id;} ) in
-          (s_new,(Comms.unicast_replica(args.lead_id) (s_new.time()) (appendEntriesRs res s.id))::e_new)
+          (s_new,(Comms.unicast_replica(args.lead_id) (s_new.time()) (appendEntriesRs res s.id))::e_stepdown@e_timeout)
     | `Inconsistent -> (
           debug ("not consistent at prevLogIndex so fail");
         (* RAFT SPEC: Reply false if log doesn’t contain an entry at prevLogIndex
@@ -273,7 +274,7 @@ and appendEntriesRq (args: Rpcs.AppendEntriesArg.t) (s:State.t) =
         (*TODO: workout when entry should actually be removed *)
        let res = Rpcs.AppendEntriesRes.(
         { term = s_new.term; success= false; replyto = args; follower_id = s.id;} ) in
-        (s_new,[Comms.unicast_replica(args.lead_id) (s_new.time()) (appendEntriesRs res s.id)]) )
+        (s_new,(Comms.unicast_replica(args.lead_id) (s_new.time()) (appendEntriesRs res s.id))::e_stepdown@e_timeout) )
 
     end
   else
@@ -386,9 +387,9 @@ let state_span (sl:StateList.t) =
 
 let wake (s:State.t) : EventList.item list =
   debug "node is restarting after failing";
-  let timer = MonoTime.add (s.time()) (timeout Follower) in
-   [ RaftEvent (timer, s.id,RaftImpl.checkTimer (Follower_Timeout s.term) );
-     SimulationEvent (nxt_failure (s.time()), s.id, Kill) ]
+  let timeout = MonoTime.add (s.time()) (timeout Follower) in
+  let (event:EventList.item) = RaftEvent (timeout, s.id, RaftImpl.checkTimer s.timer) in 
+  [(SimulationEvent (nxt_failure (s.time()), s.id, Kill)); event]
 
 let kill (s:State.t) = 
   debug "node has failed";

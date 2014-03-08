@@ -23,7 +23,9 @@ module PureState  =
           (** Simulation specfic state, need removing/altering for real
            * implementation *)
           time : unit -> MonoTime.t;
-          timer : bool; 
+          (* This timer is used in all 3 states and has different meanings depending on state *)
+          (*timer is the time at with the "last event occured", if timer+timout>time then do timeout else nothing *)
+          timer : int; 
           (** this flag is used to indicate if event of a timer
           has happened since last checked, a better method for this should be
           used *)
@@ -60,7 +62,7 @@ module PureState  =
     { term = Index.init();
       mode = Follower;
       time = MonoTime.init;
-      timer = false;
+      timer = 0;
       votedFor = None;
       log = Log.init(); 
       lastlogIndex = Index.init();
@@ -80,7 +82,7 @@ module PureState  =
     { term = s.term;
       mode = Follower;
       time = s.time ;
-      timer = false;
+      timer = s.timer;
       votedFor = None;
       log = s.log; 
       lastlogIndex = Index.init();
@@ -139,22 +141,20 @@ module PureState  =
 
   let tick tk s =
   match tk with
-    | Reset -> 
-       {s with timer=false}
     | Set -> 
-        {s with timer=true}
+        {s with timer = Int.succ (s.timer)}
     | IncrementTerm -> 
         let t = Index.succ s.term in
        { s with term=t }
     | Vote id -> 
          assert(s.votedFor = None);
+         assert(s.mode=Follower);
         { s with votedFor = Some id}
     | VoteFrom id ->
         { s with votesGranted = id::s.votesGranted }
     | StepDown tm ->
         { s with mode=Follower;
         term = tm;
-        timer = false; 
         votedFor = None;
         votesResponded=[];
         votesGranted=[];
@@ -162,7 +162,6 @@ module PureState  =
         matchIndex = []; }
     | StartCandidate -> 
         { s with mode=Candidate;
-        timer = false;
         votedFor = Some s.id;
         votesResponded=[];
         votesGranted=[s.id];
@@ -172,7 +171,6 @@ module PureState  =
         { s with time=(MonoTime.store t)}
     | StartLeader -> 
         { s with mode=Leader;
-        timer = false;
         votedFor = None;
         votesResponded=[];
         votesGranted=[];
@@ -197,21 +195,25 @@ module PureState  =
           Mach.commit_many s.state_mach (Log.to_commit s.commitIndex new_index s.log) in
         { s with state_mach = new_mach; commitIndex=new_index} )
     | AppendEntries entries -> 
+        assert (s.mode=Follower);
         let last_term,last_index = Log.last_index_term s.log in 
         let new_log = Log.appends entries s.log in
-        { s with log = new_log; lastlogTerm=last_term; lastlogIndex=last_index }
+        { s with log = new_log; lastlogTerm=last_term; lastlogIndex=last_index; }
     | AppendEntry (index, term, cmd) -> 
+        assert (s.mode=Leader);
        {s with log = Log.append (index,term,cmd) s.log ; lastlogTerm=term; lastlogIndex=index}
     | RemoveEntries (index,term) ->
        let new_log = Log.cut_entries index s.log in
        {s with log = new_log; lastlogTerm=term; lastlogIndex=index}
     | ReplicationFailure (id,index_tried) -> (
+        assert(s.mode=Leader);
        match (List.Assoc.find s.nextIndex id) with 
        | Some index -> 
           assert (index=index_tried);
             { s with nextIndex = (List.Assoc.add s.nextIndex id (Index.pred index)  )}
        | None -> assert false )
     | ReplicationSuccess (id,index_new) -> 
+        assert(s.mode=Leader);
         match (List.Assoc.find s.nextIndex id),(List.Assoc.find s.matchIndex id) with
         | Some next_index, Some match_index -> 
           let new_matchIndex = (
@@ -381,7 +383,8 @@ module State = PureState(MonoTime)(Mach)
     | Down s -> 
         let s_new = 
           State.tick Restart s 
-          |> State.tick (SetTime time) in
+          |> State.tick (SetTime time)
+          |> State.tick Set in
         append sl id (Live s_new)
     | Live s -> exit 1 (*waking a live node *)
 

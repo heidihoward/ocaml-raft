@@ -30,7 +30,7 @@ module State :
           (** Simulation specfic state, need removing/altering for real
            * implementation *)
           time : unit -> MonoTime.t;
-          timer : bool; 
+          timer : int; 
           (** this flag is used to indicate if event of a timer
           has happened since last checked, a better method for this should be
           used *)
