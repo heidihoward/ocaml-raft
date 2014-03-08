@@ -212,14 +212,17 @@ module PureState  =
             { s with nextIndex = (List.Assoc.add s.nextIndex id (Index.pred index)  )}
        | None -> assert false )
     | ReplicationSuccess (id,index_new) -> 
-        match (List.Assoc.find s.nextIndex id) with
-        | Some index -> 
-          let new_matchIndex = List.Assoc.add s.matchIndex id index_new in
+        match (List.Assoc.find s.nextIndex id),(List.Assoc.find s.matchIndex id) with
+        | Some next_index, Some match_index -> 
+          let new_matchIndex = (
+            if (match_index<index_new) then 
+            List.Assoc.add s.matchIndex id index_new
+            else s.matchIndex ) in
             { s with 
             matchIndex = new_matchIndex ;
             nextIndex = (List.Assoc.add s.nextIndex id (Index.succ index_new));
             commitIndex = update_commitIndex new_matchIndex s.commitIndex; }
-        | None -> assert false
+        | _ -> assert false
 
 
 
