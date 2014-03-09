@@ -168,14 +168,18 @@ and startLeader (s:State.t) = debug "Election Won - Becoming Leader";
 
 and stepDown term lead_id_maybe (s:State.t) = 
   let s_new,e_new = (
-      if (term >= s.term) then 
+      if (term > s.term) then 
         match s.mode with  
       | Leader -> 
-        assert (term <> s.term);  
         startFollow term s
-      | Candidate ->   startFollow term s
+      | Candidate ->  startFollow term s
       | Follower -> 
         (State.tick (SetTerm term) s,[])  
+      else if (term=s.term) then
+        match s.mode with
+      | Leader -> (s,[])
+      | Candidate -> startFollow term s
+      | Follower -> (s,[]) 
       else 
         (s,[])) in
     match lead_id_maybe with
@@ -192,8 +196,13 @@ and requestVoteRq (args: Rpcs.RequestVoteArg.t) (s:State.t) =
          " term number: "^Index.to_string args.term);
   debug (Rpcs.RequestVoteArg.to_string args);
   let (s_new:State.t),e_new = stepDown args.term None s in
-  let vote = (args.term = s_new.term) && (args.last_index >= s.lastlogIndex ) 
-    && (args.last_term >= s.lastlogTerm ) && (s.votedFor = None) in
+  let vote = 
+    (args.term = s_new.term) && 
+    (args.last_index >= s_new.lastlogIndex ) &&  
+    (args.last_term >= s_new.lastlogTerm ) && 
+    (s_new.votedFor = None) &&
+    (s.mode=Follower)
+  in
   let s_new,e_new = 
    ( if vote then 
       refreshTimer (State.tick (Vote args.cand_id) s_new)
@@ -214,7 +223,7 @@ and requestVoteRs (res: Rpcs.RequestVoteRes.t) id (s:State.t) =
   debug (Rpcs.RequestVoteRes.to_string res);
   (* TODO: consider how term check may effect old votes in the network *)
   if (res.term > s.term)  then startFollow res.term s
-  else if (res.votegranted)&&(s.mode=Candidate) 
+  else if (res.votegranted)&&(s.mode=Candidate)&&(s.term=res.term) 
     then begin 
       debug "Vote was granted";
       let s = State.tick (VoteFrom id) s in

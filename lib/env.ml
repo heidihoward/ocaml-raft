@@ -219,8 +219,9 @@ module PureState  =
         assert(s.mode=Leader);
        match (List.Assoc.find s.nextIndex id) with 
        | Some index -> 
-          assert (index=index_tried);
+          if (index=index_tried) then
             { s with nextIndex = (List.Assoc.add s.nextIndex id (Index.pred index)  )}
+           else s
        | None -> assert false )
     | ReplicationSuccess (id,index_new) -> (
         assert(s.mode=Leader);
