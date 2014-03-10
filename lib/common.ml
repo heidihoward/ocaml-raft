@@ -27,16 +27,16 @@ module NumberGen = struct
 
   let uniform  min max () = (Random.float (max-.min) +. min)
 
-  let exp lam () = 
+  let exp lam const () = 
     (* TODO fix this *)
-    (-1.0 /. lam)*.log(Random.float Float.max_finite_value)
+    const +. (-1.0 /. lam)*.log(Random.float 1.0)
 
  let string_to_dist str =
    let flt = Float.of_string in
    match (String.split str ~on:'-') with
    | "Fixed"::value::_ -> fixed (flt value)
    | "Uniform"::min::max::[] -> uniform (flt min) (flt max)
-   | "Exp"::lamda::[] -> exp (flt lamda)
+   | "Exp"::lamda::const::[] -> exp (flt lamda) (flt const)
    | er ->  eprintf "failure to parse: %s" (List.to_string ~f:(fun x -> x) er) ; exit 1
 
 end
