@@ -9,6 +9,8 @@ type 'a status = Live of 'a | Down of 'a | Notfound
 type failures = Wake | Kill
 type termination = LeaderEst | WorkloadEmpty | Timeout
 
+type datacollection = {mutable pkts: int; mutable client_pkts: int; mutable firstelc: int option}
+
 let termination_to_string = function
   | LeaderEst -> "LeaderEstablished"
   | WorkloadEmpty -> "WorkloadEmpty"

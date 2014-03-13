@@ -14,6 +14,8 @@ type termination = LeaderEst | WorkloadEmpty | Timeout
 
 val termination_to_string: termination -> string
 
+type datacollection = {mutable pkts: int; mutable client_pkts: int; mutable firstelc: int option}
+
 (** [failures] hows the holds the two possible N actions *)
 type failures = Wake | Kill
 

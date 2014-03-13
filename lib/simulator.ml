@@ -6,6 +6,8 @@ open Eventlst
  * core protcol implementation and communication. This aspects need to be
  * divided up but everything depend on the State module with a functor *)
 
+
+
 module RaftSim = 
   functor (MonoTime: Clock.TIME) ->
   functor (Mach: Statemach.MACHINE) ->
@@ -34,6 +36,10 @@ let debug x = if (P.debug_mode) then (printf " %s  \n" x) else ()
 
 (* TODO: consider spliting this up into 3 functions*)
 let timeout (m:role) = MonoTime.span_of_float (P.timeout () m)
+
+type datacollection = {mutable pkts: int; mutable client_pkts: int; mutable firstele: MonoTime.t option}
+
+let data = {pkts=0; client_pkts=0; firstele=None}
 
 module type COMMS = sig
     val unicast_replica: IntID.t -> MonoTime.t -> eventsig -> EventList.item
@@ -76,6 +82,7 @@ let unicast_replica (dist: IntID.t) (t:MonoTime.t) (e) =
   let arriv = MonoTime.add t delay in
   debug ("dispatching msg to "^(IntID.to_string dist) ^ " to arrive at "^
   (MonoTime.to_string arriv));
+  data.pkts <- data.pkts + 1;
   RaftEvent (arriv ,dist ,e ) 
 
 let unicast_client (t:MonoTime.t) (e) =
@@ -83,6 +90,7 @@ let unicast_client (t:MonoTime.t) (e) =
   let arriv = MonoTime.add t delay in
   debug ("dispatching msg to client to arrive at "^
   (MonoTime.to_string arriv));
+  data.client_pkts <- data.client_pkts + 1;
   ClientEvent (arriv, e)
 
 let broadcast (dests:IntID.t list) (t:MonoTime.t) e  = 
@@ -164,6 +172,7 @@ and startFollow term (s:State.t)  = debug "Entering Follower mode";
 
 and startLeader (s:State.t) = debug "Election Won - Becoming Leader";
   let s_new,dispatch_pkts = dispatchAppendEntries (State.tick StartLeader s) in
+  if (data.firstele=None) then data.firstele <- Some (s.time()) else ();
   (s_new, dispatch_pkts)
 
 and stepDown incoming_mode term lead_id_maybe (s:State.t) = 
@@ -429,8 +438,15 @@ let termination_output reason sl (cl: Client.t) =
     | LeaderEst -> state_span sl
     | WorkloadEmpty -> span_to_string (cl.time()) 
     | Timeout -> MonoTime.span_to_string (MonoTime.span_of_int P.term_time) in
+  let first_election = 
+    match data.firstele with Some x -> MonoTime.to_string x | None -> "" in
  (* let term_str = Index.to_string StateList.get_leader term in *)
-  "Reason: "^(termination_to_string reason)^"\n Time: "^time_str"\n"
+  "Reason: "^(termination_to_string reason)^
+  "\n Time: "^time_str^
+  "\n Replica Packets: "^(Int.to_string data.pkts)^
+  "\n Client Packets: "^(Int.to_string data.client_pkts)^
+  "\n Leader Established: "^first_election^
+  "\n"
 
 let wake (s:State.t) : EventList.item list =
   debug "node is restarting after failing";
