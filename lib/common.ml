@@ -7,7 +7,12 @@ open Core.Std
 type role = Follower | Candidate | Leader with sexp
 type 'a status = Live of 'a | Down of 'a | Notfound 
 type failures = Wake | Kill
-type termination = LeaderEst | WorkloadEmpty 
+type termination = LeaderEst | WorkloadEmpty | Timeout
+
+let termination_to_string = function
+  | LeaderEst -> "LeaderEstablished"
+  | WorkloadEmpty -> "WorkloadEmpty"
+  | Timeout -> "Timeout"
 
 let string_of_role = function
   | Follower -> "Follower"

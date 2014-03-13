@@ -417,17 +417,20 @@ let span_to_string (time:MonoTime.t) =
    let duration = MonoTime.diff (time) start_time in
     MonoTime.span_to_string (duration)
 
-(* let termination_output time sl =
-  let time_str = span_to_string time in
-  let term_str = Index.to_string StateList.get_leader term in
-  "Time:"^time_str^" Term:"^term_str *)
-
 let state_span (sl:StateList.t) = 
   (* TODO: fix this so it finds the first live node *)
   (*let state = match (StateList.find sl (IntID.from_int 0)) with Live x -> x in*)
   match StateList.get_leader sl with
     | None -> assert false
     | Some (state) -> span_to_string (state.time()) 
+
+let termination_output reason sl (cl: Client.t) =
+  let time_str = match reason with
+    | LeaderEst -> state_span sl
+    | WorkloadEmpty -> span_to_string (cl.time()) 
+    | Timeout -> MonoTime.span_to_string (MonoTime.span_of_int P.term_time) in
+ (* let term_str = Index.to_string StateList.get_leader term in *)
+  "Reason: "^(termination_to_string reason)^"\n Time: "^time_str"\n"
 
 let wake (s:State.t) : EventList.item list =
   debug "node is restarting after failing";
@@ -487,13 +490,13 @@ let rec run_multi
     begin
       debug "terminating as leader has been agreed";
        (* for graph gen.  printf " %s \n" (get_time_span sl); *)
-        (state_span sl)
+        termination_output LeaderEst sl cl
         end
     else if (P.term_conditions WorkloadEmpty)&&(cl.workload=[]) then
      begin
       debug "terminating as all commands have been commited ";
        (* for graph gen.  printf " %s \n" (get_time_span sl); *)
-        (span_to_string (cl.time()))  
+        termination_output WorkloadEmpty sl cl  
         (* MonoTime.span_to_string (cl.time ()) *)
         end
     else 
@@ -517,7 +520,8 @@ let rec run_multi
       run_multi sl (EventList.add el_new els) cl_new )
 
   | Some (Terminate t,_) -> 
-      debug "terminating as terminate time has been reached"; (span_to_string t)
+      debug "terminating as terminate time has been reached"; 
+      termination_output Timeout sl cl
 
 
 let init_eventlist num  :EventList.t  =  

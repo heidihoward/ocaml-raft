@@ -10,7 +10,9 @@ type role = Follower | Candidate | Leader with sexp
 (** [status] wraps around State.t to simulate node failures *)
 type 'a status = Live of 'a | Down of 'a | Notfound
 
-type termination = LeaderEst | WorkloadEmpty 
+type termination = LeaderEst | WorkloadEmpty | Timeout 
+
+val termination_to_string: termination -> string
 
 (** [failures] hows the holds the two possible N actions *)
 type failures = Wake | Kill
