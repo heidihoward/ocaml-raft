@@ -166,7 +166,7 @@ and startLeader (s:State.t) = debug "Election Won - Becoming Leader";
   let s_new,dispatch_pkts = dispatchAppendEntries (State.tick StartLeader s) in
   (s_new, dispatch_pkts)
 
-and stepDown term lead_id_maybe (s:State.t) = 
+and stepDown incoming_mode term lead_id_maybe (s:State.t) = 
   let s_new,e_new = (
       if (term > s.term) then 
         match s.mode with  
@@ -175,13 +175,29 @@ and stepDown term lead_id_maybe (s:State.t) =
       | Candidate ->  startFollow term s
       | Follower -> 
         (State.tick (SetTerm term) s,[])  
-      else if (term=s.term) then
+      else if (term=s.term)&&(incoming_mode=Leader) then
         match s.mode with
-      | Leader -> (s,[])
-      | Candidate -> startFollow term s
-      | Follower -> (s,[]) 
-      else 
-        (s,[])) in
+      | Leader -> 
+      debug "we have two leaders in one term";
+      assert false
+      | Candidate -> 
+      debug "leader has been discovered, stopping election and step down";
+      startFollow term s
+      | Follower -> 
+      debug "all is upto date"; 
+      (s,[]) 
+      else if (term=s.term)&&(incoming_mode=Candidate) then
+         match s.mode with
+      | Leader -> 
+      debug "ignore candidate in this term";
+      (s,[])
+      | Candidate -> 
+      debug "competing candidate";
+      (s,[])
+      | Follower -> 
+      debug "all is well";
+      (s,[]) 
+       else (s,[])) in
     match lead_id_maybe with
     | Some id -> (State.tick (SetLeader id) s_new), e_new
     | None -> s_new,e_new
@@ -195,7 +211,7 @@ and requestVoteRq (args: Rpcs.RequestVoteArg.t) (s:State.t) =
   debug ("I've got a vote request from: "^ IntID.to_string args.cand_id^ 
          " term number: "^Index.to_string args.term);
   debug (Rpcs.RequestVoteArg.to_string args);
-  let (s_new:State.t),e_new = stepDown args.term None s in
+  let (s_new:State.t),e_new = stepDown Candidate args.term None s in
   let vote = 
     (args.term = s_new.term) && 
     (args.last_index >= s_new.lastlogIndex ) &&  
@@ -244,7 +260,7 @@ and appendEntriesRq (args: Rpcs.AppendEntriesArg.t) (s:State.t) =
     (*if required then stepDown from leader or follower or/and update term *)
     let (s_new:State.t),e_stepdown = 
         debug "handling the new term info";
-        stepDown args.term (Some args.lead_id) s in
+        stepDown Leader args.term (Some args.lead_id) s in
     let s_new,e_timeout = refreshTimer s_new in
     debug("we are now in the same term");
     assert (s_new.mode=Follower);
@@ -306,7 +322,7 @@ and appendEntriesRs (res: Rpcs.AppendEntriesRes.t) id (s:State.t) =
   (* 3 term cases: *)
   if (res.term>s.term) then (
     debug "step down, I'm no longer leader, ignore packet";
-    (stepDown res.term None s)
+    (startFollow res.term s)
   ) else if (res.term<s.term) then (
     debug "this message is delayed so ignore it";
     (s,[])
@@ -400,6 +416,11 @@ let nxt_recover (t:MonoTime.t) =
 let span_to_string (time:MonoTime.t) =
    let duration = MonoTime.diff (time) start_time in
     MonoTime.span_to_string (duration)
+
+(* let termination_output time sl =
+  let time_str = span_to_string time in
+  let term_str = Index.to_string StateList.get_leader term in
+  "Time:"^time_str^" Term:"^term_str *)
 
 let state_span (sl:StateList.t) = 
   (* TODO: fix this so it finds the first live node *)
