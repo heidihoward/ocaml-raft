@@ -19,7 +19,6 @@ let run ~time ~nodes ~term ~debug_enabled ~iter ~data ~follower ~candidate ~lead
       | Follower -> follower ()
       | Candidate -> candidate ()
     let pkt_delay = delay
-    let termination = term 
     let debug_mode = debug_enabled 
     let nxt_failure = failure
     let nxt_recover = recover
@@ -27,6 +26,7 @@ let run ~time ~nodes ~term ~debug_enabled ~iter ~data ~follower ~candidate ~lead
       | LeaderEst -> term_ele
       | WorkloadEmpty -> term_client
     let workload_size = cmds
+    let term_time = term
   end : PARAMETERS) in 
    
   match time with

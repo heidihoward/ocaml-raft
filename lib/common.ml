@@ -7,7 +7,7 @@ open Core.Std
 type role = Follower | Candidate | Leader with sexp
 type 'a status = Live of 'a | Down of 'a | Notfound 
 type failures = Wake | Kill
-type termination = LeaderEst | WorkloadEmpty
+type termination = LeaderEst | WorkloadEmpty 
 
 let string_of_role = function
   | Follower -> "Follower"
@@ -45,12 +45,12 @@ module type PARAMETERS = sig
   val timeout: unit -> role -> float
   val nodes: int
   val pkt_delay: unit -> float
-  val termination: int
   val debug_mode: bool
   val nxt_failure: (unit -> float) option
   val nxt_recover: (unit -> float) option
   val term_conditions : termination -> bool
   val workload_size: int
+  val term_time : int
 end
 
 module Index = struct
@@ -89,6 +89,7 @@ module Event = struct
       | RaftEvent of ('time * 'id * ('time, 'id, 'state,'client) event)
       | SimulationEvent of ('time * 'id * failures)
       | ClientEvent of ('time *  ('time, 'id, 'state,'client) client)
+      | Terminate of 'time
     and ('time, 'id, 'state,'client) event = 'state -> 'state * ('time, 'id, 'state,'client) t list
     and ('time, 'id, 'state,'client) client = 'client -> 'client * ('time, 'id, 'state,'client) t list
 
@@ -96,6 +97,7 @@ module Event = struct
   | RaftEvent (x,_,_)
   | SimulationEvent (x,_,_)
   | ClientEvent (x,_) -> x
+  | Terminate x -> x
 
   let compare x y = compare (get_time x) (get_time y)
 

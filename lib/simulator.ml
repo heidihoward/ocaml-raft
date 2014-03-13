@@ -478,7 +478,7 @@ let apply_ClientEvent (cl: Client.t) (e: (MonoTime.t,IntID.t,State.t,Client.t) c
 
 
 (* Main excuation cycle *)  
-let rec run_multi ~term
+let rec run_multi
   (sl: StateList.t) 
   (el: EventList.t)
   (cl: Client.t)  =
@@ -505,22 +505,19 @@ let rec run_multi ~term
   | Some (SimulationEvent (t,id,e),els) -> 
       let sl_new, el_new = apply_SimulationEvent sl e t id in
       StateList.check_safety sl;
-      run_multi ~term sl_new (EventList.add el_new els) cl
+      run_multi sl_new (EventList.add el_new els) cl
   (* next event is some computation at a node *)
-  | Some (RaftEvent (t,id,e),els) -> if (t>=term) 
-    then begin debug "terminating as terminate time has been reached"; (span_to_string t) end
-    (* will not be terminating so simluate event *)
-    else (
+  | Some (RaftEvent (t,id,e),els) -> (
       match (apply_RaftEvent (StateList.find sl id) e t) with
-      | Some (s_new,el_new) -> run_multi ~term (StateList.add sl id s_new) (EventList.add el_new els) cl
-      | None -> run_multi ~term sl els cl )
+      | Some (s_new,el_new) -> run_multi (StateList.add sl id s_new) (EventList.add el_new els) cl
+      | None -> run_multi sl els cl )
 
- | Some (ClientEvent (t,e),els) -> if (t>=term) 
-    then begin debug "terminating as terminate time has been reached"; (span_to_string t) end
-    (* will not be terminating so simluate event *)
-    else  
+ | Some (ClientEvent (t,e),els) -> (
       let (cl_new,el_new) = apply_ClientEvent cl e t in
-      run_multi ~term sl (EventList.add el_new els) cl_new
+      run_multi sl (EventList.add el_new els) cl_new )
+
+  | Some (Terminate t,_) -> 
+      debug "terminating as terminate time has been reached"; (span_to_string t)
 
 
 let init_eventlist num  :EventList.t  =  
@@ -532,15 +529,14 @@ let init_eventlist num  :EventList.t  =
     | Some _ ->
       List.init num ~f:(fun i -> SimulationEvent (nxt_failure (MonoTime.init()), IntID.from_int i, Kill)) 
     | None -> [] in
+  let term_event = [Terminate (MonoTime.add start_time (MonoTime.span_of_int P.term_time))] in
   let inital_ClientEvent = [ClientEvent (MonoTime.init(), RaftImpl.clientCommit)] in
-  EventList.init (initial_SimulationEvent@initial_RaftEvent@inital_ClientEvent)
+  EventList.init (initial_SimulationEvent@initial_RaftEvent@inital_ClientEvent@term_event)
 
 
 let start () =
   debug "Raft Simulator is Starting Up";
-  let time_intval = MonoTime.span_of_int P.termination in
-  let time_now = MonoTime.init() in
-  run_multi ~term:(MonoTime.add time_now time_intval ) 
+  run_multi 
   (StateList.init P.nodes)  
   (init_eventlist P.nodes)
   (Client.init P.nodes P.workload_size)

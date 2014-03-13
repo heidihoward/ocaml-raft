@@ -10,7 +10,7 @@ type role = Follower | Candidate | Leader with sexp
 (** [status] wraps around State.t to simulate node failures *)
 type 'a status = Live of 'a | Down of 'a | Notfound
 
-type termination = LeaderEst |   WorkloadEmpty 
+type termination = LeaderEst | WorkloadEmpty 
 
 (** [failures] hows the holds the two possible N actions *)
 type failures = Wake | Kill
@@ -29,20 +29,17 @@ module NumberGen :
 
 (** [PARAMETERS] defines the outcome the command line options are used the
  * simulator *)  
-module type PARAMETERS =
-  sig
-    (* [timeout role] returns a float returning the timeout using the
-     * distribution specified eariler *)
-    val timeout : unit -> role -> float
-    val nodes : int
-    val pkt_delay : unit -> float
-    val termination : int
-    val debug_mode : bool
-    val nxt_failure : (unit -> float) option
-    val nxt_recover : (unit -> float) option
-    val term_conditions : termination -> bool
-    val workload_size: int
-  end
+module type PARAMETERS = sig
+  val timeout: unit -> role -> float
+  val nodes: int
+  val pkt_delay: unit -> float
+  val debug_mode: bool
+  val nxt_failure: (unit -> float) option
+  val nxt_recover: (unit -> float) option
+  val term_conditions : termination -> bool
+  val workload_size: int
+  val term_time : int
+end
 
 (** [Index] is a single monotonically increasing discrete value *) 
 module Index :
@@ -83,6 +80,7 @@ module Event :
         RaftEvent of ('time * 'id * ('time, 'id, 'state,'client) event)
       | SimulationEvent of ('time * 'id * failures)
       | ClientEvent of ('time * ('time, 'id, 'state,'client) client)
+      | Terminate of 'time
     and ('time, 'id, 'state,'client) event = 'state -> 'state * ('time, 'id, 'state,'client) t list
     and ('time, 'id, 'state,'client) client = 'client -> 'client * ('time, 'id, 'state,'client) t list
 

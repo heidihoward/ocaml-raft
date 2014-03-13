@@ -7,7 +7,7 @@ let common () =
       empty
       +> flag "-nodes" (required int) 
         ~doc:"int Number of nodes to simulate, must be 2 or greater"
-      +> flag "-term" (optional_with_default 5000 int)
+      +> flag "-termOnTimeout" (optional_with_default 5000 int)
         ~doc:"int The maxiumun number of terms before termination"
       +> flag "-d" no_arg
         ~doc:"Enable debugging output (disabled by default)"
