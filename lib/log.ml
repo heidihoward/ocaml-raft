@@ -24,11 +24,14 @@ open Common
     | Some (_,term,_) when term=prev_term -> `Consistent
     | _ -> `Inconsistent
 
-  let to_string ~cmd_to_string = 
-    List.to_string 
-      ~f:( fun (i,t,c) -> "Index: "^(Index.to_string i)^
-                         " Term: "^(Index.to_string t)^
-                         " Cmd: "^(cmd_to_string c)^"\n")
+  let rec to_string ~cmd_to_string =
+  	function
+  	| [] -> "\n"
+  	| (i,t,c)::rest -> (
+  		"Index: "^(Index.to_string i)^
+    	" Term: "^(Index.to_string t)^
+    	" Cmd: "^(cmd_to_string c)^" |"^	
+    	(to_string ~cmd_to_string rest))
 
   let to_commit old_index new_index log = 
     (*Log stores most recent at head but need to reply in rev order *)

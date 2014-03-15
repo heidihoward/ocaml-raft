@@ -55,6 +55,7 @@ let client_latency opt =
   | `Start start_time -> (
     match data.full_latency with
     | (None,rest) -> 
+        debug ("Starting Client Latency Timer at "^MonoTime.to_string start_time);
         data.full_latency <- (Some start_time,rest)
     | (Some _ ,_) -> () )
   | `Stop stop_time -> (
@@ -62,6 +63,7 @@ let client_latency opt =
     | (None,rest) -> assert false
     | (Some start_time ,rest) -> 
       let time_diff = MonoTime.diff stop_time start_time in
+      debug ("Stopping Client Latency Timer at "^MonoTime.to_string stop_time);
       data.full_latency <- ( None, time_diff::rest ) )
 
 module type COMMS = sig
@@ -393,13 +395,14 @@ and appendEntriesRs (res: Rpcs.AppendEntriesRes.t) id (s:State.t) =
     debug("I'm not the leader so can't commit");
     (s, [Comms.unicast_client (s.time()) (clientRs res)] )
   | Leader -> 
-    debug("I'm the leader so will pretend to commit");
     let entry_index = Index.succ s.lastlogIndex in
     let log_entry = (entry_index, s.term, (Mach.cmd_of_sexp args.cmd)) in
+    let to_string (i,t,c) = (Index.to_string i)^" "^(Index.to_string t)^" "^(Mach.cmd_to_string c) in
     let s_new = State.tick (AppendEntry log_entry) s in
     let s_new = State.tick (Commit entry_index) s_new in
     let res = { Rpcs.ClientRes.success = true; node_id = s.id; leader = s.leader; replyto=args; } in
     let s_new = State.tick (AddClientRequest (entry_index,res)) s_new in
+    debug("I'm the leader so will try to commit command "^to_string log_entry);
     (s_new, [] )
 
 and clientRs (res: Rpcs.ClientRes.t) (s:Client.t) = 
@@ -419,7 +422,7 @@ and clientRs (res: Rpcs.ClientRes.t) (s:Client.t) =
 and clientCommit (s: Client.t) =
   match (s.workload) with
   | cmd::later -> 
-    debug ("attempting to commit"^(Mach.cmd_to_string cmd)) ;
+    debug ("Client is attempting to commit "^(Mach.cmd_to_string cmd)) ;
     client_latency (`Start (s.time()) );
     let args = {Rpcs.ClientArg.cmd = (Mach.sexp_of_cmd cmd)} in
     (match s.leader with
