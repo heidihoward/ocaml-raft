@@ -405,7 +405,7 @@ and appendEntriesRs (res: Rpcs.AppendEntriesRes.t) id (s:State.t) =
 and clientRs (res: Rpcs.ClientRes.t) (s:Client.t) = 
   debug ("Simulating clients response");
   debug (Rpcs.ClientRes.to_string res);
-  let timer = MonoTime.add (s.time()) (MonoTime.span_of_int 5) in
+  let timer = MonoTime.add (s.time()) (MonoTime.span_of_int P.client_wait ) in
   match res.success with
   | true -> debug "successfully committed"; 
     client_latency (`Stop (s.time()) );

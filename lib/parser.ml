@@ -11,7 +11,7 @@ let rec repeat n f = match n with
 let distribution = 
   Command.Spec.Arg_type.create NumberGen.string_to_dist
 
-let run ~time ~nodes ~term ~debug_enabled ~iter ~data ~follower ~candidate ~leader ~delay ~failure ~recover ~term_ele ~term_client ~cmds =
+let run ~time ~nodes ~term ~debug_enabled ~iter ~data ~follower ~candidate ~leader ~delay ~failure ~recover ~term_ele ~term_client ~cmds ~wait =
   let module Par = (struct
     let nodes = nodes
     let timeout () = function
@@ -27,6 +27,7 @@ let run ~time ~nodes ~term ~debug_enabled ~iter ~data ~follower ~candidate ~lead
       | WorkloadEmpty -> term_client
     let workload_size = cmds
     let term_time = term
+    let client_wait = wait
   end : PARAMETERS) in 
    
   match time with

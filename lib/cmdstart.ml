@@ -36,6 +36,8 @@ let common () =
          ~doc:"Terminate when a client workload is empty"
       +> flag "-cmds" (optional_with_default 5 int)
           ~doc:"Size of test workload"
+      +> flag "-clientWait" (optional_with_default 5 int)
+        ~doc:"Time a client waits between requests"
 
  )
 
@@ -47,8 +49,8 @@ let realtime =
     empty
      ++ common ()
       )
-    (fun nodes term debug_enabled iter data follower candidate leader delay failure recover term_ele term_client cmds () ->  
-      printf "%s" (Parser.run ~time:Real ~nodes ~term ~debug_enabled ~iter ~data ~follower ~candidate ~leader ~delay ~failure ~recover ~term_ele ~term_client ~cmds)) 
+    (fun nodes term debug_enabled iter data follower candidate leader delay failure recover term_ele term_client cmds wait () ->  
+      printf "%s" (Parser.run ~time:Real ~nodes ~term ~debug_enabled ~iter ~data ~follower ~candidate ~leader ~delay ~failure ~recover ~term_ele ~term_client ~cmds ~wait)) 
 
 let discrete =
   Command.basic
@@ -58,8 +60,8 @@ let discrete =
     empty
      ++ common ()
       )
-    (fun nodes term debug_enabled iter data follower candidate leader delay failure recover term_ele term_client cmds () ->  
-      printf "%s" (Parser.run ~time:Discrete ~nodes ~term ~debug_enabled ~iter ~data ~follower ~candidate ~leader ~delay ~failure ~recover ~term_ele ~term_client ~cmds))
+    (fun nodes term debug_enabled iter data follower candidate leader delay failure recover term_ele term_client cmds wait () ->  
+      printf "%s" (Parser.run ~time:Discrete ~nodes ~term ~debug_enabled ~iter ~data ~follower ~candidate ~leader ~delay ~failure ~recover ~term_ele ~term_client ~cmds ~wait))
 
 let () =  
   ["realtime",realtime;"discrete",discrete]

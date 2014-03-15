@@ -43,6 +43,7 @@ module type PARAMETERS = sig
   val term_conditions : termination -> bool
   val workload_size: int
   val term_time : int
+  val client_wait : int
 end
 
 (** [Index] is a single monotonically increasing discrete value *) 
