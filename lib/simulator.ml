@@ -6,8 +6,6 @@ open Eventlst
  * core protcol implementation and communication. This aspects need to be
  * divided up but everything depend on the State module with a functor *)
 
-
-
 module RaftSim = 
   functor (MonoTime: Clock.TIME) ->
   functor (Mach: Statemach.MACHINE) ->
@@ -37,9 +35,34 @@ let debug x = if (P.debug_mode) then (printf " %s  \n" x) else ()
 (* TODO: consider spliting this up into 3 functions*)
 let timeout (m:role) = MonoTime.span_of_float (P.timeout () m)
 
-type datacollection = {mutable pkts: int; mutable client_pkts: int; mutable firstele: MonoTime.t option}
+type datacollection = {
+  mutable pkts: int; 
+  mutable client_pkts: int; 
+  mutable firstele: MonoTime.t option;
+  mutable full_latency: (MonoTime.t option ) * (MonoTime.span list);
+    }
 
-let data = {pkts=0; client_pkts=0; firstele=None}
+let data = {
+  pkts=0; 
+  client_pkts=0; 
+  firstele=None; 
+  full_latency= (None,[]);
+  }
+
+
+let client_latency opt = 
+  match opt with
+  | `Start start_time -> (
+    match data.full_latency with
+    | (None,rest) -> 
+        data.full_latency <- (Some start_time,rest)
+    | (Some _ ,_) -> () )
+  | `Stop stop_time -> (
+    match data.full_latency with
+    | (None,rest) -> assert false
+    | (Some start_time ,rest) -> 
+      let time_diff = MonoTime.diff stop_time start_time in
+      data.full_latency <- ( None, time_diff::rest ) )
 
 module type COMMS = sig
     val unicast_replica: IntID.t -> MonoTime.t -> eventsig -> EventList.item
@@ -385,6 +408,7 @@ and clientRs (res: Rpcs.ClientRes.t) (s:Client.t) =
   let timer = MonoTime.add (s.time()) (MonoTime.span_of_int 5) in
   match res.success with
   | true -> debug "successfully committed"; 
+    client_latency (`Stop (s.time()) );
     let s_new = Client.tick (Successful res.node_id) s in
     (s_new,[ClientEvent (timer,clientCommit) ]) 
   | false -> debug "unsucessful, try again";
@@ -396,6 +420,7 @@ and clientCommit (s: Client.t) =
   match (s.workload) with
   | cmd::later -> 
     debug ("attempting to commit"^(Mach.cmd_to_string cmd)) ;
+    client_latency (`Start (s.time()) );
     let args = {Rpcs.ClientArg.cmd = (Mach.sexp_of_cmd cmd)} in
     (match s.leader with
     | Leader id -> (s, [Comms.unicast_replica id (s.time()) (clientRq args) ])
@@ -435,17 +460,24 @@ let state_span (sl:StateList.t) =
 
 let termination_output reason sl (cl: Client.t) =
   let time_str = match reason with
-    | LeaderEst -> state_span sl
-    | WorkloadEmpty -> span_to_string (cl.time()) 
-    | Timeout -> MonoTime.span_to_string (MonoTime.span_of_int P.term_time) in
+    | LeaderEst -> 
+      state_span sl
+    | WorkloadEmpty -> 
+      span_to_string (cl.time()) 
+    | Timeout -> 
+      MonoTime.span_to_string (MonoTime.span_of_int P.term_time) in
   let first_election = 
-    match data.firstele with Some x -> MonoTime.to_string x | None -> "" in
+    match data.firstele with 
+      Some x -> MonoTime.to_string x 
+      | None -> "" in
+   let latency_list = List.rev (match data.full_latency with (_,lst) -> lst) in
  (* let term_str = Index.to_string StateList.get_leader term in *)
   "Reason: "^(termination_to_string reason)^
   "\n Time: "^time_str^
   "\n Replica Packets: "^(Int.to_string data.pkts)^
   "\n Client Packets: "^(Int.to_string data.client_pkts)^
   "\n Leader Established: "^first_election^
+  "\n Client Latency: "^(List.to_string ~f:MonoTime.span_to_string latency_list)^
   "\n"
 
 let wake (s:State.t) : EventList.item list =
