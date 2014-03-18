@@ -33,7 +33,8 @@ module PureState  =
           allNodes : IntID.t list;
           leader : IntID.t option;
           state_mach : Mach.t;
-          outstanding_request : (Index.t * Rpcs.ClientRes.t) option
+          outstanding_request : (Index.t * Rpcs.ClientRes.t) option;
+          seqNum : int;
         } with sexp
    
 
@@ -79,7 +80,8 @@ module PureState  =
       allNodes = all;
       leader = None;
       state_mach = Mach.init();
-      outstanding_request = None
+      outstanding_request = None;
+      seqNum = 0;
     } 
 
   let refresh s:t =
@@ -100,7 +102,8 @@ module PureState  =
       allNodes = s.allNodes;
       leader = None;
       state_mach = s.state_mach;
-      outstanding_request = None
+      outstanding_request = None;
+      seqNum = 0;
     } 
 
 
@@ -118,11 +121,12 @@ module PureState  =
     " | Votes Recieved: "^ (List.to_string ~f:IntID.to_string s.votesGranted)^
     " | Leader: "^(string_of_option (IntID.to_string) s.leader)^"\n"^
     " | State Machine: "^(Mach.to_string s.state_mach)^
-    " | Match Index: "^(List.to_string s.matchIndex ~f:id_index_print)^
-    " | Next Index: "^(List.to_string s.matchIndex ~f:id_index_print)^
+    " | Match Index: "^(List.to_string s.matchIndex ~f:id_index_print)^"\n"^
+    " | Next Index: "^(List.to_string s.matchIndex ~f:id_index_print)^"\n"^
     " | Last Log Index: "^(Index.to_string s.lastlogIndex)^
     " | Last Log Term: "^(Index.to_string s.lastlogTerm)^
     " | Commit Index: "^(Index.to_string s.commitIndex)^
+    " | Client Sequence Number: "^(Int.to_string s.seqNum)^
     " | Outstanding Client Request: "^(string_of_option (fun (i,_) -> Index.to_string i ) s.outstanding_request)^"\n"^
     " | Replicated Log: "^(Log.to_string ~cmd_to_string:Mach.cmd_to_string s.log)^
     "\n-------------------------------------------------------------------------------------"

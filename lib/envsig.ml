@@ -38,8 +38,8 @@ module State :
           allNodes : IntID.t list;
           leader : IntID.t option;
           state_mach : Mach.t;
-          outstanding_request : (Index.t * Rpcs.ClientRes.t) option
-
+          outstanding_request : (Index.t * Rpcs.ClientRes.t) option;
+          seqNum : int
         } with sexp
         
         (** [statecall] are created to modify state *)

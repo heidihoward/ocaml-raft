@@ -42,7 +42,7 @@ module AppendEntriesRes :
   end
 
 module ClientArg : 
-sig type t = { cmd : Sexp.t; } with sexp 
+sig type t = { cmd : Sexp.t; seqNum:int;} with sexp 
 val to_string : t -> string
 end
 

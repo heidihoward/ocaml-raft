@@ -12,10 +12,12 @@ module ClientHandler =
   | Leader id -> ("Known: "^(IntID.to_string id))
   | TryAsking ids -> ("Unknown, trying: "^(List.to_string ~f:IntID.to_string ids))
 
-  type t = { workload : Mach.cmd list;
+  type t = { workload : (int * Mach.cmd) list;
              time : unit -> MonoTime.t;
              allNodes : IntID.t list;
              leader : cluster_leader;
+             outstanding_request : Rpcs.ClientArg.t option;
+            timer : int; 
               }
 
   type statecall = 
@@ -46,6 +48,8 @@ module ClientHandler =
             state ))
   | SetTime t -> 
     { state with time=(MonoTime.store t)}
+  | Set -> 
+    { state with timer = Int.succ (s.timer)}
 
   let init nodes workload_size =
     let ids = List.init nodes ~f:IntID.from_int in
@@ -59,7 +63,7 @@ module ClientHandler =
     " | Time: "^(MonoTime.to_string (s.time()))^
     " | All Nodes: "^(List.to_string ~f:IntID.to_string s.allNodes)^
     " | Leader: "^(print_leader s.leader)^"\n"^
-    " | Workload: "^(List.to_string s.workload ~f:(Mach.cmd_to_string))^
+    " | Workload: "^(List.to_string s.workload ~f:( fun (seqNum,cmd) -> (Int.to_string seqNum)^" "^(Mach.cmd_to_string cmd)))^
     "\n-------------------------------------------------------"
 
 

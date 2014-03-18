@@ -91,8 +91,12 @@ module type RAFT = sig
   val appendEntriesRq: Rpcs.AppendEntriesArg.t -> eventsig
   val appendEntriesRs: Rpcs.AppendEntriesRes.t -> IntID.t -> eventsig
   val clientRq: Rpcs.ClientArg.t -> eventsig
+
+  (*Client events *)
   val clientRs: Rpcs.ClientRes.t -> clientsig
   val clientCommit: clientsig
+  val checkTimer_client: int -> clientsig
+
 
 end
 
@@ -167,6 +171,14 @@ and checkTimer (timer_num:int) (s:State.t) =
     debug "timer no longer valid"; 
     (s,[]) )
 
+and checkTimer_client (timer_num:int) (c:Client.t) = 
+  debug "Checking timer"; (
+  if (cl.timer=timer_num) then 
+    debug "timer is valid, need to retry";
+    clientCommit c
+   else 
+    debug "timer no longer valid"; 
+    (s,[]) )
 
 (* this function send heartbeat versions of AppendEntries to all other nodes *)
 and dispatchAppendEntries (s:State.t) =
@@ -394,7 +406,14 @@ and appendEntriesRs (res: Rpcs.AppendEntriesRes.t) id (s:State.t) =
     let res = { Rpcs.ClientRes.success = false; node_id = s.id; leader = s.leader; replyto = args; } in
     debug("I'm not the leader so can't commit");
     (s, [Comms.unicast_client (s.time()) (clientRs res)] )
-  | Leader -> 
+ (* | Leader when args.seqNum = s.seqNum -> (
+    debug "This command has already been committed";
+    match (s_new.outstanding_request) with
+    | Some (i,res) ->
+          let s_new = State.tick RemoveClientRes s_new in
+          (s_new, [Comms.unicast_client (s.time()) (clientRs res)])
+    | None -> assert false) *)
+  | Leader (* when args.seqNum > s.seqNum *) -> 
     let entry_index = Index.succ s.lastlogIndex in
     let log_entry = (entry_index, s.term, (Mach.cmd_of_sexp args.cmd)) in
     let to_string (i,t,c) = (Index.to_string i)^" "^(Index.to_string t)^" "^(Mach.cmd_to_string c) in
@@ -421,10 +440,10 @@ and clientRs (res: Rpcs.ClientRes.t) (s:Client.t) =
 
 and clientCommit (s: Client.t) =
   match (s.workload) with
-  | cmd::later -> 
+  | (seq,cmd)::later -> 
     debug ("Client is attempting to commit "^(Mach.cmd_to_string cmd)) ;
     client_latency (`Start (s.time()) );
-    let args = {Rpcs.ClientArg.cmd = (Mach.sexp_of_cmd cmd)} in
+    let args = {Rpcs.ClientArg.cmd = (Mach.sexp_of_cmd cmd); seqNum=seq; } in
     (match s.leader with
     | Leader id -> (s, [Comms.unicast_replica id (s.time()) (clientRq args) ])
     | TryAsking (id::_) -> (s, [Comms.unicast_replica id (s.time()) (clientRq args) ]) )

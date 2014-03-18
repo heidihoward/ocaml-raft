@@ -55,7 +55,7 @@ module AppendEntriesRes = struct
 end
 
 module ClientArg = struct
-  type t = { cmd: Sexp.t } with sexp
+  type t = { cmd: Sexp.t; seqNum:int;} with sexp
   let to_string t = 
     "--> Client Request "^(sexp_of_t t |> Sexp.to_string)   
 end

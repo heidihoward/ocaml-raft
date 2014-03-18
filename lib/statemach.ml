@@ -9,7 +9,7 @@ module type MACHINE = sig
   val init : unit -> t
   val to_string : t -> string
   val cmd_to_string : cmd -> string
-  val gen_workload : int -> cmd list
+  val gen_workload : int -> (int * cmd) list
 end
 
 module KeyValStr : MACHINE = struct
@@ -37,7 +37,7 @@ module KeyValStr : MACHINE = struct
 
   (* let sample_workload  = [
     Add (1,"a"); Add (2,"b"); Add(3,"c")] *)
-  let gen_workload (size:int) : cmd list = 
-    List.init ~f:(fun x -> Add (0,Int.to_string x)) size
+  let gen_workload (size:int) : (int * cmd) list = 
+    List.init ~f:(fun x -> x, Add (0,Int.to_string x)) size
 
 end
