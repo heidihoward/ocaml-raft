@@ -172,13 +172,13 @@ and checkTimer (timer_num:int) (s:State.t) =
     (s,[]) )
 
 and checkTimer_client (timer_num:int) (c:Client.t) = 
-  debug "Checking timer"; (
-  if (cl.timer=timer_num) then 
+  debug "Checking timer"; 
+  if (c.timer=timer_num) then (
     debug "timer is valid, need to retry";
-    clientCommit c
-   else 
-    debug "timer no longer valid"; 
-    (s,[]) )
+    let c_new = Client.tick NoResponse c in
+    clientCommit c_new
+  ) else (
+    debug "timer no longer valid"; (c,[]) )
 
 (* this function send heartbeat versions of AppendEntries to all other nodes *)
 and dispatchAppendEntries (s:State.t) =
@@ -259,9 +259,10 @@ and requestVoteRq (args: Rpcs.RequestVoteArg.t) (s:State.t) =
   debug (Rpcs.RequestVoteArg.to_string args);
   let (s_new:State.t),e_new = stepDown Candidate args.term None s in
   let vote = 
-    (args.term = s_new.term) && 
-    (args.last_index >= s_new.lastlogIndex ) &&  
-    (args.last_term >= s_new.lastlogTerm ) && 
+    (args.term = s_new.term) &&  (
+    (args.last_term > s_new.lastlogTerm ) || 
+    ( (args.last_term = s_new.lastlogTerm ) && 
+      (args.last_index >= s_new.lastlogIndex ) ))  && 
     (s_new.votedFor = None) &&
     (s.mode=Follower)
   in
@@ -425,6 +426,7 @@ and appendEntriesRs (res: Rpcs.AppendEntriesRes.t) id (s:State.t) =
     (s_new, [] )
 
 and clientRs (res: Rpcs.ClientRes.t) (s:Client.t) = 
+  (*TODO: make check if old packets mess this up *)
   debug ("Simulating clients response");
   debug (Rpcs.ClientRes.to_string res);
   let timer = MonoTime.add (s.time()) (MonoTime.span_of_int P.client_wait ) in
@@ -444,9 +446,14 @@ and clientCommit (s: Client.t) =
     debug ("Client is attempting to commit "^(Mach.cmd_to_string cmd)) ;
     client_latency (`Start (s.time()) );
     let args = {Rpcs.ClientArg.cmd = (Mach.sexp_of_cmd cmd); seqNum=seq; } in
+    let s_new = Client.tick Set s in
+    let timeout = MonoTime.add (s_new.time()) (MonoTime.span_of_int 30) in
+    let timer_check = ClientEvent (timeout,checkTimer_client s_new.timer) in
     (match s.leader with
-    | Leader id -> (s, [Comms.unicast_replica id (s.time()) (clientRq args) ])
-    | TryAsking (id::_) -> (s, [Comms.unicast_replica id (s.time()) (clientRq args) ]) )
+    | Leader id -> 
+      (s_new, [timer_check; Comms.unicast_replica id (s.time()) (clientRq args) ])
+    | TryAsking (id::_) -> 
+      (s_new, [timer_check; Comms.unicast_replica id (s.time()) (clientRq args) ]) )
   | [] -> 
     debug "successfully committed all commands "; (s,[])
 

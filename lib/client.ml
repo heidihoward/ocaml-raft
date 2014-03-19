@@ -17,13 +17,15 @@ module ClientHandler =
              allNodes : IntID.t list;
              leader : cluster_leader;
              outstanding_request : Rpcs.ClientArg.t option;
-            timer : int; 
+             timer : int; 
               }
 
   type statecall = 
     | Successful of IntID.t 
     | Unsuccessful of (IntID.t * IntID.t option)
+    | NoResponse
     | SetTime of MonoTime.t
+    | Set
 
   let tick (sc:statecall) (state:t) =
   match sc with
@@ -32,8 +34,8 @@ module ClientHandler =
       workload = (List.tl_exn state.workload) }
   | Unsuccessful (id,leader_id) -> (
     match leader_id with 
-    | Some id -> 
-      {state with leader= Leader id}
+    | Some new_leader_id -> 
+      {state with leader= Leader new_leader_id}
     | None -> (
       match state.leader with
       | TryAsking nodes -> (
@@ -46,17 +48,22 @@ module ClientHandler =
             {state with leader = TryAsking state.allNodes} 
           else
             state ))
+  | NoResponse -> 
+    {state with leader = TryAsking state.allNodes}
   | SetTime t -> 
     { state with time=(MonoTime.store t)}
   | Set -> 
-    { state with timer = Int.succ (s.timer)}
+    { state with timer = Int.succ (state.timer)}
 
   let init nodes workload_size =
     let ids = List.init nodes ~f:IntID.from_int in
             { workload = Mach.gen_workload workload_size; 
               time = MonoTime.init; 
               allNodes = ids ; 
-              leader = TryAsking ids} 
+              leader = TryAsking ids;
+              timer = 0;
+              outstanding_request = None;
+              } 
 
   let print (s:t) = 
     "-- CLIENT STATE -----------------------------------------------\n"^
