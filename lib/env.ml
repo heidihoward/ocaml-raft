@@ -397,7 +397,7 @@ module State = PureState(MonoTime)(Mach)
     | Live s -> 
         let s_new = State.tick (SetTime time) s in
         append sl id (Down s_new)
-    | Down s -> exit 1 (* killing a down node *)
+    | Down s -> assert false (* killing a down node *)
 
   let wake sl id time =
     match (find sl id) with 
@@ -407,7 +407,7 @@ module State = PureState(MonoTime)(Mach)
           |> State.tick (SetTime time)
           |> State.tick Set in
         append sl id (Live s_new)
-    | Live s -> exit 1 (*waking a live node *)
+    | Live s -> assert false (*waking a live node *)
 
   let rec get_live_states sl = 
     let live_only l = List.filter_map l 

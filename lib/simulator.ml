@@ -510,7 +510,7 @@ let termination_output reason sl (cl: Client.t) =
   "\n"
 
 let wake (s:State.t) : EventList.item list =
-  debug ((IntID.to_string s.id)^"node is restarting after failing");
+  debug ((IntID.to_string s.id)^" node is restarting after failing");
   let timeout = MonoTime.add (s.time()) (timeout Follower) in
   let (event:EventList.item) = RaftEvent (timeout, s.id, RaftImpl.checkTimer s.timer) in 
   [(SimulationEvent (nxt_failure (s.time()), s.id, Kill)); event]
@@ -538,15 +538,20 @@ let apply_RaftEvent (st: State.t status) (e: (MonoTime.t,IntID.t,State.t,Client.
 let apply_SimulationEvent (sl: StateList.t) (e: failures) (t: MonoTime.t) (id:IntID.t) 
    : StateList.t * EventList.item list =
   MonoTime.wait_until t;
+  (
   match e with 
   | Wake -> 
+      debug ("Simulating recovery for node "^(IntID.to_string id)); 
       let sl_new = StateList.wake sl id t in (* handle state changes *)
-      let e_new = wake (StateList.find_wst sl_new id)  in(*handle waking events *)
+      let s_new = StateList.find_wst sl_new id in 
+      let e_new = wake s_new  in(*handle waking events *)
+      debug (State.print s_new);
       (sl_new,e_new)
   | Kill ->
+      debug ("Simulating failure for node "^(IntID.to_string id)); 
       let sl_new = StateList.kill sl id t in
-      let e_new = wake (StateList.find_wst sl_new id) in
-      (sl_new,e_new)
+      let e_new = kill (StateList.find_wst sl_new id) in
+      (sl_new,e_new) )
 
 let apply_ClientEvent (cl: Client.t) (e: (MonoTime.t,IntID.t,State.t,Client.t) client) (t: MonoTime.t) 
    : (Client.t * EventList.item list) =
@@ -569,12 +574,14 @@ let rec run_multi
     begin
       debug "terminating as leader has been agreed";
        (* for graph gen.  printf " %s \n" (get_time_span sl); *)
+        StateList.check_safety sl;
         termination_output LeaderEst sl cl
         end
     else if (P.term_conditions WorkloadEmpty)&&(cl.workload=[]) then
      begin
       debug "terminating as all commands have been commited ";
        (* for graph gen.  printf " %s \n" (get_time_span sl); *)
+        StateList.check_safety sl;
         termination_output WorkloadEmpty sl cl  
         (* MonoTime.span_to_string (cl.time ()) *)
         end
@@ -588,7 +595,10 @@ let rec run_multi
   (* next event is a simulated failure/recovery *)
   | Some (SimulationEvent (t,id,e),els) -> 
       let sl_new, el_new = apply_SimulationEvent sl e t id in
-      StateList.check_safety sl;
+      assert (
+        match StateList.find sl_new id, e with 
+        | Live _, Wake | Down _, Kill -> true
+        | _ -> false);
       run_multi sl_new (EventList.add el_new els) cl
   (* next event is some computation at a node *)
   | Some (RaftEvent (t,id,e),els) -> (
