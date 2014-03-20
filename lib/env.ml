@@ -138,15 +138,18 @@ module PureState  =
    | (index,term,cmd)::rest -> log_add ((index,term,cmd)::(List.filter original ~f:(fun (i,_,_) -> not(index=i)))) rest
    | [] -> original *)
 
- let update_commitIndex match_list commitIndex =
-    let mag = (List.length match_list +1 / 2) in
-    let discard (id,index) = 
+
+ let update_commitIndex match_list commitIndex log curr_term =
+    let magority = (List.length match_list +1 / 2) in
+    let discard (_,index) = 
       (if index > commitIndex then Some index else None) in
     let new_list = 
-      List.sort ~cmp:Index.compare 
+      List.sort ~cmp:(fun x y -> -1* (Index.compare x y))
         (List.filter_map ~f:discard match_list) in
-    match List.nth new_list mag with 
-    | Some index -> index
+    match List.nth new_list magority with 
+    | Some index -> 
+      let (_,term) = Log.specific_index_term index log in
+      if (curr_term=term) then index else commitIndex
     | None -> commitIndex
 
   let tick tk s =
@@ -238,7 +241,7 @@ module PureState  =
             { s with 
             matchIndex = new_matchIndex ;
             nextIndex = (List.Assoc.add s.nextIndex id (Index.succ index_new));
-            commitIndex = update_commitIndex new_matchIndex s.commitIndex; }
+            commitIndex = update_commitIndex new_matchIndex s.commitIndex s.log s.term ; }
         | _ -> assert false )
     | AddClientRequest (index,res) ->
       {s with outstanding_request = Some (index,res); }

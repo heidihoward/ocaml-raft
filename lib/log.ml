@@ -14,6 +14,7 @@ open Common
   let specific_index_term index lst =
   	match (List.find lst ~f:(fun (i,_,_) -> i=index)) with
   | Some (i,t,_) -> (i,t)
+  (* dealing with the empty list case *)
   | None -> ( Index.init(), Index.init())
 
   let consistency_check log prev_index prev_term =
