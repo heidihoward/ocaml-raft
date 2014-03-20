@@ -510,13 +510,13 @@ let termination_output reason sl (cl: Client.t) =
   "\n"
 
 let wake (s:State.t) : EventList.item list =
-  debug "node is restarting after failing";
+  debug ((IntID.to_string s.id)^"node is restarting after failing");
   let timeout = MonoTime.add (s.time()) (timeout Follower) in
   let (event:EventList.item) = RaftEvent (timeout, s.id, RaftImpl.checkTimer s.timer) in 
   [(SimulationEvent (nxt_failure (s.time()), s.id, Kill)); event]
 
 let kill (s:State.t) = 
-  debug "node has failed";
+  debug ((IntID.to_string s.id)^"node has failed");
   [SimulationEvent (nxt_recover (s.time()), s.id, Wake)]
 
 let apply_RaftEvent (st: State.t status) (e: (MonoTime.t,IntID.t,State.t,Client.t) event) (t: MonoTime.t) 
@@ -525,12 +525,13 @@ let apply_RaftEvent (st: State.t status) (e: (MonoTime.t,IntID.t,State.t,Client.
   MonoTime.wait_until t;
   match st with 
   | Live s ->
+     debug ("Start Simulating event on node "^(IntID.to_string s.id));
      let s = State.tick (SetTime t) s in
      let s_new,e_new = e s in
      debug (State.print s_new);
      Some (s_new,e_new)
  | Down s -> (*node is down so event is lost *)
-     debug "node is unavaliable";
+     debug ("Discard event, for node "^(IntID.to_string s.id));
      None
  | Notfound -> assert false
 
@@ -551,6 +552,7 @@ let apply_ClientEvent (cl: Client.t) (e: (MonoTime.t,IntID.t,State.t,Client.t) c
    : (Client.t * EventList.item list) =
   (* wait used in realtime simulation, just instant unit for DES *)
   MonoTime.wait_until t;
+  debug "Simulating Client Event";
      let cl = Client.tick (SetTime t) cl in
      let cl_new,e_new = e cl in
      debug (Client.print cl_new);
@@ -580,7 +582,9 @@ let rec run_multi
   (* we will not be terminating as the term condition has been reached so get
    * the next event in the event queue and apply it *)
   match EventList.hd el with
-  | None -> assert false (* debug "terminating as no events remain"; (span_to_string (cl.time())) *)
+  | None -> 
+      debug "terminating as no events remaining"; 
+      assert false (* debug "terminating as no events remain"; (span_to_string (cl.time())) *)
   (* next event is a simulated failure/recovery *)
   | Some (SimulationEvent (t,id,e),els) -> 
       let sl_new, el_new = apply_SimulationEvent sl e t id in
@@ -616,7 +620,7 @@ let init_eventlist num  :EventList.t  =
 
 
 let start () =
-  debug "Raft Simulator is Starting Up";
+  debug "Raft Simulator is Starting Up ...";
   run_multi 
   (StateList.init P.nodes)  
   (init_eventlist P.nodes)
