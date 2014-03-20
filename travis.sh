@@ -9,4 +9,6 @@ opam init
 opam install core async
 eval `opam config env`
 
+# build ocaml-raft
 ./build.sh
+
