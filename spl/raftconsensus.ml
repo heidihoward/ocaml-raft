@@ -17,126 +17,76 @@ module Raft_general = struct
   let rec tick msg (s:states) : states =
     let h = Hashtbl.create 17 in
     Hashtbl.iter (fun st xs -> List.iter (fun x -> match st,msg with
-    |24,`Recover (* S_or_6 *) ->
-      (* S_seq_7 *)
-      begin (* if true *) 
-        (* S_either_or_3 *)
-        begin (* let multiple_13 = 0 in *) 
-          (* S_multinit_8 *)
-          begin (* if true *) 
-            (* S_multexit_12 *)
-            begin (* if true *) 
-              (* S_final_2 *)
-              register_state 4 {x with multiple_13=0} h; (* S_final_2 *)
-            end;
-            (* S_multentry_9 *)
-            register_state 5 {x with multiple_13=0} h; (* S_multentry_9 *)
-          end;
-        end;
+    |10,`Startup (* S_initial_1 *) ->
+      (* S_either_or_3 *)
+      begin (* let multiple_13 = 0 in *) 
+        (* S_multentry_9 *)
+        register_state 2 {x with multiple_13=0} h; (* S_multentry_9 *)
       end;
-    |20,`RestartElecton (* S_multentry_16 *) ->
-      (* S_seq_21 *)
-      begin (* if true *) 
-        (* S_multblexit_18 *)
-        begin (* let multiple_20 = (x.multiple_20 + 1) in *) 
-          (* S_multincr_17 *)
-          begin (* if true *) 
-            (* S_multinit_15 *)
-            begin (* if true *) 
-              (* S_multexit_19 *)
-              begin (* if true *) 
-                (* S_or_23 *)
-                register_state 11 {x with multiple_20=(x.multiple_20 + 1)} h; (* S_or_23 *)
-                (* S_or_25 *)
-                register_state 18 {x with multiple_20=(x.multiple_20 + 1)} h; (* S_or_25 *)
-              end;
-              (* S_multentry_16 *)
-              register_state 20 {x with multiple_20=(x.multiple_20 + 1)} h; (* S_multentry_16 *)
-            end;
-          end;
-        end;
+      begin (* let multiple_13 = 0 in *) 
+        (* S_final_2 *)
+        register_state 1 {x with multiple_13=0} h; (* S_final_2 *)
       end;
-    |18,`WinElecton (* S_or_25 *) ->
+    |10,`Recover (* S_initial_1 *) ->
+      (* S_either_or_3 *)
+      begin (* let multiple_13 = 0 in *) 
+        (* S_multentry_9 *)
+        register_state 2 {x with multiple_13=0} h; (* S_multentry_9 *)
+      end;
+      begin (* let multiple_13 = 0 in *) 
+        (* S_final_2 *)
+        register_state 1 {x with multiple_13=0} h; (* S_final_2 *)
+      end;
+    |9,`RestartElecton (* S_multentry_16 *) ->
+      (* S_multblexit_18 *)
+      begin (* let multiple_20 = (x.multiple_20 + 1) in *) 
+        (* S_multentry_16 *)
+        register_state 9 {x with multiple_20=(x.multiple_20 + 1)} h; (* S_multentry_16 *)
+      end;
+      begin (* let multiple_20 = (x.multiple_20 + 1) in *) 
+        (* S_or_25 *)
+        register_state 8 {x with multiple_20=(x.multiple_20 + 1)} h; (* S_or_25 *)
+      end;
+      begin (* let multiple_20 = (x.multiple_20 + 1) in *) 
+        (* S_or_23 *)
+        register_state 4 {x with multiple_20=(x.multiple_20 + 1)} h; (* S_or_23 *)
+      end;
+    |8,`WinElecton (* S_or_25 *) ->
       (* S_seq_26 *)
-      register_state 7 x h; (* S_seq_26 *)
-    |11,`StepDown_from_Candidate (* S_or_23 *) ->
-      (* S_seq_24 *)
-      begin (* if true *) 
-        (* S_either_or_22 *)
-        begin (* if true *) 
-          (* S_multblexit_11 *)
-          begin (* let multiple_13 = (x.multiple_13 + 1) in *) 
-            (* S_multincr_10 *)
-            begin (* if true *) 
-              (* S_multinit_8 *)
-              begin (* if true *) 
-                (* S_multexit_12 *)
-                begin (* if true *) 
-                  (* S_final_2 *)
-                  register_state 4 {x with multiple_13=(x.multiple_13 + 1)} h; (* S_final_2 *)
-                end;
-                (* S_multentry_9 *)
-                register_state 5 {x with multiple_13=(x.multiple_13 + 1)} h; (* S_multentry_9 *)
-              end;
-            end;
-          end;
-        end;
+      register_state 3 x h; (* S_seq_26 *)
+    |4,`StepDown_from_Candidate (* S_or_23 *) ->
+      (* S_multblexit_11 *)
+      begin (* let multiple_13 = (x.multiple_13 + 1) in *) 
+        (* S_multentry_9 *)
+        register_state 2 {x with multiple_13=(x.multiple_13 + 1)} h; (* S_multentry_9 *)
       end;
-    |10,`Startup (* S_or_4 *) ->
-      (* S_seq_5 *)
-      begin (* if true *) 
-        (* S_either_or_3 *)
-        begin (* let multiple_13 = 0 in *) 
-          (* S_multinit_8 *)
-          begin (* if true *) 
-            (* S_multexit_12 *)
-            begin (* if true *) 
-              (* S_final_2 *)
-              register_state 4 {x with multiple_13=0} h; (* S_final_2 *)
-            end;
-            (* S_multentry_9 *)
-            register_state 5 {x with multiple_13=0} h; (* S_multentry_9 *)
-          end;
-        end;
+      begin (* let multiple_13 = (x.multiple_13 + 1) in *) 
+        (* S_final_2 *)
+        register_state 1 {x with multiple_13=(x.multiple_13 + 1)} h; (* S_final_2 *)
       end;
-    |7,`StepDown_from_Leader (* S_seq_26 *) ->
-      (* S_seq_27 *)
-      begin (* if true *) 
-        (* S_either_or_22 *)
-        begin (* if true *) 
-          (* S_multblexit_11 *)
-          begin (* let multiple_13 = (x.multiple_13 + 1) in *) 
-            (* S_multincr_10 *)
-            begin (* if true *) 
-              (* S_multinit_8 *)
-              begin (* if true *) 
-                (* S_multexit_12 *)
-                begin (* if true *) 
-                  (* S_final_2 *)
-                  register_state 4 {x with multiple_13=(x.multiple_13 + 1)} h; (* S_final_2 *)
-                end;
-                (* S_multentry_9 *)
-                register_state 5 {x with multiple_13=(x.multiple_13 + 1)} h; (* S_multentry_9 *)
-              end;
-            end;
-          end;
-        end;
+    |3,`StepDown_from_Leader (* S_seq_26 *) ->
+      (* S_multblexit_11 *)
+      begin (* let multiple_13 = (x.multiple_13 + 1) in *) 
+        (* S_multentry_9 *)
+        register_state 2 {x with multiple_13=(x.multiple_13 + 1)} h; (* S_multentry_9 *)
       end;
-    |5,`StartElecton (* S_multentry_9 *) ->
+      begin (* let multiple_13 = (x.multiple_13 + 1) in *) 
+        (* S_final_2 *)
+        register_state 1 {x with multiple_13=(x.multiple_13 + 1)} h; (* S_final_2 *)
+      end;
+    |2,`StartElecton (* S_multentry_9 *) ->
       (* S_seq_14 *)
       begin (* let multiple_20 = 0 in *) 
-        (* S_multinit_15 *)
-        begin (* if true *) 
-          (* S_multexit_19 *)
-          begin (* if true *) 
-            (* S_or_23 *)
-            register_state 11 {x with multiple_20=0} h; (* S_or_23 *)
-            (* S_or_25 *)
-            register_state 18 {x with multiple_20=0} h; (* S_or_25 *)
-          end;
-          (* S_multentry_16 *)
-          register_state 20 {x with multiple_20=0} h; (* S_multentry_16 *)
-        end;
+        (* S_multentry_16 *)
+        register_state 9 {x with multiple_20=0} h; (* S_multentry_16 *)
+      end;
+      begin (* let multiple_20 = 0 in *) 
+        (* S_or_25 *)
+        register_state 8 {x with multiple_20=0} h; (* S_or_25 *)
+      end;
+      begin (* let multiple_20 = 0 in *) 
+        (* S_or_23 *)
+        register_state 4 {x with multiple_20=0} h; (* S_or_23 *)
       end;
      |_ -> ()
     ) xs) s;
@@ -149,40 +99,21 @@ module Raft_general = struct
     multiple_20 = 0;
     } in
     (* S_initial_1 *)
-    begin (* if true *) 
-      (* S_or_4 *)
-      register_state 10 x h; (* S_or_4 *)
-      (* S_or_6 *)
-      register_state 24 x h; (* S_or_6 *)
-    end;
+    register_state 10 x h; (* S_initial_1 *)
     h
 
   let active = function
-  |24 (* S_or_6 *) -> [3]
-  |23 (* S_multexit_19 *) -> []
-  |22 (* S_seq_24 *) -> []
-  |21 (* S_initial_1 *) -> []
-  |20 (* S_multentry_16 *) -> [8]
-  |19 (* S_seq_21 *) -> []
-  |18 (* S_or_25 *) -> [13]
-  |17 (* S_either_or_22 *) -> []
-  |16 (* S_multincr_10 *) -> []
-  |15 (* S_either_or_3 *) -> []
-  |14 (* S_multblexit_11 *) -> []
-  |13 (* S_multblexit_18 *) -> []
-  |12 (* S_seq_5 *) -> []
-  |11 (* S_or_23 *) -> [11]
-  |10 (* S_or_4 *) -> [1]
-  |9 (* S_seq_7 *) -> []
-  |8 (* S_multincr_17 *) -> []
-  |7 (* S_seq_26 *) -> [14]
-  |6 (* S_seq_27 *) -> []
-  |5 (* S_multentry_9 *) -> [6]
-  |4 (* S_final_2 *) -> []
-  |3 (* S_multinit_8 *) -> []
-  |2 (* S_seq_14 *) -> []
-  |1 (* S_multexit_12 *) -> []
-  |0 (* S_multinit_15 *) -> []
+  |10 (* S_initial_1 *) -> [3;1]
+  |9 (* S_multentry_16 *) -> [8]
+  |8 (* S_or_25 *) -> [13]
+  |7 (* S_either_or_3 *) -> []
+  |6 (* S_multblexit_11 *) -> []
+  |5 (* S_multblexit_18 *) -> []
+  |4 (* S_or_23 *) -> [11]
+  |3 (* S_seq_26 *) -> [14]
+  |2 (* S_multentry_9 *) -> [6]
+  |1 (* S_final_2 *) -> []
+  |0 (* S_seq_14 *) -> []
   |_ -> failwith "internal error"
 end
 
