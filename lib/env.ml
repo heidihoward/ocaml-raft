@@ -139,7 +139,7 @@ module PureState  =
    | [] -> original *)
 
  let update_commitIndex match_list commitIndex =
-    let mag = (List.length match_list / 2) in
+    let mag = (List.length match_list +1 / 2) in
     let discard (id,index) = 
       (if index > commitIndex then Some index else None) in
     let new_list = 
