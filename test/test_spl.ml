@@ -1,6 +1,6 @@
 open Core.Std
 open OUnit
-open Raftconsensus
+open RaftMonitor
 
 let apply x y = tick y x
 

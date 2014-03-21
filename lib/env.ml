@@ -35,7 +35,8 @@ module PureState  =
           state_mach : Mach.t;
           outstanding_request : (Index.t * Rpcs.ClientRes.t) option;
           seqNum : int;
-        } with sexp
+          safety_monitor : RaftMonitor.t
+        }
    
 
 
@@ -82,6 +83,7 @@ module PureState  =
       state_mach = Mach.init();
       outstanding_request = None;
       seqNum = 0;
+      safety_monitor = RaftMonitor.init();
     } 
 
   let refresh s:t =
@@ -104,6 +106,7 @@ module PureState  =
       state_mach = s.state_mach;
       outstanding_request = None;
       seqNum = 0;
+      safety_monitor = (* RaftMonitor.tick s.safety_monitor `Recover *) RaftMonitor.init() ;
     } 
 
 
@@ -172,13 +175,23 @@ module PureState  =
         votesResponded=[];
         votesGranted=[];
         nextIndex  = [];
-        matchIndex = []; }
+        matchIndex = []; 
+        safety_monitor = (
+            match s.mode with 
+            | Candidate -> RaftMonitor.tick s.safety_monitor `StepDown_from_Candidate
+            | Leader -> RaftMonitor.tick s.safety_monitor `StepDown_from_Leader 
+            | Follower -> s.safety_monitor );
+        }
     | StartCandidate -> 
         { s with mode=Candidate;
         votedFor = Some s.id;
         votesResponded=[];
         votesGranted=[s.id];
-        term = (Index.succ s.term)
+        term = (Index.succ s.term);
+        safety_monitor =
+            match s.mode with
+            | Candidate -> RaftMonitor.tick s.safety_monitor `RestartElection
+            | Follower -> RaftMonitor.tick s.safety_monitor `StartElection;
         }
     | SetTime t -> 
         { s with time=(MonoTime.store t)}
@@ -191,6 +204,7 @@ module PureState  =
         leader = Some s.id;
         nextIndex  = List.map s.allNodes ~f:(fun id -> (id,Index.succ (s.lastlogIndex)) );
         matchIndex = List.map s.allNodes ~f:(fun id -> (id,Index.init()) );
+        safety_monitor = RaftMonitor.tick s.safety_monitor `WinElection;
         }
     | SetLeader ld ->
         { s with leader= Some ld}
