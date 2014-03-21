@@ -12,7 +12,7 @@ module ClientHandler =
   | Leader id -> ("Known: "^(IntID.to_string id))
   | TryAsking ids -> ("Unknown, trying: "^(List.to_string ~f:IntID.to_string ids))
 
-  type t = { workload : (int * Mach.cmd) list;
+  type t = { workload : Mach.cmd list;
              time : unit -> MonoTime.t;
              allNodes : IntID.t list;
              leader : cluster_leader;
@@ -70,7 +70,7 @@ module ClientHandler =
     " | Time: "^(MonoTime.to_string (s.time()))^
     " | All Nodes: "^(List.to_string ~f:IntID.to_string s.allNodes)^
     " | Leader: "^(print_leader s.leader)^"\n"^
-    " | Workload: "^(List.to_string s.workload ~f:( fun (seqNum,cmd) -> (Int.to_string seqNum)^" "^(Mach.cmd_to_string cmd)))^
+    " | Workload: "^(List.to_string s.workload ~f:Mach.cmd_to_string )^
     "\n-------------------------------------------------------"
 
 

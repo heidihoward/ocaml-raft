@@ -442,10 +442,10 @@ and clientRs (res: Rpcs.ClientRes.t) (s:Client.t) =
 
 and clientCommit (s: Client.t) =
   match (s.workload) with
-  | (seq,cmd)::later -> 
+  | cmd::later -> 
     debug ("Client is attempting to commit "^(Mach.cmd_to_string cmd)) ;
     client_latency (`Start (s.time()) );
-    let args = {Rpcs.ClientArg.cmd = (Mach.sexp_of_cmd cmd); seqNum=seq; } in
+    let args = {Rpcs.ClientArg.cmd = (Mach.sexp_of_cmd cmd); } in
     let s_new = Client.tick Set s in
     let timeout = MonoTime.add (s_new.time()) (MonoTime.span_of_int 30) in
     let timer_check = ClientEvent (timeout,checkTimer_client s_new.timer) in
