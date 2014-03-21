@@ -219,7 +219,8 @@ module PureState  =
     | Commit new_index -> (
         let new_index = 
           (if (new_index < s.lastlogIndex) then new_index else s.lastlogIndex) in
-        let new_mach = 
+        let new_mach,_ = 
+        (* TODO: cache response *)
           Mach.commit_many s.state_mach (Log.to_commit s.commitIndex new_index s.log) in
         { s with state_mach = new_mach; commitIndex=new_index} )
     | AppendEntries entries -> 

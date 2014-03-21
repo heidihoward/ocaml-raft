@@ -42,7 +42,7 @@ module State :
           seqNum : int;
           safety_monitor : RaftMonitor.t;
         } 
-        
+
         (** [statecall] are created to modify state *)
         type statecall =
             IncrementTerm
@@ -64,7 +64,7 @@ module State :
           | ReplicationFailure of IntID.t * Index.t
           | ReplicationSuccess of IntID.t * Index.t
           | AddClientRequest of Index.t * Rpcs.ClientRes.t
-         | RemoveClientRes 
+          | RemoveClientRes 
 
 
         

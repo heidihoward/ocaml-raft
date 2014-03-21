@@ -4,8 +4,8 @@ open Common
 module type MACHINE = sig
   type t with sexp (*holds the state of the machine *)
   type cmd with sexp
-  val commit : t -> cmd -> t
-  val commit_many: t -> cmd list -> t
+  type res with sexp
+  val commit_many: t -> cmd list -> (t * res)
   val init : unit -> t
   val to_string : t -> string
   val cmd_to_string : cmd -> string
@@ -14,22 +14,36 @@ end
 
 module KeyValStr : MACHINE = struct
   
-  type cmd = Add of int * string with bin_io,sexp
+  type cmd = 
+    | Add of int * string 
+    | Find of int 
+  with bin_io,sexp
+
+  type res = string option with bin_io, sexp
   
   let cmd_to_string = function 
-    | Add (k,v) -> (Int.to_string k)^v
+    | Add (k,v) -> "ADD: "^(Int.to_string k)^", "^v
+    | Find k -> "FIND: "^(Int.to_string k)
 
   type t = (int * string) list with sexp
 
   let commit state cmd = 
     match cmd with
-    | Add (key,value) -> List.Assoc.add state key value
+    | Add (key,value) -> 
+      let new_state = List.Assoc.add state key value in
+      (new_state, List.Assoc.find new_state key)
+    | Find key -> 
+      (state, List.Assoc.find state key)
+
 
   let rec commit_many state cmds = 
   (*assume that commands are sorted so there head is first to be applied *)
     match cmds with
-    | x::xs -> commit_many (commit state x) xs
-    | [] -> state
+    | x::[] -> commit state x
+    | x::xs -> 
+      let new_state,_ = (commit state x) in
+      commit_many new_state xs
+    | [] -> assert false
 
   let init () = []
 
