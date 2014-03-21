@@ -34,7 +34,7 @@ module PureState  =
           leader : IntID.t option;
           state_mach : Mach.t;
           outstanding_request : (Index.t * Rpcs.ClientRes.t) option;
-          seqNum : int;
+          seqNum : int ;
           safety_monitor : RaftMonitor.t
         }
    
@@ -105,7 +105,7 @@ module PureState  =
       leader = None;
       state_mach = s.state_mach;
       outstanding_request = None;
-      seqNum = 0;
+      seqNum = s.seqNum;
       safety_monitor = (* RaftMonitor.tick s.safety_monitor `Recover *) RaftMonitor.init() ;
     } 
 
