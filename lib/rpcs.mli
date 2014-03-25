@@ -47,7 +47,7 @@ val to_string : t -> string
 end
 
 module ClientRes :
-  sig type t = { success : bool; node_id: IntID.t; leader : IntID.t option;
+  sig type t = { success : Sexp.t option; node_id: IntID.t; leader : IntID.t option;
                replyto: ClientArg.t } with sexp
   val to_string : t -> string
    end

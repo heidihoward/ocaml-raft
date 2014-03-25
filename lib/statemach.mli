@@ -7,7 +7,9 @@ module type MACHINE =
   val init : unit -> t
   val to_string : t -> string
   val cmd_to_string : cmd -> string
+  val res_to_string : res -> string
   val gen_workload : int -> cmd list
+   val gen_results : int -> res list
   val get_last_res: t -> res
   end
 module KeyValStr : MACHINE

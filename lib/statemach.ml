@@ -9,7 +9,9 @@ module type MACHINE = sig
   val init : unit -> t
   val to_string : t -> string
   val cmd_to_string : cmd -> string
+   val res_to_string : res -> string
   val gen_workload : int -> cmd list
+  val gen_results : int -> res list
   val get_last_res: t -> res
 end
 
@@ -23,6 +25,10 @@ module KeyValStr : MACHINE = struct
   type cmd = int * mach_cmd with bin_io, sexp
 
   type res = string option with bin_io, sexp
+
+  let res_to_string = function
+  | None -> "NotFound"
+  | Some x -> ("Found "^x)
   
   let mach_cmd_to_string = function 
     | Add (k,v) -> "ADD: "^(Int.to_string k)^", "^v
@@ -41,6 +47,7 @@ module KeyValStr : MACHINE = struct
     if (id=state.last_serial) 
       then state 
       else (
+        assert (id=state.last_serial+1);
     match mach_cmd with
     | Add (key,value) -> 
       let new_state = List.Assoc.add state.mach key value in
@@ -60,12 +67,18 @@ module KeyValStr : MACHINE = struct
   let init () = 
     { mach = []; last_serial=0;last_response=None; }
 
-  let to_string kvs = List.to_string ~f:( fun (k,v) -> (Int.to_string k)^v) kvs.mach
+  let to_string kvs = 
+  "Key Value Store: "^(List.to_string ~f:( fun (k,v) -> (Int.to_string k)^" "^v) kvs.mach)^
+  " Last serial: "^(Int.to_string kvs.last_serial)^
+  " Last response: "^(res_to_string kvs.last_response)^"\n"
 
   (* let sample_workload  = [
     Add (1,"a"); Add (2,"b"); Add(3,"c")] *)
   let gen_workload (size:int) : cmd list = 
-    List.init ~f:(fun x -> x, Add (0,Int.to_string x)) size
+    List.map (List.range ~stop:`inclusive 1 size) ~f:(fun x -> x, Add (x,Int.to_string x)) 
+
+  let gen_results (size:int) : res list = 
+    List.map (List.range ~stop:`inclusive 1 size) ~f:(fun x -> Some (Int.to_string x)) 
 
   let get_last_res s = s.last_response
 

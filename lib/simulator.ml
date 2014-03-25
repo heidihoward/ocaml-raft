@@ -387,9 +387,11 @@ and appendEntriesRs (res: Rpcs.AppendEntriesRes.t) id (s:State.t) =
      | (i,_,_)::_ -> i) in
     let s_new = State.tick (ReplicationSuccess (res.follower_id, new_index)) s in
     match (s_new.outstanding_request) with
-    | Some (i,res) ->
+    | Some (i,args) ->
         if (i>=s_new.commitIndex) then
           let s_new = State.tick RemoveClientRes s_new in
+          let result = Mach.sexp_of_res (Mach.get_last_res s_new.state_mach) in
+          let res = { Rpcs.ClientRes.success = Some result; node_id = s_new.id; leader = s_new.leader; replyto=args; } in
           (s_new, [Comms.unicast_client (s.time()) (clientRs res)])
         else (s_new,[])
     | None -> (s_new,[]) )
@@ -404,7 +406,7 @@ and appendEntriesRs (res: Rpcs.AppendEntriesRes.t) id (s:State.t) =
   debug (Rpcs.ClientArg.to_string args);
   match s.mode with
   | Follower  | Candidate ->
-    let res = { Rpcs.ClientRes.success = false; node_id = s.id; leader = s.leader; replyto = args; } in
+    let res = { Rpcs.ClientRes.success = None; node_id = s.id; leader = s.leader; replyto = args; } in
     debug("I'm not the leader so can't commit");
     (s, [Comms.unicast_client (s.time()) (clientRs res)] )
  (* | Leader when args.seqNum = s.seqNum -> (
@@ -420,8 +422,7 @@ and appendEntriesRs (res: Rpcs.AppendEntriesRes.t) id (s:State.t) =
     let to_string (i,t,c) = (Index.to_string i)^" "^(Index.to_string t)^" "^(Mach.cmd_to_string c) in
     let s_new = State.tick (AppendEntry log_entry) s in
     let s_new = State.tick (Commit entry_index) s_new in
-    let res = { Rpcs.ClientRes.success = true; node_id = s.id; leader = s.leader; replyto=args; } in
-    let s_new = State.tick (AddClientRequest (entry_index,res)) s_new in
+    let s_new = State.tick (AddClientRequest (entry_index,args)) s_new in
     debug("I'm the leader so will try to commit command "^to_string log_entry);
     (s_new, [] )
 
@@ -431,11 +432,14 @@ and clientRs (res: Rpcs.ClientRes.t) (s:Client.t) =
   debug (Rpcs.ClientRes.to_string res);
   let timer = MonoTime.add (s.time()) (MonoTime.span_of_int P.client_wait ) in
   match res.success with
-  | true -> debug "successfully committed"; 
+  | Some result_sexp -> 
+    let result = Mach.res_of_sexp result_sexp in 
+    debug ("successfully committed result is "^Mach.res_to_string result); 
+    debug ("Expected result is "^Mach.res_to_string (List.hd_exn s.expected_results));
     client_latency (`Stop (s.time()) );
-    let s_new = Client.tick (Successful res.node_id) s in
+    let s_new = Client.tick (Successful (res.node_id,result) )s in
     (s_new,[ClientEvent (timer,clientCommit) ]) 
-  | false -> debug "unsucessful, try again";
+  | None -> debug "unsucessful, try again";
     let s_new = Client.tick (Unsuccessful (res.node_id,res.leader) ) s in
     (s_new,[ClientEvent (timer,clientCommit)]) 
 
@@ -564,6 +568,14 @@ let apply_ClientEvent (cl: Client.t) (e: (MonoTime.t,IntID.t,State.t,Client.t) c
      (cl_new,e_new)
 
 
+let terminate reason sl cl = 
+  (match reason with
+  | LeaderEst -> debug "terminating as leader has been agreed"
+  | WorkloadEmpty -> debug "terminating as all commands have been commited " 
+  | Timeout -> debug "terminating as terminate time has been reached");
+  StateList.check_safety sl;
+  termination_output reason sl cl
+
 (* Main excuation cycle *)  
 let rec run_multi
   (sl: StateList.t) 
@@ -571,20 +583,9 @@ let rec run_multi
   (cl: Client.t)  =
   (* checking termination condition for tests *)
     if (P.term_conditions LeaderEst)&&(StateList.leader_agreed sl) then 
-    begin
-      debug "terminating as leader has been agreed";
-       (* for graph gen.  printf " %s \n" (get_time_span sl); *)
-        StateList.check_safety sl;
-        termination_output LeaderEst sl cl
-        end
+    terminate LeaderEst sl cl
     else if (P.term_conditions WorkloadEmpty)&&(cl.workload=[]) then
-     begin
-      debug "terminating as all commands have been commited ";
-       (* for graph gen.  printf " %s \n" (get_time_span sl); *)
-        StateList.check_safety sl;
-        termination_output WorkloadEmpty sl cl  
-        (* MonoTime.span_to_string (cl.time ()) *)
-        end
+    terminate WorkloadEmpty sl cl
     else 
   (* we will not be terminating as the term condition has been reached so get
    * the next event in the event queue and apply it *)
@@ -611,8 +612,7 @@ let rec run_multi
       run_multi sl (EventList.add el_new els) cl_new )
 
   | Some (Terminate t,_) -> 
-      debug "terminating as terminate time has been reached"; 
-      termination_output Timeout sl cl
+      terminate Timeout sl cl
 
 
 let init_eventlist num  :EventList.t  =  

@@ -33,7 +33,7 @@ module PureState  =
           allNodes : IntID.t list;
           leader : IntID.t option;
           state_mach : Mach.t;
-          outstanding_request : (Index.t * Rpcs.ClientRes.t) option;
+          outstanding_request : (Index.t * Rpcs.ClientArg.t) option;
           seqNum : int ;
           safety_monitor : RaftMonitor.t
         }
@@ -59,7 +59,7 @@ module PureState  =
    | RemoveEntries of Index.t * Index.t
    | ReplicationFailure of IntID.t * Index.t
    | ReplicationSuccess of IntID.t * Index.t
-   | AddClientRequest of Index.t * Rpcs.ClientRes.t
+   | AddClientRequest of Index.t * Rpcs.ClientArg.t
    | RemoveClientRes 
 
 

@@ -61,7 +61,7 @@ module ClientArg = struct
 end
 
 module ClientRes = struct
-  type t = { success: bool;
+  type t = { success: Sexp.t option;
              node_id: IntID.t;
              leader:  IntID.t option; 
              replyto: ClientArg.t } with sexp
