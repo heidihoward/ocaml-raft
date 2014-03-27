@@ -12,7 +12,7 @@ let distribution =
   Command.Spec.Arg_type.create NumberGen.string_to_dist
 
 let run ~time ~nodes ~term ~debug_enabled ~iter ~data ~follower ~candidate ~leader ~delay 
-~failure ~recover ~term_ele ~term_client ~cmds ~wait ~timeout_client =
+~failure ~recover ~term_ele ~term_client ~cmds ~wait_succ ~wait_fail ~timeout_client =
   let module Par = (struct
     let nodes = nodes
     let timeout () = function
@@ -28,7 +28,8 @@ let run ~time ~nodes ~term ~debug_enabled ~iter ~data ~follower ~candidate ~lead
       | WorkloadEmpty -> term_client
     let workload_size = cmds
     let term_time = term
-    let client_wait = wait
+    let client_wait_success = wait_succ
+    let client_wait_failure = wait_fail
     let client_timeout = timeout_client
   end : PARAMETERS) in 
    

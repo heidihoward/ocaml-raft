@@ -36,8 +36,10 @@ let common () =
          ~doc:"Terminate when a client workload is empty"
       +> flag "-cmds" (optional_with_default 5 int)
           ~doc:"Size of test workload"
-      +> flag "-clientWait" (optional_with_default 5 int)
-        ~doc:"Time a client waits between requests"
+      +> flag "-clientWaitSuccess" (optional_with_default 5 int)
+        ~doc:"Time a client waits after a successful requests"
+      +> flag "-clientWaitFailure" (optional_with_default 5 int)
+        ~doc:"Time a client waits after a failed requests"        
       +> flag "-clientTimeout" (optional_with_default 50 int)
         ~doc:"Timeout that a client waits for the response from the cluster"   
 
@@ -51,9 +53,10 @@ let realtime =
     empty
      ++ common ()
       )
-    (fun nodes term debug_enabled iter data follower candidate leader delay failure recover term_ele term_client cmds wait timeout_client () ->  
+    (fun nodes term debug_enabled iter data follower candidate leader delay failure recover term_ele 
+        term_client cmds wait_succ wait_fail timeout_client () ->  
       printf "%s" (Parser.run ~time:Real ~nodes ~term ~debug_enabled ~iter ~data ~follower ~candidate ~leader ~delay 
-      ~failure ~recover ~term_ele ~term_client ~cmds ~wait ~timeout_client)) 
+      ~failure ~recover ~term_ele ~term_client ~cmds ~wait_succ ~wait_fail ~timeout_client)) 
 
 let discrete =
   Command.basic
@@ -63,9 +66,10 @@ let discrete =
     empty
      ++ common ()
       )
-    (fun nodes term debug_enabled iter data follower candidate leader delay failure recover term_ele term_client cmds wait timeout_client () ->  
+    (fun nodes term debug_enabled iter data follower candidate leader delay failure recover term_ele 
+        term_client cmds wait_succ wait_fail timeout_client () ->  
       printf "%s" (Parser.run ~time:Discrete ~nodes ~term ~debug_enabled ~iter ~data ~follower ~candidate ~leader ~delay 
-      ~failure ~recover ~term_ele ~term_client ~cmds ~wait ~timeout_client))
+      ~failure ~recover ~term_ele ~term_client ~cmds ~wait_succ ~wait_fail ~timeout_client))
 
 let () =  
   ["realtime",realtime;"discrete",discrete]
