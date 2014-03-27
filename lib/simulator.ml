@@ -451,7 +451,7 @@ and clientCommit (s: Client.t) =
     client_latency (`Start (s.time()) );
     let args = {Rpcs.ClientArg.cmd = (Mach.sexp_of_cmd cmd); } in
     let s_new = Client.tick Set s in
-    let timeout = MonoTime.add (s_new.time()) (MonoTime.span_of_int 30) in
+    let timeout = MonoTime.add (s_new.time()) (MonoTime.span_of_int P.client_timeout) in
     let timer_check = ClientEvent (timeout,checkTimer_client s_new.timer) in
     (match s.leader with
     | Leader id -> 

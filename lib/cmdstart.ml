@@ -23,7 +23,7 @@ let common () =
         ~doc:"distribution Candidate timeout Statistical Distribution, this
         gives the distrubut"
      +> flag "-leader" (required Parser.distribution)
-        ~doc:"distribution Leader Statistical Distribution"
+        ~doc:"distribution Leader Statistical Distribution"     
      +> flag "-delay" (required Parser.distribution)
         ~doc:"distribution Packet Delay Statistical Distribution"
      +> flag "-failure" (optional Parser.distribution)
@@ -38,6 +38,8 @@ let common () =
           ~doc:"Size of test workload"
       +> flag "-clientWait" (optional_with_default 5 int)
         ~doc:"Time a client waits between requests"
+      +> flag "-clientTimeout" (optional_with_default 50 int)
+        ~doc:"Timeout that a client waits for the response from the cluster"   
 
  )
 
@@ -49,8 +51,9 @@ let realtime =
     empty
      ++ common ()
       )
-    (fun nodes term debug_enabled iter data follower candidate leader delay failure recover term_ele term_client cmds wait () ->  
-      printf "%s" (Parser.run ~time:Real ~nodes ~term ~debug_enabled ~iter ~data ~follower ~candidate ~leader ~delay ~failure ~recover ~term_ele ~term_client ~cmds ~wait)) 
+    (fun nodes term debug_enabled iter data follower candidate leader delay failure recover term_ele term_client cmds wait timeout_client () ->  
+      printf "%s" (Parser.run ~time:Real ~nodes ~term ~debug_enabled ~iter ~data ~follower ~candidate ~leader ~delay 
+      ~failure ~recover ~term_ele ~term_client ~cmds ~wait ~timeout_client)) 
 
 let discrete =
   Command.basic
@@ -60,8 +63,9 @@ let discrete =
     empty
      ++ common ()
       )
-    (fun nodes term debug_enabled iter data follower candidate leader delay failure recover term_ele term_client cmds wait () ->  
-      printf "%s" (Parser.run ~time:Discrete ~nodes ~term ~debug_enabled ~iter ~data ~follower ~candidate ~leader ~delay ~failure ~recover ~term_ele ~term_client ~cmds ~wait))
+    (fun nodes term debug_enabled iter data follower candidate leader delay failure recover term_ele term_client cmds wait timeout_client () ->  
+      printf "%s" (Parser.run ~time:Discrete ~nodes ~term ~debug_enabled ~iter ~data ~follower ~candidate ~leader ~delay 
+      ~failure ~recover ~term_ele ~term_client ~cmds ~wait ~timeout_client))
 
 let () =  
   ["realtime",realtime;"discrete",discrete]

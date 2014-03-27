@@ -24,7 +24,6 @@ module PureState  =
            * implementation *)
           time : unit -> MonoTime.t;
           (* This timer is used in all 3 states and has different meanings depending on state *)
-          (*timer is the time at with the "last event occured", if timer+timout>time then do timeout else nothing *)
           timer : int; 
           (** this flag is used to indicate if event of a timer
           has happened since last checked, a better method for this should be

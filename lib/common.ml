@@ -59,6 +59,7 @@ module type PARAMETERS = sig
   val workload_size: int
   val term_time : int
     val client_wait : int
+  val client_timeout : int
 end
 
 module Index = struct

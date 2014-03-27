@@ -44,6 +44,7 @@ module type PARAMETERS = sig
   val workload_size: int
   val term_time : int
   val client_wait : int
+  val client_timeout : int
 end
 
 (** [Index] is a single monotonically increasing discrete value *) 
