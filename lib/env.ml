@@ -33,7 +33,6 @@ module PureState  =
           leader : IntID.t option;
           state_mach : Mach.t;
           outstanding_request : (Index.t * Rpcs.ClientArg.t) option;
-          seqNum : int ;
           safety_monitor : RaftMonitor.t
         }
    
@@ -81,7 +80,6 @@ module PureState  =
       leader = None;
       state_mach = Mach.init();
       outstanding_request = None;
-      seqNum = 0;
       safety_monitor = RaftMonitor.init();
     } 
 
@@ -104,7 +102,6 @@ module PureState  =
       leader = None;
       state_mach = s.state_mach;
       outstanding_request = None;
-      seqNum = s.seqNum;
       safety_monitor = (* RaftMonitor.tick s.safety_monitor `Recover *) RaftMonitor.init() ;
     } 
 
@@ -128,8 +125,6 @@ module PureState  =
     " | Last Log Index: "^(Index.to_string s.lastlogIndex)^
     " | Last Log Term: "^(Index.to_string s.lastlogTerm)^
     " | Commit Index: "^(Index.to_string s.commitIndex)^
-    " | Client Sequence Number: "^(Int.to_string s.seqNum)^
-    " | Outstanding Client Request: "^(string_of_option (fun (i,_) -> Index.to_string i ) s.outstanding_request)^"\n"^
     " | Replicated Log: "^(Log.to_string ~cmd_to_string:Mach.cmd_to_string s.log)^
     "\n-------------------------------------------------------------------------------------"
  (* sexp_of_t s |> Sexp.to_string *)

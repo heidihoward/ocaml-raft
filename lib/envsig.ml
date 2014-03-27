@@ -39,7 +39,6 @@ module State :
           leader : IntID.t option;
           state_mach : Mach.t;
           outstanding_request : (Index.t * Rpcs.ClientArg.t) option;
-          seqNum : int;
           safety_monitor : RaftMonitor.t;
         } 
 
