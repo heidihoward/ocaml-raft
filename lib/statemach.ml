@@ -47,7 +47,6 @@ module KeyValStr : MACHINE = struct
     if (id=state.last_serial) 
       then state 
       else (
-        assert (id=state.last_serial+1);
     match mach_cmd with
     | Add (key,value) -> 
       let new_state = List.Assoc.add state.mach key value in
