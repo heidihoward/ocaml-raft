@@ -1,6 +1,9 @@
-ocaml-raft
+ocaml-raft Simulator
 ==========
+[![Build Status](https://travis-ci.org/heidi-ann/ocaml-raft.svg?branch=simulator)](https://travis-ci.org/heidi-ann/ocaml-raft)
 
-Implementation of Raft consensus algorithm
+This is a complete implementation of base Raft consensus algorithm (not inc. membership changes and log compation)
 
-So far we have a discrete event simulator and realtime simulator of a basic subset of raft. To build run build.sh and to execute run ./cmdstart.byte
+The simulator runs as either a discrete event simulator or a realtime simulator, in a range of network conditions. 
+
+To build run ```build.sh  ``` and to learn how to excute run ``` ./cmdstart.byte --help ```
