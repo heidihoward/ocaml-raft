@@ -1,6 +1,6 @@
 open Core.Std
 open Common
-
+module RaftMonitor = RaftMonitorWrapper
 
 module PureState  = 
   functor (MonoTime: Clock.TIME) ->

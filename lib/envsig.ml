@@ -1,6 +1,7 @@
 open Core.Std
 open Common
 
+
 (** [Env] contains modules for handling state including PrueState and StateList
  * *)
 module type STATEHANDLER =
@@ -40,6 +41,7 @@ module State :
           state_mach : Mach.t;
           outstanding_request : (Index.t * Rpcs.ClientArg.t) option;
           safety_monitor : RaftMonitor.t;
+
         } 
 
         (** [statecall] are created to modify state *)
