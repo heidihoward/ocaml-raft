@@ -37,7 +37,7 @@ module Raft_general = struct
         (* S_final_2 *)
         register_state 1 {x with multiple_13=0} h; (* S_final_2 *)
       end;
-    |9,`RestartElecton (* S_multentry_16 *) ->
+    |9,`RestartElection (* S_multentry_16 *) ->
       (* S_multblexit_18 *)
       begin (* let multiple_20 = (x.multiple_20 + 1) in *) 
         (* S_multentry_16 *)
@@ -51,7 +51,7 @@ module Raft_general = struct
         (* S_or_23 *)
         register_state 4 {x with multiple_20=(x.multiple_20 + 1)} h; (* S_or_23 *)
       end;
-    |8,`WinElecton (* S_or_25 *) ->
+    |8,`WinElection (* S_or_25 *) ->
       (* S_seq_26 *)
       register_state 3 x h; (* S_seq_26 *)
     |4,`StepDown_from_Candidate (* S_or_23 *) ->
@@ -74,7 +74,7 @@ module Raft_general = struct
         (* S_final_2 *)
         register_state 1 {x with multiple_13=(x.multiple_13 + 1)} h; (* S_final_2 *)
       end;
-    |2,`StartElecton (* S_multentry_9 *) ->
+    |2,`StartElection (* S_multentry_9 *) ->
       (* S_seq_14 *)
       begin (* let multiple_20 = 0 in *) 
         (* S_multentry_16 *)
@@ -118,12 +118,12 @@ module Raft_general = struct
 end
 
 type s = [
-  |`RestartElecton
+  |`RestartElection
+  |`StartElection
   |`Startup
   |`StepDown_from_Candidate
   |`StepDown_from_Leader
-  |`StartElecton
-  |`WinElecton
+  |`WinElection
   |`Recover
 ]
 
@@ -140,9 +140,13 @@ let init () = {
 
 let tick s x =
   let r = match x with
-  |`RestartElecton -> 
+  |`RestartElection -> 
     {s with
-    raft_general = (Raft_general.tick `RestartElecton s.raft_general);
+    raft_general = (Raft_general.tick `RestartElection s.raft_general);
+    }
+  |`StartElection -> 
+    {s with
+    raft_general = (Raft_general.tick `StartElection s.raft_general);
     }
   |`Startup -> 
     {s with
@@ -156,13 +160,9 @@ let tick s x =
     {s with
     raft_general = (Raft_general.tick `StepDown_from_Leader s.raft_general);
     }
-  |`StartElecton -> 
+  |`WinElection -> 
     {s with
-    raft_general = (Raft_general.tick `StartElecton s.raft_general);
-    }
-  |`WinElecton -> 
-    {s with
-    raft_general = (Raft_general.tick `WinElecton s.raft_general);
+    raft_general = (Raft_general.tick `WinElection s.raft_general);
     }
   |`Recover -> 
     {s with

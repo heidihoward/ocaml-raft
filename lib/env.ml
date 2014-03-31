@@ -80,7 +80,7 @@ module PureState  =
       leader = None;
       state_mach = Mach.init();
       outstanding_request = None;
-      safety_monitor = RaftMonitor.init();
+      safety_monitor = RaftMonitor.tick (RaftMonitor.init()) `Startup ;
     } 
 
   let refresh s:t =

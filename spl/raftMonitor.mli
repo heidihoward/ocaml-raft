@@ -2,12 +2,12 @@
 exception Bad_statecall
 
 type s = [
-  |`RestartElecton
+  |`RestartElection
+  |`StartElection
   |`Startup
   |`StepDown_from_Candidate
   |`StepDown_from_Leader
-  |`StartElecton
-  |`WinElecton
+  |`WinElection
   |`Recover
 ]
 

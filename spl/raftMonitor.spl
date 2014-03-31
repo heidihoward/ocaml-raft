@@ -5,12 +5,12 @@ automaton raft_general () {
 	Recover;
 	} 
 	multiple (0..) {
-	StartElecton;
-	multiple (0..) {RestartElecton;}
+	StartElection;
+	multiple (0..) {RestartElection;}
 	either { 
 	StepDown_from_Candidate; 
 	} or {
-	WinElecton;
+	WinElection;
     StepDown_from_Leader;
 	} }
 }
