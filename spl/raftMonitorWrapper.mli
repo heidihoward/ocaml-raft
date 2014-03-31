@@ -1,4 +1,4 @@
-exception Bad_statecall
+exception SPLMonitorFailure of string
 
 type s = RaftMonitor.s
 

@@ -102,7 +102,7 @@ module PureState  =
       leader = None;
       state_mach = s.state_mach;
       outstanding_request = None;
-      safety_monitor = (* RaftMonitor.tick s.safety_monitor `Recover *) RaftMonitor.init() ;
+      safety_monitor =  RaftMonitor.tick (RaftMonitor.init()) `Recover;
     } 
 
 

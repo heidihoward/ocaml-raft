@@ -1,6 +1,6 @@
 open Core.Std
 
-exception Bad_statecall
+exception SPLMonitorFailure of string
 
 type s = RaftMonitor.s
 type t = RaftMonitor.t * (s list)
@@ -20,10 +20,8 @@ let init () = (RaftMonitor.init (), [])
 let tick (monitor,history) statecall = 
 	try
 		let new_mon = RaftMonitor.tick monitor statecall in
-		printf "%s \n" (s_to_string statecall);
+		(* printf "%s \n" (s_to_string statecall); *)
 		(new_mon, statecall::history)
 	with
-	Bad_statecall -> 
-		printf "%s \n %! " (List.to_string ~f:s_to_string (statecall::history));
-		Out_channel.flush stdout;
-		raise Bad_statecall
+	RaftMonitor.Bad_statecall -> 
+		raise (SPLMonitorFailure (List.to_string ~f:s_to_string (statecall::history)))
