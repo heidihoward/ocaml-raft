@@ -31,6 +31,7 @@ module EventList = (LinkedList(EventItem) : EVENTLIST with type item = EventItem
 
 
 let debug x = if (P.debug_mode) then (printf " %s  \n" x) else ()
+let json x = if (P.json_mode) then (printf " %s \n" x) else ()
 
 (* TODO: consider spliting this up into 3 functions*)
 let timeout (m:role) = MonoTime.span_of_float (P.timeout () m)
@@ -111,6 +112,7 @@ let unicast_replica (dist: IntID.t) (t:MonoTime.t) (e) =
   let arriv = MonoTime.add t delay in
   debug ("dispatching msg to "^(IntID.to_string dist) ^ " to arrive at "^
   (MonoTime.to_string arriv));
+  json ("'arrives':"^(MonoTime.to_string arriv)^",'sent':"^(MonoTime.to_string t)^",'dest':"^(IntID.to_string dist)^"}");
   data.pkts <- data.pkts + 1;
   RaftEvent (arriv ,dist ,e ) 
 
@@ -142,6 +144,10 @@ let rec  startCand (s:State.t) =
       last_index = s_new.lastlogIndex;
       last_term = s_new.lastlogTerm; 
     }) in
+  json ("{'source':'"^(IntID.to_string s_new.id)^
+       ",'RPC':'requestVote','info':'Request Vote Broadcast<br>term:"^(Index.to_string s_new.term)^"<br>Last Index:"^
+         (Index.to_string s_new.lastlogIndex)^"<br>Last Term:"^(Index.to_string
+         s_new.lastlogTerm)^ "',");
   let reqs = Comms.broadcast s_new.allNodes (s_new.time()) 
     (requestVoteRq args) in
   let s_new,timeout_event = refreshTimer s_new in
@@ -195,6 +201,12 @@ and dispatchAppendEntries (s:State.t) =
         entries = List.map (Log.get_entries next_index s.log) 
           ~f:(fun (i,t,c_sexp) -> (i,t,Mach.sexp_of_cmd c_sexp)) ; (*emprt list means this is heartbeat *)
         } ) in
+    json ("{'source':"^(IntID.to_string
+    s.id)^",'RPC':'appendentries','info':'append entries
+    heartbeat<br>term:"^(Index.to_string
+    s.term)^"<br>prevLogIndex:"^(Index.to_string
+    prev_index)^"<br>prevLogTerm:"^(Index.to_string
+    prev_term)^"<br>leaderCommit:"^(Index.to_string s.commitIndex)^"',");   
   Comms.unicast_replica id (s.time()) 
     (appendEntriesRq args) in
   let reqs = List.map s.allNodes ~f:dispatch in
@@ -258,6 +270,11 @@ and requestVoteRq (args: Rpcs.RequestVoteArg.t) (s:State.t) =
          " term number: "^Index.to_string args.term);
   debug (Rpcs.RequestVoteArg.to_string args);
   let (s_new:State.t),e_new = stepDown Candidate args.term None s in
+  json ("{'source':"^(IntID.to_string
+    args.cand_id)^",'RPC':'requestVote','info':'vote request<br>term:"^(Index.to_string
+    s_new.term)^"<br>lastIndex:"^(Index.to_string
+    s_new.lastlogIndex)^"<br>lastTerm:"^(Index.to_string
+    s_new.lastlogTerm)^"',");
   let vote = 
     (args.term = s_new.term) &&  (
     (args.last_term > s_new.lastlogTerm ) || 
@@ -344,6 +361,10 @@ and appendEntriesRq (args: Rpcs.AppendEntriesArg.t) (s:State.t) =
                 debug "not updating commitIndex";
                 s_new )) in
           (*works finished now sent reply *)
+         json ("{'source':"^(IntID.to_string
+         s.id)^",'RPC':'appendEntries','info':'appendEntries
+         Response<br>Successful<br>term:"^
+         (Index.to_string s_new.term)^"',");
           let res = Rpcs.AppendEntriesRes.(
                 { term = s_new.term; success=true; replyto = args; follower_id = s.id;} ) in
           (s_new,(Comms.unicast_replica(args.lead_id) (s_new.time()) (appendEntriesRs res s.id))::e_stepdown@e_timeout)
@@ -354,6 +375,10 @@ and appendEntriesRq (args: Rpcs.AppendEntriesArg.t) (s:State.t) =
         (*TODO: workout when entry should actually be removed *)
        let res = Rpcs.AppendEntriesRes.(
         { term = s_new.term; success= false; replyto = args; follower_id = s.id;} ) in
+        json ("{'source':"^(IntID.to_string
+         s.id)^",'RPC':'appendEntries','info':'appendEntries
+         Response<br>Failed - log inconsistent<br>term:"^
+         (Index.to_string s_new.term)^"',");
         (s_new,(Comms.unicast_replica(args.lead_id) (s_new.time()) (appendEntriesRs res s.id))::e_stepdown@e_timeout) )
 
     end
@@ -363,6 +388,10 @@ and appendEntriesRq (args: Rpcs.AppendEntriesArg.t) (s:State.t) =
     debug("this AppendEntries is behind the time, so ignore");
     let res = Rpcs.AppendEntriesRes.(
     { term = s.term; success= false; replyto = args; follower_id = s.id;} ) in
+    json ("{'source':"^(IntID.to_string
+         s.id)^",'RPC':'appendEntries','info':'appendEntries
+         Response<br>Failed - term too low<br>term:"^
+         (Index.to_string s.term)^"',");
     (s,[Comms.unicast_replica(args.lead_id) (s.time()) (appendEntriesRs res s.id)])
     end
 
@@ -458,8 +487,14 @@ and clientCommit (s: Client.t) =
     let timer_check = ClientEvent (timeout,checkTimer_client s_new.timer) in
     (match s.leader with
     | Leader id -> 
+      json ("{'source':'client','RPC':'clientRq','info':'Client attempting to
+       commit:<br>"^(Mach.cmd_to_string cmd)^"<br>Believes leader to be:"^
+         (IntID.to_string id)^"',");
       (s_new, [timer_check; Comms.unicast_replica id (s.time()) (clientRq args) ])
     | TryAsking (id::_) -> 
+      json ("{'source':'client','RPC':'clientRq','info':'Client attempting to
+       commit:<br>"^(Mach.cmd_to_string cmd)^"<br>Trying:"^
+         (IntID.to_string id)^"',");
       (s_new, [timer_check; Comms.unicast_replica id (s.time()) (clientRq args) ]) )
   | [] -> 
     debug "successfully committed all commands "; (s,[])

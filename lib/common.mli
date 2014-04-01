@@ -43,6 +43,7 @@ module type PARAMETERS = sig
   val term_conditions : termination -> bool
   val workload_size: int
   val term_time : int
+  val json_mode: bool
   val client_wait_success : int
   val client_wait_failure : int
   val client_timeout : int

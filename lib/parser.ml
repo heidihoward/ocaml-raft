@@ -11,7 +11,7 @@ let rec repeat n f = match n with
 let distribution = 
   Command.Spec.Arg_type.create NumberGen.string_to_dist
 
-let run ~time ~nodes ~term ~debug_enabled ~iter ~data ~follower ~candidate ~leader ~delay 
+let run ~time ~nodes ~term ~debug_enabled ~json_enabled ~iter ~data ~follower ~candidate ~leader ~delay 
 ~failure ~recover ~term_ele ~term_client ~cmds ~wait_succ ~wait_fail ~timeout_client =
   let module Par = (struct
     let nodes = nodes
@@ -21,6 +21,7 @@ let run ~time ~nodes ~term ~debug_enabled ~iter ~data ~follower ~candidate ~lead
       | Candidate -> candidate ()
     let pkt_delay = delay
     let debug_mode = debug_enabled 
+    let json_mode = json_enabled
     let nxt_failure = failure
     let nxt_recover = recover
     let term_conditions = function

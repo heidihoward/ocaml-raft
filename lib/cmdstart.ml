@@ -11,6 +11,8 @@ let common () =
         ~doc:"int The maxiumun number of terms before termination"
       +> flag "-d" no_arg
         ~doc:"Enable debugging output (disabled by default)"
+      +> flag "-json" no_arg
+        ~doc:"Enable Json Output (disabled by default)"
       +> flag "-iter" (optional_with_default 1 int) 
         ~doc:"int Number of Simulations to run (not working) "
       +> flag "-data" (optional string) 
@@ -53,9 +55,9 @@ let realtime =
     empty
      ++ common ()
       )
-    (fun nodes term debug_enabled iter data follower candidate leader delay failure recover term_ele 
+    (fun nodes term debug_enabled json_enabled iter data follower candidate leader delay failure recover term_ele 
         term_client cmds wait_succ wait_fail timeout_client () ->  
-      printf "%s" (Parser.run ~time:Real ~nodes ~term ~debug_enabled ~iter ~data ~follower ~candidate ~leader ~delay 
+      printf "%s" (Parser.run ~time:Real ~nodes ~term ~debug_enabled ~json_enabled ~iter ~data ~follower ~candidate ~leader ~delay 
       ~failure ~recover ~term_ele ~term_client ~cmds ~wait_succ ~wait_fail ~timeout_client)) 
 
 let discrete =
@@ -66,9 +68,9 @@ let discrete =
     empty
      ++ common ()
       )
-    (fun nodes term debug_enabled iter data follower candidate leader delay failure recover term_ele 
+    (fun nodes term debug_enabled json_enabled iter data follower candidate leader delay failure recover term_ele 
         term_client cmds wait_succ wait_fail timeout_client () ->  
-      printf "%s" (Parser.run ~time:Discrete ~nodes ~term ~debug_enabled ~iter ~data ~follower ~candidate ~leader ~delay 
+      printf "%s" (Parser.run ~time:Discrete ~nodes ~term ~debug_enabled ~json_enabled ~iter ~data ~follower ~candidate ~leader ~delay 
       ~failure ~recover ~term_ele ~term_client ~cmds ~wait_succ ~wait_fail ~timeout_client))
 
 let () =  
