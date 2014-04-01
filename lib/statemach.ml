@@ -61,7 +61,7 @@ module KeyValStr : MACHINE = struct
     | x::[] -> commit state x
     | x::xs -> 
       commit_many (commit state x) xs
-    | [] -> assert false
+    | [] -> state
 
   let init () = 
     { mach = []; last_serial=0;last_response=None; }
