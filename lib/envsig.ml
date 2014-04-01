@@ -103,7 +103,7 @@ module State :
          * agree on term and leader *)
         val leader_agreed: t -> bool
 
-        val check_safety: t -> unit
+        val check_safety: t -> string
 
         val get_leader: t -> State.t option
       end

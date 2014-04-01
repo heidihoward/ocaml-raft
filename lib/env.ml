@@ -115,7 +115,7 @@ module PureState  =
     " | ID: "^(IntID.to_string s.id)^
     " | Term: "^(Index.to_string s.term)^
     " | Mode: "^(string_of_role s.mode)^"\n"^
-    " | VotedFor: "^(IntID.to_string s.id)^
+    " | VotedFor: "^(string_of_option IntID.to_string s.votedFor)^
     " | All Nodes: "^(List.to_string ~f:IntID.to_string s.allNodes)^
     " | Votes Recieved: "^ (List.to_string ~f:IntID.to_string s.votesGranted)^
     " | Leader: "^(string_of_option (IntID.to_string) s.leader)^"\n"^
@@ -182,6 +182,7 @@ module PureState  =
         votesResponded=[];
         votesGranted=[s.id];
         term = (Index.succ s.term);
+        leader = None;
         safety_monitor =
             match s.mode with
             | Candidate -> RaftMonitor.tick s.safety_monitor `RestartElection
@@ -205,7 +206,8 @@ module PureState  =
     | SetTerm t ->
         assert (t >= s.term);
         { s with term = t;
-          votedFor = None }
+          votedFor = None;
+          leader = None; }
     | Restart -> 
         refresh s
     (* RAFT SPEC: If leaderCommit > commitIndex, set commitIndex = min(leaderCommit, last log index) *)
@@ -425,6 +427,11 @@ module State = PureState(MonoTime)(Mach)
     | (id,s_lst)::rs -> (live_only s_lst) @ get_live_states rs
     | [] -> [] 
 
+  let lds_to_string lds = 
+  List.to_string lds  
+    ~f:(fun (term,id) -> 
+      " T: "^(Index.to_string term)^" L: "^(IntID.to_string id) )
+
   let rec election_safety (states :State.t list) lds =
     match states with
     | s::rest -> ( match s.leader,(List.Assoc.find lds s.term) with
@@ -433,14 +440,19 @@ module State = PureState(MonoTime)(Mach)
                  | (None, _) -> election_safety rest lds    
                  | (Some ldx, None) -> election_safety rest 
                      (List.Assoc.add lds s.term ldx) 
-                 | _ -> assert false )
-    | [] -> true
+                 | (Some ldx, Some ldy) -> 
+                    printf "ELECTION SAFETY FAILED TERM %s LEADERS %s %s \n"
+                      (Index.to_string s.term) (IntID.to_string ldx) (IntID.to_string ldy);
+                    printf " %s \n %! " (lds_to_string lds); 
+                     assert false )
+    | [] -> lds_to_string lds
+
 
 
   let check_safety sl =
     let states = get_live_states sl in
-    let _ = election_safety states [] in
-    ()
+    let output = election_safety states [] in
+    "Checking Election Safety ... \n"^output
 
   let get_leader sl =
     match List.hd (get_live sl) with

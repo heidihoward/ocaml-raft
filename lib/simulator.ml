@@ -267,11 +267,13 @@ and requestVoteRq (args: Rpcs.RequestVoteArg.t) (s:State.t) =
     (s.mode=Follower)
   in
   let s_new,e_new = 
-   ( if vote then 
-      refreshTimer (State.tick (Vote args.cand_id) s_new)
+   ( if vote then (
+      debug "vote will be granted";
+      refreshTimer (State.tick (Vote args.cand_id) s_new) )
     else 
-      (*no changes required *)
-      s_new,e_new )in
+      (*no changes required *) (
+      debug "vote will not be granted";
+      s_new,e_new  ))in
   let res = 
     Rpcs.RequestVoteRes.(
       { term = s_new.term;
@@ -574,7 +576,8 @@ let terminate reason sl cl =
   | LeaderEst -> debug "terminating as leader has been agreed"
   | WorkloadEmpty -> debug "terminating as all commands have been commited " 
   | Timeout -> debug "terminating as terminate time has been reached");
-  StateList.check_safety sl;
+  debug "checking simulation was safe";
+  debug (StateList.check_safety sl);
   termination_output reason sl cl
 
 (* Main excuation cycle *)  
