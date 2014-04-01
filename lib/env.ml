@@ -170,6 +170,7 @@ module PureState  =
         votesGranted=[];
         nextIndex  = [];
         matchIndex = []; 
+        leader = None;
         safety_monitor = (
             match s.mode with 
             | Candidate -> RaftMonitor.tick s.safety_monitor `StepDown_from_Candidate
