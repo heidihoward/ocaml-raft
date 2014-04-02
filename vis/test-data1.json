@@ -1,0 +1,1985 @@
+{ "numNodes":6, 
+"messages":[ {"source":"client","RPC":"clientRq","info":"Client attempting to commit:<br>SERIAL NUMBER: 1ADD: 1, 1<br>Trying:0", 
+ "arrives":7,"sent":0,"dest":0} 
+, {"source":"client","RPC":"clientRq","info":"Client attempting to commit:<br>SERIAL NUMBER: 1ADD: 1, 1<br>Trying:1", 
+ "arrives":27,"sent":19,"dest":1} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:1<br>Last Index:0<br>Last Term:0", 
+ "arrives":33,"sent":25,"dest":0} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:1<br>Last Index:0<br>Last Term:0", 
+ "arrives":33,"sent":25,"dest":1} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:1<br>Last Index:0<br>Last Term:0", 
+ "arrives":33,"sent":25,"dest":2} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:1<br>Last Index:0<br>Last Term:0", 
+ "arrives":33,"sent":25,"dest":3} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:1<br>Last Index:0<br>Last Term:0", 
+ "arrives":32,"sent":25,"dest":5} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:1<br>Last Index:0<br>Last Term:0", 
+ "arrives":35,"sent":27,"dest":0} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:1<br>Last Index:0<br>Last Term:0", 
+ "arrives":35,"sent":27,"dest":2} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:1<br>Last Index:0<br>Last Term:0", 
+ "arrives":34,"sent":27,"dest":3} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:1<br>Last Index:0<br>Last Term:0", 
+ "arrives":35,"sent":27,"dest":4} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:1<br>Last Index:0<br>Last Term:0", 
+ "arrives":35,"sent":27,"dest":5} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:1<br>Last Index:0<br>Last Term:0", 
+ "arrives":37,"sent":30,"dest":0} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:1<br>Last Index:0<br>Last Term:0", 
+ "arrives":37,"sent":30,"dest":1} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:1<br>Last Index:0<br>Last Term:0", 
+ "arrives":38,"sent":30,"dest":3} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:1<br>Last Index:0<br>Last Term:0", 
+ "arrives":38,"sent":30,"dest":4} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:1<br>Last Index:0<br>Last Term:0", 
+ "arrives":37,"sent":30,"dest":5} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:true<br>term:1<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":39,"sent":32,"dest":4} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:true<br>term:1<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":41,"sent":33,"dest":4} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:1<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":40,"sent":33,"dest":4} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:false<br>term:1<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":41,"sent":33,"dest":4} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:true<br>term:1<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":40,"sent":33,"dest":4} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:false<br>term:1<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":41,"sent":34,"dest":1} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:false<br>term:1<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":43,"sent":35,"dest":1} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:false<br>term:1<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":42,"sent":35,"dest":1} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:1<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":43,"sent":35,"dest":1} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:false<br>term:1<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":42,"sent":35,"dest":1} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:false<br>term:1<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":44,"sent":37,"dest":2} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:1<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":44,"sent":37,"dest":2} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:false<br>term:1<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":45,"sent":37,"dest":2} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:false<br>term:1<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":45,"sent":38,"dest":2} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:1<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":46,"sent":38,"dest":2} 
+, {"source":"client","RPC":"clientRq","info":"Client attempting to commit:<br>SERIAL NUMBER: 1ADD: 1, 1<br>Trying:2", 
+ "arrives":48,"sent":40,"dest":2} 
+, {"source":4,"RPC":"appendEntries","info":"append entries heartbeat<br>term:1<br>prevLogIndex:0<br>prevLogTerm:0<br>leaderCommit:0", 
+ "arrives":49,"sent":41,"dest":0} 
+, {"source":4,"RPC":"appendEntries","info":"append entries heartbeat<br>term:1<br>prevLogIndex:0<br>prevLogTerm:0<br>leaderCommit:0", 
+ "arrives":49,"sent":41,"dest":1} 
+, {"source":4,"RPC":"appendEntries","info":"append entries heartbeat<br>term:1<br>prevLogIndex:0<br>prevLogTerm:0<br>leaderCommit:0", 
+ "arrives":49,"sent":41,"dest":2} 
+, {"source":4,"RPC":"appendEntries","info":"append entries heartbeat<br>term:1<br>prevLogIndex:0<br>prevLogTerm:0<br>leaderCommit:0", 
+ "arrives":48,"sent":41,"dest":3} 
+, {"source":4,"RPC":"appendEntries","info":"append entries heartbeat<br>term:1<br>prevLogIndex:0<br>prevLogTerm:0<br>leaderCommit:0", 
+ "arrives":48,"sent":41,"dest":5} 
+, {"source":3,"RPC":"appendEntries","info":"appendEntries Response<br>Successful<br>term:1", 
+ "arrives":55,"sent":48,"dest":4} 
+, {"source":5,"RPC":"appendEntries","info":"appendEntries Response<br>Successful<br>term:1", 
+ "arrives":55,"sent":48,"dest":4} 
+, {"source":0,"RPC":"appendEntries","info":"appendEntries Response<br>Successful<br>term:1", 
+ "arrives":57,"sent":49,"dest":4} 
+, {"source":1,"RPC":"appendEntries","info":"appendEntries Response<br>Successful<br>term:1", 
+ "arrives":56,"sent":49,"dest":4} 
+, {"source":2,"RPC":"appendEntries","info":"appendEntries Response<br>Successful<br>term:1", 
+ "arrives":56,"sent":49,"dest":4} 
+, {"source":"client","RPC":"clientRq","info":"Client attempting to commit:<br>SERIAL NUMBER: 1ADD: 1, 1<br>Trying:3", 
+ "arrives":69,"sent":61,"dest":3} 
+, {"source":5,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:2<br>Last Index:0<br>Last Term:0", 
+ "arrives":83,"sent":75,"dest":0} 
+, {"source":5,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:2<br>Last Index:0<br>Last Term:0", 
+ "arrives":83,"sent":75,"dest":1} 
+, {"source":5,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:2<br>Last Index:0<br>Last Term:0", 
+ "arrives":82,"sent":75,"dest":2} 
+, {"source":5,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:2<br>Last Index:0<br>Last Term:0", 
+ "arrives":82,"sent":75,"dest":3} 
+, {"source":5,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:2<br>Last Index:0<br>Last Term:0", 
+ "arrives":82,"sent":75,"dest":4} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:2<br>Last Index:0<br>Last Term:0", 
+ "arrives":83,"sent":76,"dest":0} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:2<br>Last Index:0<br>Last Term:0", 
+ "arrives":84,"sent":76,"dest":1} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:2<br>Last Index:0<br>Last Term:0", 
+ "arrives":84,"sent":76,"dest":2} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:2<br>Last Index:0<br>Last Term:0", 
+ "arrives":83,"sent":76,"dest":4} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:2<br>Last Index:0<br>Last Term:0", 
+ "arrives":83,"sent":76,"dest":5} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:2<br>Last Index:0<br>Last Term:0", 
+ "arrives":87,"sent":80,"dest":0} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:2<br>Last Index:0<br>Last Term:0", 
+ "arrives":88,"sent":80,"dest":2} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:2<br>Last Index:0<br>Last Term:0", 
+ "arrives":88,"sent":80,"dest":3} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:2<br>Last Index:0<br>Last Term:0", 
+ "arrives":87,"sent":80,"dest":4} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:2<br>Last Index:0<br>Last Term:0", 
+ "arrives":88,"sent":80,"dest":5} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:true<br>term:2<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":89,"sent":82,"dest":5} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:false<br>term:2<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":89,"sent":82,"dest":5} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:2<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":89,"sent":82,"dest":5} 
+, {"source":"client","RPC":"clientRq","info":"Client attempting to commit:<br>SERIAL NUMBER: 1ADD: 1, 1<br>Believes leader to be:4", 
+ "arrives":89,"sent":82,"dest":4} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:true<br>term:2<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":90,"sent":83,"dest":5} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:2<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":90,"sent":83,"dest":5} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:false<br>term:2<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":91,"sent":83,"dest":3} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:true<br>term:2<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":91,"sent":83,"dest":3} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:false<br>term:2<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":90,"sent":83,"dest":3} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:2<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":92,"sent":84,"dest":3} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:false<br>term:2<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":92,"sent":84,"dest":3} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:false<br>term:2<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":95,"sent":87,"dest":1} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:2<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":95,"sent":87,"dest":1} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:false<br>term:2<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":95,"sent":88,"dest":1} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:false<br>term:2<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":96,"sent":88,"dest":1} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:false<br>term:2<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":96,"sent":88,"dest":1} 
+, {"source":"client","RPC":"clientRq","info":"Client attempting to commit:<br>SERIAL NUMBER: 1ADD: 1, 1<br>Trying:0", 
+ "arrives":109,"sent":102,"dest":0} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:3<br>Last Index:0<br>Last Term:0", 
+ "arrives":113,"sent":105,"dest":0} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:3<br>Last Index:0<br>Last Term:0", 
+ "arrives":113,"sent":105,"dest":1} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:3<br>Last Index:0<br>Last Term:0", 
+ "arrives":112,"sent":105,"dest":2} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:3<br>Last Index:0<br>Last Term:0", 
+ "arrives":113,"sent":105,"dest":4} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:3<br>Last Index:0<br>Last Term:0", 
+ "arrives":113,"sent":105,"dest":5} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:3<br>Last Index:0<br>Last Term:0", 
+ "arrives":117,"sent":109,"dest":0} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:3<br>Last Index:0<br>Last Term:0", 
+ "arrives":117,"sent":109,"dest":2} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:3<br>Last Index:0<br>Last Term:0", 
+ "arrives":117,"sent":109,"dest":3} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:3<br>Last Index:0<br>Last Term:0", 
+ "arrives":116,"sent":109,"dest":4} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:3<br>Last Index:0<br>Last Term:0", 
+ "arrives":117,"sent":109,"dest":5} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:3<br>Last Index:0<br>Last Term:0", 
+ "arrives":117,"sent":109,"dest":0} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:3<br>Last Index:0<br>Last Term:0", 
+ "arrives":116,"sent":109,"dest":1} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:3<br>Last Index:0<br>Last Term:0", 
+ "arrives":117,"sent":109,"dest":3} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:3<br>Last Index:0<br>Last Term:0", 
+ "arrives":117,"sent":109,"dest":4} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:3<br>Last Index:0<br>Last Term:0", 
+ "arrives":117,"sent":109,"dest":5} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:false<br>term:3<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":119,"sent":112,"dest":3} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:true<br>term:3<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":121,"sent":113,"dest":3} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:3<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":120,"sent":113,"dest":3} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:true<br>term:3<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":121,"sent":113,"dest":3} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:false<br>term:3<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":120,"sent":113,"dest":3} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:3<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":123,"sent":116,"dest":1} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:3<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":124,"sent":116,"dest":2} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:false<br>term:3<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":124,"sent":117,"dest":1} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:false<br>term:3<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":125,"sent":117,"dest":1} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:false<br>term:3<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":124,"sent":117,"dest":1} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:true<br>term:3<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":124,"sent":117,"dest":1} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:false<br>term:3<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":124,"sent":117,"dest":2} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:false<br>term:3<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":124,"sent":117,"dest":2} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:3<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":125,"sent":117,"dest":2} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:false<br>term:3<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":124,"sent":117,"dest":2} 
+, {"source":"client","RPC":"clientRq","info":"Client attempting to commit:<br>SERIAL NUMBER: 1ADD: 1, 1<br>Trying:1", 
+ "arrives":129,"sent":121,"dest":1} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:4<br>Last Index:0<br>Last Term:0", 
+ "arrives":144,"sent":137,"dest":0} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:4<br>Last Index:0<br>Last Term:0", 
+ "arrives":144,"sent":137,"dest":1} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:4<br>Last Index:0<br>Last Term:0", 
+ "arrives":144,"sent":137,"dest":2} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:4<br>Last Index:0<br>Last Term:0", 
+ "arrives":145,"sent":137,"dest":4} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:4<br>Last Index:0<br>Last Term:0", 
+ "arrives":145,"sent":137,"dest":5} 
+, {"source":"client","RPC":"clientRq","info":"Client attempting to commit:<br>SERIAL NUMBER: 1ADD: 1, 1<br>Trying:2", 
+ "arrives":149,"sent":142,"dest":2} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:true<br>term:4<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":152,"sent":144,"dest":3} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:4<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":151,"sent":144,"dest":3} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:false<br>term:4<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":152,"sent":144,"dest":3} 
+, {"source":5,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:4<br>Last Index:0<br>Last Term:0", 
+ "arrives":152,"sent":145,"dest":0} 
+, {"source":5,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:4<br>Last Index:0<br>Last Term:0", 
+ "arrives":152,"sent":145,"dest":1} 
+, {"source":5,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:4<br>Last Index:0<br>Last Term:0", 
+ "arrives":153,"sent":145,"dest":2} 
+, {"source":5,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:4<br>Last Index:0<br>Last Term:0", 
+ "arrives":153,"sent":145,"dest":3} 
+, {"source":5,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:4<br>Last Index:0<br>Last Term:0", 
+ "arrives":153,"sent":145,"dest":4} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:true<br>term:4<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":152,"sent":145,"dest":3} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:false<br>term:4<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":153,"sent":145,"dest":3} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:false<br>term:4<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":160,"sent":152,"dest":5} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:true<br>term:4<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":159,"sent":152,"dest":5} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:true<br>term:4<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":161,"sent":153,"dest":5} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:false<br>term:4<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":160,"sent":153,"dest":5} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:4<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":160,"sent":153,"dest":5} 
+, {"source":"client","RPC":"clientRq","info":"Client attempting to commit:<br>SERIAL NUMBER: 1ADD: 1, 1<br>Trying:3", 
+ "arrives":169,"sent":162,"dest":3} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:5<br>Last Index:0<br>Last Term:0", 
+ "arrives":186,"sent":179,"dest":0} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:5<br>Last Index:0<br>Last Term:0", 
+ "arrives":186,"sent":179,"dest":1} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:5<br>Last Index:0<br>Last Term:0", 
+ "arrives":187,"sent":179,"dest":2} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:5<br>Last Index:0<br>Last Term:0", 
+ "arrives":186,"sent":179,"dest":3} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:5<br>Last Index:0<br>Last Term:0", 
+ "arrives":186,"sent":179,"dest":5} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:5<br>Last Index:0<br>Last Term:0", 
+ "arrives":187,"sent":179,"dest":0} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:5<br>Last Index:0<br>Last Term:0", 
+ "arrives":187,"sent":179,"dest":1} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:5<br>Last Index:0<br>Last Term:0", 
+ "arrives":187,"sent":179,"dest":3} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:5<br>Last Index:0<br>Last Term:0", 
+ "arrives":186,"sent":179,"dest":4} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:5<br>Last Index:0<br>Last Term:0", 
+ "arrives":187,"sent":179,"dest":5} 
+, {"source":"client","RPC":"clientRq","info":"Client attempting to commit:<br>SERIAL NUMBER: 1ADD: 1, 1<br>Trying:4", 
+ "arrives":190,"sent":182,"dest":4} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:5<br>Last Index:0<br>Last Term:0", 
+ "arrives":194,"sent":186,"dest":0} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:5<br>Last Index:0<br>Last Term:0", 
+ "arrives":194,"sent":186,"dest":1} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:5<br>Last Index:0<br>Last Term:0", 
+ "arrives":194,"sent":186,"dest":2} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:5<br>Last Index:0<br>Last Term:0", 
+ "arrives":193,"sent":186,"dest":4} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:5<br>Last Index:0<br>Last Term:0", 
+ "arrives":193,"sent":186,"dest":5} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:true<br>term:5<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":194,"sent":186,"dest":4} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:true<br>term:5<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":193,"sent":186,"dest":4} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:false<br>term:5<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":194,"sent":186,"dest":4} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:false<br>term:5<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":194,"sent":186,"dest":4} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:5<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":194,"sent":186,"dest":2} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:false<br>term:5<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":194,"sent":187,"dest":4} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:false<br>term:5<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":194,"sent":187,"dest":2} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:5<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":194,"sent":187,"dest":2} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:false<br>term:5<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":195,"sent":187,"dest":2} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:true<br>term:5<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":195,"sent":187,"dest":2} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:5<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":200,"sent":193,"dest":3} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:false<br>term:5<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":200,"sent":193,"dest":3} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:false<br>term:5<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":202,"sent":194,"dest":3} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:5<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":201,"sent":194,"dest":3} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:false<br>term:5<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":201,"sent":194,"dest":3} 
+, {"source":"client","RPC":"clientRq","info":"Client attempting to commit:<br>SERIAL NUMBER: 1ADD: 1, 1<br>Trying:5", 
+ "arrives":209,"sent":202,"dest":5} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:6<br>Last Index:0<br>Last Term:0", 
+ "arrives":214,"sent":207,"dest":0} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:6<br>Last Index:0<br>Last Term:0", 
+ "arrives":214,"sent":207,"dest":1} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:6<br>Last Index:0<br>Last Term:0", 
+ "arrives":215,"sent":207,"dest":2} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:6<br>Last Index:0<br>Last Term:0", 
+ "arrives":214,"sent":207,"dest":3} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:6<br>Last Index:0<br>Last Term:0", 
+ "arrives":215,"sent":207,"dest":5} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:true<br>term:6<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":222,"sent":214,"dest":4} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:true<br>term:6<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":221,"sent":214,"dest":4} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:false<br>term:6<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":222,"sent":214,"dest":4} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:false<br>term:6<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":223,"sent":215,"dest":4} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:true<br>term:6<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":222,"sent":215,"dest":4} 
+, {"source":"client","RPC":"clientRq","info":"Client attempting to commit:<br>SERIAL NUMBER: 1ADD: 1, 1<br>Trying:0", 
+ "arrives":228,"sent":221,"dest":0} 
+, {"source":4,"RPC":"appendEntries","info":"append entries heartbeat<br>term:6<br>prevLogIndex:0<br>prevLogTerm:0<br>leaderCommit:0", 
+ "arrives":230,"sent":222,"dest":0} 
+, {"source":4,"RPC":"appendEntries","info":"append entries heartbeat<br>term:6<br>prevLogIndex:0<br>prevLogTerm:0<br>leaderCommit:0", 
+ "arrives":229,"sent":222,"dest":1} 
+, {"source":4,"RPC":"appendEntries","info":"append entries heartbeat<br>term:6<br>prevLogIndex:0<br>prevLogTerm:0<br>leaderCommit:0", 
+ "arrives":230,"sent":222,"dest":2} 
+, {"source":4,"RPC":"appendEntries","info":"append entries heartbeat<br>term:6<br>prevLogIndex:0<br>prevLogTerm:0<br>leaderCommit:0", 
+ "arrives":229,"sent":222,"dest":3} 
+, {"source":4,"RPC":"appendEntries","info":"append entries heartbeat<br>term:6<br>prevLogIndex:0<br>prevLogTerm:0<br>leaderCommit:0", 
+ "arrives":229,"sent":222,"dest":5} 
+, {"source":1,"RPC":"appendEntries","info":"appendEntries Response<br>Successful<br>term:6", 
+ "arrives":237,"sent":229,"dest":4} 
+, {"source":3,"RPC":"appendEntries","info":"appendEntries Response<br>Successful<br>term:6", 
+ "arrives":236,"sent":229,"dest":4} 
+, {"source":5,"RPC":"appendEntries","info":"appendEntries Response<br>Successful<br>term:6", 
+ "arrives":237,"sent":229,"dest":4} 
+, {"source":0,"RPC":"appendEntries","info":"appendEntries Response<br>Successful<br>term:6", 
+ "arrives":238,"sent":230,"dest":4} 
+, {"source":2,"RPC":"appendEntries","info":"appendEntries Response<br>Successful<br>term:6", 
+ "arrives":237,"sent":230,"dest":4} 
+, {"source":"client","RPC":"clientRq","info":"Client attempting to commit:<br>SERIAL NUMBER: 1ADD: 1, 1<br>Trying:1", 
+ "arrives":247,"sent":240,"dest":1} 
+, {"source":"client","RPC":"clientRq","info":"Client attempting to commit:<br>SERIAL NUMBER: 1ADD: 1, 1<br>Believes leader to be:4", 
+ "arrives":267,"sent":259,"dest":4} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:7<br>Last Index:0<br>Last Term:0", 
+ "arrives":268,"sent":261,"dest":0} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:7<br>Last Index:0<br>Last Term:0", 
+ "arrives":268,"sent":261,"dest":2} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:7<br>Last Index:0<br>Last Term:0", 
+ "arrives":268,"sent":261,"dest":3} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:7<br>Last Index:0<br>Last Term:0", 
+ "arrives":268,"sent":261,"dest":4} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:7<br>Last Index:0<br>Last Term:0", 
+ "arrives":269,"sent":261,"dest":5} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:7<br>Last Index:0<br>Last Term:0", 
+ "arrives":269,"sent":262,"dest":1} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:7<br>Last Index:0<br>Last Term:0", 
+ "arrives":270,"sent":262,"dest":2} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:7<br>Last Index:0<br>Last Term:0", 
+ "arrives":270,"sent":262,"dest":3} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:7<br>Last Index:0<br>Last Term:0", 
+ "arrives":270,"sent":262,"dest":4} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:7<br>Last Index:0<br>Last Term:0", 
+ "arrives":269,"sent":262,"dest":5} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:7<br>Last Index:0<br>Last Term:0", 
+ "arrives":270,"sent":263,"dest":0} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:7<br>Last Index:0<br>Last Term:0", 
+ "arrives":270,"sent":263,"dest":1} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:7<br>Last Index:0<br>Last Term:0", 
+ "arrives":270,"sent":263,"dest":3} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:7<br>Last Index:0<br>Last Term:0", 
+ "arrives":271,"sent":263,"dest":4} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:7<br>Last Index:0<br>Last Term:0", 
+ "arrives":270,"sent":263,"dest":5} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:false<br>term:7<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":275,"sent":268,"dest":1} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:false<br>term:7<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":276,"sent":268,"dest":1} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:true<br>term:7<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":275,"sent":268,"dest":1} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:7<br>lastIndex:1<br>lastTerm:6", 
+ "arrives":276,"sent":268,"dest":1} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:true<br>term:7<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":277,"sent":269,"dest":1} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:7<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":276,"sent":269,"dest":0} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:false<br>term:7<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":276,"sent":269,"dest":0} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:false<br>term:7<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":278,"sent":270,"dest":0} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:false<br>term:7<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":278,"sent":270,"dest":0} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:7<br>lastIndex:1<br>lastTerm:6", 
+ "arrives":277,"sent":270,"dest":0} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:false<br>term:7<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":278,"sent":270,"dest":2} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:7<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":278,"sent":270,"dest":2} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:false<br>term:7<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":278,"sent":270,"dest":2} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:false<br>term:7<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":278,"sent":270,"dest":2} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:7<br>lastIndex:1<br>lastTerm:6", 
+ "arrives":279,"sent":271,"dest":2} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:8<br>Last Index:0<br>Last Term:0", 
+ "arrives":301,"sent":294,"dest":0} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:8<br>Last Index:0<br>Last Term:0", 
+ "arrives":301,"sent":294,"dest":1} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:8<br>Last Index:0<br>Last Term:0", 
+ "arrives":301,"sent":294,"dest":2} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:8<br>Last Index:0<br>Last Term:0", 
+ "arrives":301,"sent":294,"dest":4} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:8<br>Last Index:0<br>Last Term:0", 
+ "arrives":301,"sent":294,"dest":5} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:8<br>Last Index:0<br>Last Term:0", 
+ "arrives":303,"sent":296,"dest":0} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:8<br>Last Index:0<br>Last Term:0", 
+ "arrives":304,"sent":296,"dest":1} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:8<br>Last Index:0<br>Last Term:0", 
+ "arrives":304,"sent":296,"dest":3} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:8<br>Last Index:0<br>Last Term:0", 
+ "arrives":303,"sent":296,"dest":4} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:8<br>Last Index:0<br>Last Term:0", 
+ "arrives":303,"sent":296,"dest":5} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:false<br>term:8<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":309,"sent":301,"dest":3} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:8<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":308,"sent":301,"dest":3} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:false<br>term:8<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":308,"sent":301,"dest":3} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:8<br>lastIndex:1<br>lastTerm:6", 
+ "arrives":309,"sent":301,"dest":3} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:true<br>term:8<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":309,"sent":301,"dest":3} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:true<br>term:8<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":310,"sent":303,"dest":2} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:8<br>lastIndex:1<br>lastTerm:6", 
+ "arrives":311,"sent":303,"dest":2} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:false<br>term:8<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":311,"sent":303,"dest":2} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:true<br>term:8<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":311,"sent":304,"dest":2} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:false<br>term:8<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":311,"sent":304,"dest":2} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:9<br>Last Index:1<br>Last Term:6", 
+ "arrives":315,"sent":308,"dest":0} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:9<br>Last Index:1<br>Last Term:6", 
+ "arrives":316,"sent":308,"dest":1} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:9<br>Last Index:1<br>Last Term:6", 
+ "arrives":315,"sent":308,"dest":2} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:9<br>Last Index:1<br>Last Term:6", 
+ "arrives":315,"sent":308,"dest":3} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:9<br>Last Index:1<br>Last Term:6", 
+ "arrives":316,"sent":308,"dest":5} 
+, {"source":"client","RPC":"clientRq","info":"Client attempting to commit:<br>SERIAL NUMBER: 1ADD: 1, 1<br>Trying:0", 
+ "arrives":316,"sent":309,"dest":0} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:true<br>term:9<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":323,"sent":315,"dest":4} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:false<br>term:9<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":322,"sent":315,"dest":4} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:false<br>term:9<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":322,"sent":315,"dest":4} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:true<br>term:9<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":323,"sent":316,"dest":4} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:true<br>term:9<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":323,"sent":316,"dest":4} 
+, {"source":4,"RPC":"appendEntries","info":"append entries heartbeat<br>term:9<br>prevLogIndex:1<br>prevLogTerm:6<br>leaderCommit:1", 
+ "arrives":331,"sent":323,"dest":0} 
+, {"source":4,"RPC":"appendEntries","info":"append entries heartbeat<br>term:9<br>prevLogIndex:1<br>prevLogTerm:6<br>leaderCommit:1", 
+ "arrives":331,"sent":323,"dest":1} 
+, {"source":4,"RPC":"appendEntries","info":"append entries heartbeat<br>term:9<br>prevLogIndex:1<br>prevLogTerm:6<br>leaderCommit:1", 
+ "arrives":331,"sent":323,"dest":2} 
+, {"source":4,"RPC":"appendEntries","info":"append entries heartbeat<br>term:9<br>prevLogIndex:1<br>prevLogTerm:6<br>leaderCommit:1", 
+ "arrives":330,"sent":323,"dest":3} 
+, {"source":4,"RPC":"appendEntries","info":"append entries heartbeat<br>term:9<br>prevLogIndex:1<br>prevLogTerm:6<br>leaderCommit:1", 
+ "arrives":330,"sent":323,"dest":5} 
+, {"source":"client","RPC":"clientRq","info":"Client attempting to commit:<br>SERIAL NUMBER: 1ADD: 1, 1<br>Trying:1", 
+ "arrives":335,"sent":328,"dest":1} 
+, {"source":3,"RPC":"appendEntries","info":"appendEntries Response<br>Successful<br>term:9", 
+ "arrives":337,"sent":330,"dest":4} 
+, {"source":5,"RPC":"appendEntries","info":"appendEntries Response<br>Successful<br>term:9", 
+ "arrives":337,"sent":330,"dest":4} 
+, {"source":0,"RPC":"appendEntries","info":"appendEntries Response<br>Successful<br>term:9", 
+ "arrives":338,"sent":331,"dest":4} 
+, {"source":1,"RPC":"appendEntries","info":"appendEntries Response<br>Successful<br>term:9", 
+ "arrives":338,"sent":331,"dest":4} 
+, {"source":2,"RPC":"appendEntries","info":"appendEntries Response<br>Successful<br>term:9", 
+ "arrives":339,"sent":331,"dest":4} 
+, {"source":"client","RPC":"clientRq","info":"Client attempting to commit:<br>SERIAL NUMBER: 2ADD: 2, 2<br>Believes leader to be:4", 
+ "arrives":354,"sent":347,"dest":4} 
+, {"source":"client","RPC":"clientRq","info":"Client attempting to commit:<br>SERIAL NUMBER: 2ADD: 2, 2<br>Believes leader to be:4", 
+ "arrives":357,"sent":349,"dest":4} 
+, {"source":5,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:10<br>Last Index:1<br>Last Term:6", 
+ "arrives":364,"sent":356,"dest":0} 
+, {"source":5,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:10<br>Last Index:1<br>Last Term:6", 
+ "arrives":363,"sent":356,"dest":1} 
+, {"source":5,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:10<br>Last Index:1<br>Last Term:6", 
+ "arrives":364,"sent":356,"dest":2} 
+, {"source":5,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:10<br>Last Index:1<br>Last Term:6", 
+ "arrives":363,"sent":356,"dest":3} 
+, {"source":5,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:10<br>Last Index:1<br>Last Term:6", 
+ "arrives":364,"sent":356,"dest":4} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:10<br>Last Index:1<br>Last Term:6", 
+ "arrives":364,"sent":357,"dest":0} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:10<br>Last Index:1<br>Last Term:6", 
+ "arrives":364,"sent":357,"dest":2} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:10<br>Last Index:1<br>Last Term:6", 
+ "arrives":364,"sent":357,"dest":3} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:10<br>Last Index:1<br>Last Term:6", 
+ "arrives":364,"sent":357,"dest":4} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:10<br>Last Index:1<br>Last Term:6", 
+ "arrives":364,"sent":357,"dest":5} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:10<br>Last Index:1<br>Last Term:6", 
+ "arrives":368,"sent":360,"dest":0} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:10<br>Last Index:1<br>Last Term:6", 
+ "arrives":368,"sent":360,"dest":1} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:10<br>Last Index:1<br>Last Term:6", 
+ "arrives":367,"sent":360,"dest":2} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:10<br>Last Index:1<br>Last Term:6", 
+ "arrives":368,"sent":360,"dest":4} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:10<br>Last Index:1<br>Last Term:6", 
+ "arrives":367,"sent":360,"dest":5} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:10<br>Last Index:1<br>Last Term:6", 
+ "arrives":371,"sent":363,"dest":1} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:10<br>Last Index:1<br>Last Term:6", 
+ "arrives":371,"sent":363,"dest":2} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:10<br>Last Index:1<br>Last Term:6", 
+ "arrives":371,"sent":363,"dest":3} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:10<br>Last Index:1<br>Last Term:6", 
+ "arrives":370,"sent":363,"dest":4} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:10<br>Last Index:1<br>Last Term:6", 
+ "arrives":370,"sent":363,"dest":5} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:10<br>lastIndex:1<br>lastTerm:6", 
+ "arrives":371,"sent":363,"dest":5} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:false<br>term:10<br>lastIndex:1<br>lastTerm:6", 
+ "arrives":371,"sent":363,"dest":5} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:false<br>term:10<br>lastIndex:1<br>lastTerm:6", 
+ "arrives":371,"sent":364,"dest":5} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:true<br>term:10<br>lastIndex:1<br>lastTerm:6", 
+ "arrives":371,"sent":364,"dest":5} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:10<br>lastIndex:3<br>lastTerm:9", 
+ "arrives":372,"sent":364,"dest":5} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:false<br>term:10<br>lastIndex:1<br>lastTerm:6", 
+ "arrives":371,"sent":364,"dest":1} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:false<br>term:10<br>lastIndex:1<br>lastTerm:6", 
+ "arrives":371,"sent":364,"dest":1} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:false<br>term:10<br>lastIndex:1<br>lastTerm:6", 
+ "arrives":371,"sent":364,"dest":1} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:10<br>lastIndex:3<br>lastTerm:9", 
+ "arrives":371,"sent":364,"dest":1} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:false<br>term:10<br>lastIndex:1<br>lastTerm:6", 
+ "arrives":372,"sent":364,"dest":1} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:false<br>term:10<br>lastIndex:1<br>lastTerm:6", 
+ "arrives":375,"sent":367,"dest":3} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:false<br>term:10<br>lastIndex:1<br>lastTerm:6", 
+ "arrives":374,"sent":367,"dest":3} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:false<br>term:10<br>lastIndex:1<br>lastTerm:6", 
+ "arrives":376,"sent":368,"dest":3} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:10<br>lastIndex:1<br>lastTerm:6", 
+ "arrives":375,"sent":368,"dest":3} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:10<br>lastIndex:3<br>lastTerm:9", 
+ "arrives":375,"sent":368,"dest":3} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:10<br>lastIndex:3<br>lastTerm:9", 
+ "arrives":377,"sent":370,"dest":0} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:false<br>term:10<br>lastIndex:1<br>lastTerm:6", 
+ "arrives":377,"sent":370,"dest":0} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:10<br>lastIndex:1<br>lastTerm:6", 
+ "arrives":378,"sent":371,"dest":0} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:false<br>term:10<br>lastIndex:1<br>lastTerm:6", 
+ "arrives":379,"sent":371,"dest":0} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:false<br>term:10<br>lastIndex:1<br>lastTerm:6", 
+ "arrives":378,"sent":371,"dest":0} 
+, {"source":5,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:11<br>Last Index:1<br>Last Term:6", 
+ "arrives":392,"sent":385,"dest":0} 
+, {"source":5,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:11<br>Last Index:1<br>Last Term:6", 
+ "arrives":392,"sent":385,"dest":1} 
+, {"source":5,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:11<br>Last Index:1<br>Last Term:6", 
+ "arrives":392,"sent":385,"dest":2} 
+, {"source":5,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:11<br>Last Index:1<br>Last Term:6", 
+ "arrives":392,"sent":385,"dest":3} 
+, {"source":5,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:11<br>Last Index:1<br>Last Term:6", 
+ "arrives":392,"sent":385,"dest":4} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:false<br>term:11<br>lastIndex:1<br>lastTerm:6", 
+ "arrives":399,"sent":392,"dest":5} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:11<br>lastIndex:1<br>lastTerm:6", 
+ "arrives":400,"sent":392,"dest":5} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:true<br>term:11<br>lastIndex:1<br>lastTerm:6", 
+ "arrives":399,"sent":392,"dest":5} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:false<br>term:11<br>lastIndex:1<br>lastTerm:6", 
+ "arrives":400,"sent":392,"dest":5} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:11<br>lastIndex:3<br>lastTerm:9", 
+ "arrives":400,"sent":392,"dest":5} 
+, {"source":"client","RPC":"clientRq","info":"Client attempting to commit:<br>SERIAL NUMBER: 2ADD: 2, 2<br>Trying:0", 
+ "arrives":407,"sent":399,"dest":0} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:12<br>Last Index:3<br>Last Term:9", 
+ "arrives":419,"sent":411,"dest":0} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:12<br>Last Index:3<br>Last Term:9", 
+ "arrives":418,"sent":411,"dest":1} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:12<br>Last Index:3<br>Last Term:9", 
+ "arrives":419,"sent":411,"dest":2} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:12<br>Last Index:3<br>Last Term:9", 
+ "arrives":418,"sent":411,"dest":3} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:12<br>Last Index:3<br>Last Term:9", 
+ "arrives":419,"sent":411,"dest":5} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:12<br>Last Index:1<br>Last Term:6", 
+ "arrives":426,"sent":418,"dest":0} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:12<br>Last Index:1<br>Last Term:6", 
+ "arrives":425,"sent":418,"dest":1} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:12<br>Last Index:1<br>Last Term:6", 
+ "arrives":426,"sent":418,"dest":2} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:12<br>Last Index:1<br>Last Term:6", 
+ "arrives":426,"sent":418,"dest":4} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:12<br>Last Index:1<br>Last Term:6", 
+ "arrives":426,"sent":418,"dest":5} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:true<br>term:12<br>lastIndex:1<br>lastTerm:6", 
+ "arrives":425,"sent":418,"dest":4} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:false<br>term:12<br>lastIndex:1<br>lastTerm:6", 
+ "arrives":426,"sent":418,"dest":4} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:true<br>term:12<br>lastIndex:1<br>lastTerm:6", 
+ "arrives":427,"sent":419,"dest":4} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:true<br>term:12<br>lastIndex:1<br>lastTerm:6", 
+ "arrives":427,"sent":419,"dest":4} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:false<br>term:12<br>lastIndex:1<br>lastTerm:6", 
+ "arrives":427,"sent":419,"dest":4} 
+, {"source":"client","RPC":"clientRq","info":"Client attempting to commit:<br>SERIAL NUMBER: 2ADD: 2, 2<br>Trying:1", 
+ "arrives":426,"sent":419,"dest":1} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:12<br>lastIndex:1<br>lastTerm:6", 
+ "arrives":432,"sent":425,"dest":3} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:false<br>term:12<br>lastIndex:1<br>lastTerm:6", 
+ "arrives":433,"sent":426,"dest":3} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:false<br>term:12<br>lastIndex:1<br>lastTerm:6", 
+ "arrives":434,"sent":426,"dest":3} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:12<br>lastIndex:3<br>lastTerm:9", 
+ "arrives":434,"sent":426,"dest":3} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:true<br>term:12<br>lastIndex:1<br>lastTerm:6", 
+ "arrives":434,"sent":426,"dest":3} 
+, {"source":4,"RPC":"appendEntries","info":"append entries heartbeat<br>term:12<br>prevLogIndex:3<br>prevLogTerm:9<br>leaderCommit:3", 
+ "arrives":434,"sent":427,"dest":0} 
+, {"source":4,"RPC":"appendEntries","info":"append entries heartbeat<br>term:12<br>prevLogIndex:3<br>prevLogTerm:9<br>leaderCommit:3", 
+ "arrives":435,"sent":427,"dest":1} 
+, {"source":4,"RPC":"appendEntries","info":"append entries heartbeat<br>term:12<br>prevLogIndex:3<br>prevLogTerm:9<br>leaderCommit:3", 
+ "arrives":435,"sent":427,"dest":2} 
+, {"source":4,"RPC":"appendEntries","info":"append entries heartbeat<br>term:12<br>prevLogIndex:3<br>prevLogTerm:9<br>leaderCommit:3", 
+ "arrives":434,"sent":427,"dest":3} 
+, {"source":4,"RPC":"appendEntries","info":"append entries heartbeat<br>term:12<br>prevLogIndex:3<br>prevLogTerm:9<br>leaderCommit:3", 
+ "arrives":434,"sent":427,"dest":5} 
+, {"source":0,"RPC":"appendEntries","info":"appendEntries Response<br>Successful<br>term:12", 
+ "arrives":442,"sent":434,"dest":4} 
+, {"source":3,"RPC":"appendEntries","info":"appendEntries Response<br>Successful<br>term:12", 
+ "arrives":442,"sent":434,"dest":4} 
+, {"source":5,"RPC":"appendEntries","info":"appendEntries Response<br>Successful<br>term:12", 
+ "arrives":441,"sent":434,"dest":4} 
+, {"source":1,"RPC":"appendEntries","info":"appendEntries Response<br>Successful<br>term:12", 
+ "arrives":442,"sent":435,"dest":4} 
+, {"source":2,"RPC":"appendEntries","info":"appendEntries Response<br>Successful<br>term:12", 
+ "arrives":442,"sent":435,"dest":4} 
+, {"source":"client","RPC":"clientRq","info":"Client attempting to commit:<br>SERIAL NUMBER: 2ADD: 2, 2<br>Trying:2", 
+ "arrives":446,"sent":438,"dest":2} 
+, {"source":"client","RPC":"clientRq","info":"Client attempting to commit:<br>SERIAL NUMBER: 3ADD: 3, 3<br>Believes leader to be:4", 
+ "arrives":461,"sent":454,"dest":4} 
+, {"source":"client","RPC":"clientRq","info":"Client attempting to commit:<br>SERIAL NUMBER: 3ADD: 3, 3<br>Believes leader to be:4", 
+ "arrives":467,"sent":459,"dest":4} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:13<br>Last Index:3<br>Last Term:9", 
+ "arrives":472,"sent":464,"dest":0} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:13<br>Last Index:3<br>Last Term:9", 
+ "arrives":472,"sent":464,"dest":1} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:13<br>Last Index:3<br>Last Term:9", 
+ "arrives":471,"sent":464,"dest":2} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:13<br>Last Index:3<br>Last Term:9", 
+ "arrives":472,"sent":464,"dest":4} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:13<br>Last Index:3<br>Last Term:9", 
+ "arrives":472,"sent":464,"dest":5} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:13<br>Last Index:3<br>Last Term:9", 
+ "arrives":478,"sent":470,"dest":0} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:13<br>Last Index:3<br>Last Term:9", 
+ "arrives":477,"sent":470,"dest":2} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:13<br>Last Index:3<br>Last Term:9", 
+ "arrives":478,"sent":470,"dest":3} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:13<br>Last Index:3<br>Last Term:9", 
+ "arrives":478,"sent":470,"dest":4} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:13<br>Last Index:3<br>Last Term:9", 
+ "arrives":477,"sent":470,"dest":5} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:true<br>term:13<br>lastIndex:3<br>lastTerm:9", 
+ "arrives":478,"sent":471,"dest":3} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:true<br>term:13<br>lastIndex:3<br>lastTerm:9", 
+ "arrives":480,"sent":472,"dest":3} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:13<br>lastIndex:3<br>lastTerm:9", 
+ "arrives":479,"sent":472,"dest":3} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:13<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":479,"sent":472,"dest":3} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:true<br>term:13<br>lastIndex:3<br>lastTerm:9", 
+ "arrives":480,"sent":472,"dest":3} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:false<br>term:13<br>lastIndex:3<br>lastTerm:9", 
+ "arrives":485,"sent":477,"dest":1} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:false<br>term:13<br>lastIndex:3<br>lastTerm:9", 
+ "arrives":485,"sent":477,"dest":1} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:false<br>term:13<br>lastIndex:3<br>lastTerm:9", 
+ "arrives":486,"sent":478,"dest":1} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:false<br>term:13<br>lastIndex:3<br>lastTerm:9", 
+ "arrives":486,"sent":478,"dest":1} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:13<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":485,"sent":478,"dest":1} 
+, {"source":3,"RPC":"appendEntries","info":"append entries heartbeat<br>term:13<br>prevLogIndex:0<br>prevLogTerm:0<br>leaderCommit:3", 
+ "arrives":487,"sent":480,"dest":0} 
+, {"source":3,"RPC":"appendEntries","info":"append entries heartbeat<br>term:13<br>prevLogIndex:0<br>prevLogTerm:0<br>leaderCommit:3", 
+ "arrives":487,"sent":480,"dest":1} 
+, {"source":3,"RPC":"appendEntries","info":"append entries heartbeat<br>term:13<br>prevLogIndex:0<br>prevLogTerm:0<br>leaderCommit:3", 
+ "arrives":488,"sent":480,"dest":2} 
+, {"source":3,"RPC":"appendEntries","info":"append entries heartbeat<br>term:13<br>prevLogIndex:0<br>prevLogTerm:0<br>leaderCommit:3", 
+ "arrives":487,"sent":480,"dest":4} 
+, {"source":3,"RPC":"appendEntries","info":"append entries heartbeat<br>term:13<br>prevLogIndex:0<br>prevLogTerm:0<br>leaderCommit:3", 
+ "arrives":487,"sent":480,"dest":5} 
+, {"source":0,"RPC":"appendEntries","info":"appendEntries Response<br>Successful<br>term:13", 
+ "arrives":494,"sent":487,"dest":3} 
+, {"source":1,"RPC":"appendEntries","info":"appendEntries Response<br>Successful<br>term:13", 
+ "arrives":494,"sent":487,"dest":3} 
+, {"source":4,"RPC":"appendEntries","info":"appendEntries Response<br>Failed - log inconsistent<br>term:13", 
+ "arrives":495,"sent":487,"dest":3} 
+, {"source":5,"RPC":"appendEntries","info":"appendEntries Response<br>Successful<br>term:13", 
+ "arrives":495,"sent":487,"dest":3} 
+, {"source":2,"RPC":"appendEntries","info":"appendEntries Response<br>Successful<br>term:13", 
+ "arrives":496,"sent":488,"dest":3} 
+, {"source":"client","RPC":"clientRq","info":"Client attempting to commit:<br>SERIAL NUMBER: 3ADD: 3, 3<br>Trying:0", 
+ "arrives":517,"sent":509,"dest":0} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:14<br>Last Index:0<br>Last Term:0", 
+ "arrives":521,"sent":513,"dest":0} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:14<br>Last Index:0<br>Last Term:0", 
+ "arrives":520,"sent":513,"dest":1} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:14<br>Last Index:0<br>Last Term:0", 
+ "arrives":520,"sent":513,"dest":3} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:14<br>Last Index:0<br>Last Term:0", 
+ "arrives":521,"sent":513,"dest":4} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:14<br>Last Index:0<br>Last Term:0", 
+ "arrives":520,"sent":513,"dest":5} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:14<br>Last Index:0<br>Last Term:0", 
+ "arrives":525,"sent":518,"dest":0} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:14<br>Last Index:0<br>Last Term:0", 
+ "arrives":525,"sent":518,"dest":2} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:14<br>Last Index:0<br>Last Term:0", 
+ "arrives":525,"sent":518,"dest":3} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:14<br>Last Index:0<br>Last Term:0", 
+ "arrives":526,"sent":518,"dest":4} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:14<br>Last Index:0<br>Last Term:0", 
+ "arrives":526,"sent":518,"dest":5} 
+, {"source":5,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:14<br>Last Index:0<br>Last Term:0", 
+ "arrives":526,"sent":519,"dest":0} 
+, {"source":5,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:14<br>Last Index:0<br>Last Term:0", 
+ "arrives":526,"sent":519,"dest":1} 
+, {"source":5,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:14<br>Last Index:0<br>Last Term:0", 
+ "arrives":527,"sent":519,"dest":2} 
+, {"source":5,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:14<br>Last Index:0<br>Last Term:0", 
+ "arrives":527,"sent":519,"dest":3} 
+, {"source":5,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:14<br>Last Index:0<br>Last Term:0", 
+ "arrives":527,"sent":519,"dest":4} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:14<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":528,"sent":520,"dest":2} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:false<br>term:14<br>lastIndex:3<br>lastTerm:9", 
+ "arrives":527,"sent":520,"dest":2} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:false<br>term:14<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":527,"sent":520,"dest":2} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:true<br>term:14<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":528,"sent":521,"dest":2} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:14<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":529,"sent":521,"dest":2} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:15<br>Last Index:5<br>Last Term:12", 
+ "arrives":529,"sent":522,"dest":0} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:15<br>Last Index:5<br>Last Term:12", 
+ "arrives":529,"sent":522,"dest":1} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:15<br>Last Index:5<br>Last Term:12", 
+ "arrives":529,"sent":522,"dest":2} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:15<br>Last Index:5<br>Last Term:12", 
+ "arrives":530,"sent":522,"dest":3} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:15<br>Last Index:5<br>Last Term:12", 
+ "arrives":529,"sent":522,"dest":5} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:false<br>term:14<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":532,"sent":525,"dest":1} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:false<br>term:14<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":532,"sent":525,"dest":1} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:false<br>term:14<br>lastIndex:3<br>lastTerm:9", 
+ "arrives":532,"sent":525,"dest":1} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:15<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":534,"sent":526,"dest":1} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:false<br>term:14<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":533,"sent":526,"dest":1} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:false<br>term:14<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":533,"sent":526,"dest":5} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:14<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":533,"sent":526,"dest":5} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:false<br>term:14<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":534,"sent":527,"dest":5} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:false<br>term:14<br>lastIndex:3<br>lastTerm:9", 
+ "arrives":535,"sent":527,"dest":5} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:15<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":535,"sent":527,"dest":5} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:true<br>term:15<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":537,"sent":529,"dest":4} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:15<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":537,"sent":529,"dest":4} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:false<br>term:15<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":537,"sent":529,"dest":4} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:false<br>term:15<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":536,"sent":529,"dest":4} 
+, {"source":"client","RPC":"clientRq","info":"Client attempting to commit:<br>SERIAL NUMBER: 3ADD: 3, 3<br>Believes leader to be:3", 
+ "arrives":537,"sent":529,"dest":3} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:true<br>term:15<br>lastIndex:3<br>lastTerm:9", 
+ "arrives":538,"sent":530,"dest":4} 
+, {"source":"client","RPC":"clientRq","info":"Client attempting to commit:<br>SERIAL NUMBER: 3ADD: 3, 3<br>Trying:0", 
+ "arrives":556,"sent":549,"dest":0} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:16<br>Last Index:0<br>Last Term:0", 
+ "arrives":563,"sent":556,"dest":0} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:16<br>Last Index:0<br>Last Term:0", 
+ "arrives":564,"sent":556,"dest":2} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:16<br>Last Index:0<br>Last Term:0", 
+ "arrives":563,"sent":556,"dest":3} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:16<br>Last Index:0<br>Last Term:0", 
+ "arrives":564,"sent":556,"dest":4} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:16<br>Last Index:0<br>Last Term:0", 
+ "arrives":563,"sent":556,"dest":5} 
+, {"source":5,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:16<br>Last Index:0<br>Last Term:0", 
+ "arrives":564,"sent":556,"dest":0} 
+, {"source":5,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:16<br>Last Index:0<br>Last Term:0", 
+ "arrives":563,"sent":556,"dest":1} 
+, {"source":5,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:16<br>Last Index:0<br>Last Term:0", 
+ "arrives":563,"sent":556,"dest":2} 
+, {"source":5,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:16<br>Last Index:0<br>Last Term:0", 
+ "arrives":563,"sent":556,"dest":3} 
+, {"source":5,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:16<br>Last Index:0<br>Last Term:0", 
+ "arrives":564,"sent":556,"dest":4} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:16<br>Last Index:0<br>Last Term:0", 
+ "arrives":568,"sent":560,"dest":1} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:16<br>Last Index:0<br>Last Term:0", 
+ "arrives":568,"sent":560,"dest":2} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:16<br>Last Index:0<br>Last Term:0", 
+ "arrives":568,"sent":560,"dest":3} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:16<br>Last Index:0<br>Last Term:0", 
+ "arrives":568,"sent":560,"dest":4} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:16<br>Last Index:0<br>Last Term:0", 
+ "arrives":567,"sent":560,"dest":5} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:false<br>term:16<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":571,"sent":563,"dest":1} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:false<br>term:16<br>lastIndex:3<br>lastTerm:9", 
+ "arrives":571,"sent":563,"dest":1} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:false<br>term:16<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":570,"sent":563,"dest":1} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:16<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":571,"sent":563,"dest":5} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:true<br>term:16<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":571,"sent":563,"dest":5} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:false<br>term:16<br>lastIndex:3<br>lastTerm:9", 
+ "arrives":570,"sent":563,"dest":5} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:false<br>term:16<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":572,"sent":564,"dest":1} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:16<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":571,"sent":564,"dest":1} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:false<br>term:16<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":572,"sent":564,"dest":5} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:16<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":571,"sent":564,"dest":5} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:17<br>Last Index:3<br>Last Term:9", 
+ "arrives":572,"sent":565,"dest":0} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:17<br>Last Index:3<br>Last Term:9", 
+ "arrives":573,"sent":565,"dest":1} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:17<br>Last Index:3<br>Last Term:9", 
+ "arrives":573,"sent":565,"dest":2} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:17<br>Last Index:3<br>Last Term:9", 
+ "arrives":573,"sent":565,"dest":4} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:17<br>Last Index:3<br>Last Term:9", 
+ "arrives":572,"sent":565,"dest":5} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:false<br>term:16<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":575,"sent":567,"dest":0} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:16<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":575,"sent":568,"dest":0} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:false<br>term:16<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":575,"sent":568,"dest":0} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:false<br>term:17<br>lastIndex:3<br>lastTerm:9", 
+ "arrives":576,"sent":568,"dest":0} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:16<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":576,"sent":568,"dest":0} 
+, {"source":"client","RPC":"clientRq","info":"Client attempting to commit:<br>SERIAL NUMBER: 3ADD: 3, 3<br>Trying:1", 
+ "arrives":576,"sent":569,"dest":1} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:false<br>term:17<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":580,"sent":572,"dest":3} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:false<br>term:17<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":579,"sent":572,"dest":3} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:17<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":580,"sent":573,"dest":3} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:true<br>term:17<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":581,"sent":573,"dest":3} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:17<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":581,"sent":573,"dest":3} 
+, {"source":"client","RPC":"clientRq","info":"Client attempting to commit:<br>SERIAL NUMBER: 3ADD: 3, 3<br>Trying:2", 
+ "arrives":596,"sent":589,"dest":2} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:18<br>Last Index:5<br>Last Term:12", 
+ "arrives":600,"sent":592,"dest":0} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:18<br>Last Index:5<br>Last Term:12", 
+ "arrives":599,"sent":592,"dest":1} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:18<br>Last Index:5<br>Last Term:12", 
+ "arrives":599,"sent":592,"dest":2} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:18<br>Last Index:5<br>Last Term:12", 
+ "arrives":599,"sent":592,"dest":3} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:18<br>Last Index:5<br>Last Term:12", 
+ "arrives":600,"sent":592,"dest":5} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:18<br>Last Index:3<br>Last Term:9", 
+ "arrives":605,"sent":597,"dest":0} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:18<br>Last Index:3<br>Last Term:9", 
+ "arrives":605,"sent":597,"dest":1} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:18<br>Last Index:3<br>Last Term:9", 
+ "arrives":605,"sent":597,"dest":2} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:18<br>Last Index:3<br>Last Term:9", 
+ "arrives":605,"sent":597,"dest":4} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:18<br>Last Index:3<br>Last Term:9", 
+ "arrives":605,"sent":597,"dest":5} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:true<br>term:18<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":606,"sent":599,"dest":4} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:true<br>term:18<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":606,"sent":599,"dest":4} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:false<br>term:18<br>lastIndex:3<br>lastTerm:9", 
+ "arrives":606,"sent":599,"dest":4} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:true<br>term:18<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":608,"sent":600,"dest":4} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:true<br>term:18<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":608,"sent":600,"dest":4} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:false<br>term:18<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":613,"sent":605,"dest":3} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:18<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":612,"sent":605,"dest":3} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:false<br>term:18<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":613,"sent":605,"dest":3} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:18<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":612,"sent":605,"dest":3} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:false<br>term:18<br>lastIndex:0<br>lastTerm:0", 
+ "arrives":613,"sent":605,"dest":3} 
+, {"source":4,"RPC":"appendEntries","info":"append entries heartbeat<br>term:18<br>prevLogIndex:5<br>prevLogTerm:12<br>leaderCommit:5", 
+ "arrives":615,"sent":608,"dest":0} 
+, {"source":4,"RPC":"appendEntries","info":"append entries heartbeat<br>term:18<br>prevLogIndex:5<br>prevLogTerm:12<br>leaderCommit:5", 
+ "arrives":615,"sent":608,"dest":1} 
+, {"source":4,"RPC":"appendEntries","info":"append entries heartbeat<br>term:18<br>prevLogIndex:5<br>prevLogTerm:12<br>leaderCommit:5", 
+ "arrives":615,"sent":608,"dest":2} 
+, {"source":4,"RPC":"appendEntries","info":"append entries heartbeat<br>term:18<br>prevLogIndex:5<br>prevLogTerm:12<br>leaderCommit:5", 
+ "arrives":616,"sent":608,"dest":3} 
+, {"source":4,"RPC":"appendEntries","info":"append entries heartbeat<br>term:18<br>prevLogIndex:5<br>prevLogTerm:12<br>leaderCommit:5", 
+ "arrives":615,"sent":608,"dest":5} 
+, {"source":"client","RPC":"clientRq","info":"Client attempting to commit:<br>SERIAL NUMBER: 3ADD: 3, 3<br>Trying:3", 
+ "arrives":615,"sent":608,"dest":3} 
+, {"source":0,"RPC":"appendEntries","info":"appendEntries Response<br>Successful<br>term:18", 
+ "arrives":622,"sent":615,"dest":4} 
+, {"source":1,"RPC":"appendEntries","info":"appendEntries Response<br>Successful<br>term:18", 
+ "arrives":622,"sent":615,"dest":4} 
+, {"source":2,"RPC":"appendEntries","info":"appendEntries Response<br>Successful<br>term:18", 
+ "arrives":622,"sent":615,"dest":4} 
+, {"source":5,"RPC":"appendEntries","info":"appendEntries Response<br>Successful<br>term:18", 
+ "arrives":623,"sent":615,"dest":4} 
+, {"source":3,"RPC":"appendEntries","info":"appendEntries Response<br>Successful<br>term:18", 
+ "arrives":623,"sent":616,"dest":4} 
+, {"source":"client","RPC":"clientRq","info":"Client attempting to commit:<br>SERIAL NUMBER: 3ADD: 3, 3<br>Trying:4", 
+ "arrives":635,"sent":628,"dest":4} 
+, {"source":"client","RPC":"clientRq","info":"Client attempting to commit:<br>SERIAL NUMBER: 4ADD: 4, 4<br>Believes leader to be:4", 
+ "arrives":642,"sent":635,"dest":4} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:19<br>Last Index:5<br>Last Term:12", 
+ "arrives":653,"sent":645,"dest":0} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:19<br>Last Index:5<br>Last Term:12", 
+ "arrives":653,"sent":645,"dest":2} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:19<br>Last Index:5<br>Last Term:12", 
+ "arrives":652,"sent":645,"dest":3} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:19<br>Last Index:5<br>Last Term:12", 
+ "arrives":653,"sent":645,"dest":4} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:19<br>Last Index:5<br>Last Term:12", 
+ "arrives":652,"sent":645,"dest":5} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:19<br>Last Index:5<br>Last Term:12", 
+ "arrives":652,"sent":645,"dest":0} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:19<br>Last Index:5<br>Last Term:12", 
+ "arrives":652,"sent":645,"dest":1} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:19<br>Last Index:5<br>Last Term:12", 
+ "arrives":653,"sent":645,"dest":2} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:19<br>Last Index:5<br>Last Term:12", 
+ "arrives":653,"sent":645,"dest":4} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:19<br>Last Index:5<br>Last Term:12", 
+ "arrives":652,"sent":645,"dest":5} 
+, {"source":5,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:19<br>Last Index:5<br>Last Term:12", 
+ "arrives":656,"sent":648,"dest":0} 
+, {"source":5,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:19<br>Last Index:5<br>Last Term:12", 
+ "arrives":656,"sent":648,"dest":1} 
+, {"source":5,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:19<br>Last Index:5<br>Last Term:12", 
+ "arrives":656,"sent":648,"dest":2} 
+, {"source":5,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:19<br>Last Index:5<br>Last Term:12", 
+ "arrives":656,"sent":648,"dest":3} 
+, {"source":5,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:19<br>Last Index:5<br>Last Term:12", 
+ "arrives":655,"sent":648,"dest":4} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:false<br>term:19<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":660,"sent":652,"dest":1} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:false<br>term:19<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":659,"sent":652,"dest":1} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:true<br>term:19<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":659,"sent":652,"dest":3} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:19<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":660,"sent":652,"dest":3} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:false<br>term:19<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":659,"sent":652,"dest":3} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:false<br>term:19<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":661,"sent":653,"dest":1} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:true<br>term:19<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":660,"sent":653,"dest":1} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:19<br>lastIndex:7<br>lastTerm:18", 
+ "arrives":660,"sent":653,"dest":1} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:false<br>term:19<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":660,"sent":653,"dest":3} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:19<br>lastIndex:7<br>lastTerm:18", 
+ "arrives":661,"sent":653,"dest":3} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:19<br>lastIndex:7<br>lastTerm:18", 
+ "arrives":663,"sent":655,"dest":5} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:false<br>term:19<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":664,"sent":656,"dest":5} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:19<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":664,"sent":656,"dest":5} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:false<br>term:19<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":664,"sent":656,"dest":5} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:false<br>term:19<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":664,"sent":656,"dest":5} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:20<br>Last Index:5<br>Last Term:12", 
+ "arrives":677,"sent":670,"dest":0} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:20<br>Last Index:5<br>Last Term:12", 
+ "arrives":678,"sent":670,"dest":1} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:20<br>Last Index:5<br>Last Term:12", 
+ "arrives":677,"sent":670,"dest":2} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:20<br>Last Index:5<br>Last Term:12", 
+ "arrives":678,"sent":670,"dest":4} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:20<br>Last Index:5<br>Last Term:12", 
+ "arrives":678,"sent":670,"dest":5} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:true<br>term:20<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":685,"sent":677,"dest":3} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:true<br>term:20<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":685,"sent":677,"dest":3} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:20<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":685,"sent":678,"dest":3} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:20<br>lastIndex:7<br>lastTerm:18", 
+ "arrives":685,"sent":678,"dest":3} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:false<br>term:20<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":685,"sent":678,"dest":3} 
+, {"source":"client","RPC":"clientRq","info":"Client attempting to commit:<br>SERIAL NUMBER: 4ADD: 4, 4<br>Trying:0", 
+ "arrives":693,"sent":685,"dest":0} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:21<br>Last Index:7<br>Last Term:18", 
+ "arrives":708,"sent":700,"dest":0} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:21<br>Last Index:7<br>Last Term:18", 
+ "arrives":707,"sent":700,"dest":1} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:21<br>Last Index:7<br>Last Term:18", 
+ "arrives":708,"sent":700,"dest":2} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:21<br>Last Index:7<br>Last Term:18", 
+ "arrives":707,"sent":700,"dest":3} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:21<br>Last Index:7<br>Last Term:18", 
+ "arrives":708,"sent":700,"dest":5} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:21<br>Last Index:5<br>Last Term:12", 
+ "arrives":712,"sent":705,"dest":0} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:21<br>Last Index:5<br>Last Term:12", 
+ "arrives":713,"sent":705,"dest":2} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:21<br>Last Index:5<br>Last Term:12", 
+ "arrives":713,"sent":705,"dest":3} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:21<br>Last Index:5<br>Last Term:12", 
+ "arrives":713,"sent":705,"dest":4} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:21<br>Last Index:5<br>Last Term:12", 
+ "arrives":712,"sent":705,"dest":5} 
+, {"source":"client","RPC":"clientRq","info":"Client attempting to commit:<br>SERIAL NUMBER: 4ADD: 4, 4<br>Trying:1", 
+ "arrives":712,"sent":705,"dest":1} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:21<br>Last Index:5<br>Last Term:12", 
+ "arrives":714,"sent":706,"dest":0} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:21<br>Last Index:5<br>Last Term:12", 
+ "arrives":714,"sent":706,"dest":1} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:21<br>Last Index:5<br>Last Term:12", 
+ "arrives":714,"sent":706,"dest":3} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:21<br>Last Index:5<br>Last Term:12", 
+ "arrives":713,"sent":706,"dest":4} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:21<br>Last Index:5<br>Last Term:12", 
+ "arrives":713,"sent":706,"dest":5} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:21<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":715,"sent":707,"dest":4} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:false<br>term:21<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":714,"sent":707,"dest":4} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:21<br>Last Index:5<br>Last Term:12", 
+ "arrives":716,"sent":708,"dest":1} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:21<br>Last Index:5<br>Last Term:12", 
+ "arrives":716,"sent":708,"dest":2} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:21<br>Last Index:5<br>Last Term:12", 
+ "arrives":715,"sent":708,"dest":3} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:21<br>Last Index:5<br>Last Term:12", 
+ "arrives":715,"sent":708,"dest":4} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:21<br>Last Index:5<br>Last Term:12", 
+ "arrives":716,"sent":708,"dest":5} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:false<br>term:21<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":715,"sent":708,"dest":4} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:false<br>term:21<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":716,"sent":708,"dest":4} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:true<br>term:21<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":715,"sent":708,"dest":4} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:false<br>term:21<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":719,"sent":712,"dest":1} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:false<br>term:21<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":720,"sent":712,"dest":1} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:false<br>term:21<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":721,"sent":713,"dest":1} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:true<br>term:21<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":721,"sent":713,"dest":1} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:21<br>lastIndex:7<br>lastTerm:18", 
+ "arrives":721,"sent":713,"dest":1} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:21<br>lastIndex:7<br>lastTerm:18", 
+ "arrives":720,"sent":713,"dest":2} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:false<br>term:21<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":721,"sent":713,"dest":2} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:false<br>term:21<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":722,"sent":714,"dest":2} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:21<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":722,"sent":714,"dest":2} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:false<br>term:21<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":721,"sent":714,"dest":2} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:false<br>term:21<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":723,"sent":715,"dest":0} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:21<br>lastIndex:7<br>lastTerm:18", 
+ "arrives":723,"sent":715,"dest":0} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:21<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":723,"sent":716,"dest":0} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:false<br>term:21<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":723,"sent":716,"dest":0} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:false<br>term:21<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":723,"sent":716,"dest":0} 
+, {"source":"client","RPC":"clientRq","info":"Client attempting to commit:<br>SERIAL NUMBER: 4ADD: 4, 4<br>Trying:2", 
+ "arrives":733,"sent":725,"dest":2} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:22<br>Last Index:5<br>Last Term:12", 
+ "arrives":742,"sent":734,"dest":1} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:22<br>Last Index:5<br>Last Term:12", 
+ "arrives":742,"sent":734,"dest":2} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:22<br>Last Index:5<br>Last Term:12", 
+ "arrives":742,"sent":734,"dest":3} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:22<br>Last Index:5<br>Last Term:12", 
+ "arrives":742,"sent":734,"dest":4} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:22<br>Last Index:5<br>Last Term:12", 
+ "arrives":741,"sent":734,"dest":5} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:22<br>Last Index:7<br>Last Term:18", 
+ "arrives":744,"sent":736,"dest":0} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:22<br>Last Index:7<br>Last Term:18", 
+ "arrives":744,"sent":736,"dest":1} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:22<br>Last Index:7<br>Last Term:18", 
+ "arrives":743,"sent":736,"dest":2} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:22<br>Last Index:7<br>Last Term:18", 
+ "arrives":743,"sent":736,"dest":3} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:22<br>Last Index:7<br>Last Term:18", 
+ "arrives":743,"sent":736,"dest":5} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:22<br>Last Index:5<br>Last Term:12", 
+ "arrives":744,"sent":737,"dest":0} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:22<br>Last Index:5<br>Last Term:12", 
+ "arrives":744,"sent":737,"dest":2} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:22<br>Last Index:5<br>Last Term:12", 
+ "arrives":745,"sent":737,"dest":3} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:22<br>Last Index:5<br>Last Term:12", 
+ "arrives":745,"sent":737,"dest":4} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:22<br>Last Index:5<br>Last Term:12", 
+ "arrives":744,"sent":737,"dest":5} 
+, {"source":5,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:22<br>Last Index:5<br>Last Term:12", 
+ "arrives":746,"sent":738,"dest":0} 
+, {"source":5,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:22<br>Last Index:5<br>Last Term:12", 
+ "arrives":745,"sent":738,"dest":1} 
+, {"source":5,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:22<br>Last Index:5<br>Last Term:12", 
+ "arrives":745,"sent":738,"dest":2} 
+, {"source":5,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:22<br>Last Index:5<br>Last Term:12", 
+ "arrives":745,"sent":738,"dest":3} 
+, {"source":5,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:22<br>Last Index:5<br>Last Term:12", 
+ "arrives":745,"sent":738,"dest":4} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:false<br>term:22<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":749,"sent":741,"dest":0} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:22<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":750,"sent":742,"dest":0} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:false<br>term:22<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":750,"sent":742,"dest":0} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:true<br>term:22<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":749,"sent":742,"dest":0} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:22<br>lastIndex:7<br>lastTerm:18", 
+ "arrives":749,"sent":742,"dest":0} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:true<br>term:22<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":751,"sent":743,"dest":4} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:false<br>term:22<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":751,"sent":743,"dest":4} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:false<br>term:22<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":751,"sent":743,"dest":4} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:false<br>term:22<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":752,"sent":744,"dest":4} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:22<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":751,"sent":744,"dest":4} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:false<br>term:22<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":751,"sent":744,"dest":1} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:false<br>term:22<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":751,"sent":744,"dest":1} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:false<br>term:22<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":752,"sent":744,"dest":1} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:false<br>term:22<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":752,"sent":745,"dest":1} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:22<br>lastIndex:7<br>lastTerm:18", 
+ "arrives":753,"sent":745,"dest":1} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:22<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":753,"sent":745,"dest":5} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:false<br>term:22<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":752,"sent":745,"dest":5} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:false<br>term:22<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":753,"sent":745,"dest":5} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:22<br>lastIndex:7<br>lastTerm:18", 
+ "arrives":752,"sent":745,"dest":5} 
+, {"source":"client","RPC":"clientRq","info":"Client attempting to commit:<br>SERIAL NUMBER: 4ADD: 4, 4<br>Trying:3", 
+ "arrives":752,"sent":745,"dest":3} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:false<br>term:22<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":754,"sent":746,"dest":5} 
+, {"source":"client","RPC":"clientRq","info":"Client attempting to commit:<br>SERIAL NUMBER: 4ADD: 4, 4<br>Trying:4", 
+ "arrives":771,"sent":764,"dest":4} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:23<br>Last Index:5<br>Last Term:12", 
+ "arrives":773,"sent":766,"dest":1} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:23<br>Last Index:5<br>Last Term:12", 
+ "arrives":773,"sent":766,"dest":2} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:23<br>Last Index:5<br>Last Term:12", 
+ "arrives":774,"sent":766,"dest":3} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:23<br>Last Index:5<br>Last Term:12", 
+ "arrives":774,"sent":766,"dest":4} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:23<br>Last Index:5<br>Last Term:12", 
+ "arrives":773,"sent":766,"dest":5} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:23<br>Last Index:7<br>Last Term:18", 
+ "arrives":775,"sent":768,"dest":0} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:23<br>Last Index:7<br>Last Term:18", 
+ "arrives":776,"sent":768,"dest":1} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:23<br>Last Index:7<br>Last Term:18", 
+ "arrives":776,"sent":768,"dest":2} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:23<br>Last Index:7<br>Last Term:18", 
+ "arrives":776,"sent":768,"dest":3} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:23<br>Last Index:7<br>Last Term:18", 
+ "arrives":775,"sent":768,"dest":5} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:23<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":780,"sent":773,"dest":0} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:true<br>term:23<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":780,"sent":773,"dest":0} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:false<br>term:23<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":781,"sent":773,"dest":0} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:true<br>term:23<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":781,"sent":774,"dest":0} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:23<br>lastIndex:7<br>lastTerm:18", 
+ "arrives":782,"sent":774,"dest":0} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:false<br>term:23<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":782,"sent":775,"dest":4} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:true<br>term:23<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":782,"sent":775,"dest":4} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:true<br>term:23<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":784,"sent":776,"dest":4} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:false<br>term:23<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":783,"sent":776,"dest":4} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:false<br>term:23<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":783,"sent":776,"dest":4} 
+, {"source":"client","RPC":"clientRq","info":"Client attempting to commit:<br>SERIAL NUMBER: 4ADD: 4, 4<br>Trying:5", 
+ "arrives":791,"sent":783,"dest":5} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:24<br>Last Index:7<br>Last Term:18", 
+ "arrives":804,"sent":796,"dest":0} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:24<br>Last Index:7<br>Last Term:18", 
+ "arrives":803,"sent":796,"dest":1} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:24<br>Last Index:7<br>Last Term:18", 
+ "arrives":804,"sent":796,"dest":2} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:24<br>Last Index:7<br>Last Term:18", 
+ "arrives":803,"sent":796,"dest":3} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:24<br>Last Index:7<br>Last Term:18", 
+ "arrives":804,"sent":796,"dest":5} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:24<br>Last Index:5<br>Last Term:12", 
+ "arrives":806,"sent":798,"dest":0} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:24<br>Last Index:5<br>Last Term:12", 
+ "arrives":806,"sent":798,"dest":1} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:24<br>Last Index:5<br>Last Term:12", 
+ "arrives":806,"sent":798,"dest":3} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:24<br>Last Index:5<br>Last Term:12", 
+ "arrives":806,"sent":798,"dest":4} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:24<br>Last Index:5<br>Last Term:12", 
+ "arrives":805,"sent":798,"dest":5} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:true<br>term:24<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":810,"sent":803,"dest":4} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:true<br>term:24<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":810,"sent":803,"dest":4} 
+, {"source":"client","RPC":"clientRq","info":"Client attempting to commit:<br>SERIAL NUMBER: 4ADD: 4, 4<br>Trying:0", 
+ "arrives":810,"sent":803,"dest":0} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:24<br>Last Index:5<br>Last Term:12", 
+ "arrives":811,"sent":804,"dest":1} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:24<br>Last Index:5<br>Last Term:12", 
+ "arrives":812,"sent":804,"dest":2} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:24<br>Last Index:5<br>Last Term:12", 
+ "arrives":812,"sent":804,"dest":3} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:24<br>Last Index:5<br>Last Term:12", 
+ "arrives":811,"sent":804,"dest":4} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:24<br>Last Index:5<br>Last Term:12", 
+ "arrives":811,"sent":804,"dest":5} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:false<br>term:24<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":811,"sent":804,"dest":4} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:false<br>term:24<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":812,"sent":804,"dest":4} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:true<br>term:24<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":812,"sent":804,"dest":4} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:false<br>term:24<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":812,"sent":805,"dest":2} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:false<br>term:24<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":814,"sent":806,"dest":2} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:24<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":813,"sent":806,"dest":2} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:false<br>term:24<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":814,"sent":806,"dest":2} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:24<br>lastIndex:7<br>lastTerm:18", 
+ "arrives":813,"sent":806,"dest":2} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:24<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":819,"sent":811,"dest":0} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:24<br>lastIndex:7<br>lastTerm:18", 
+ "arrives":819,"sent":811,"dest":0} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:false<br>term:24<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":819,"sent":811,"dest":0} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:false<br>term:24<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":820,"sent":812,"dest":0} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:false<br>term:24<br>lastIndex:5<br>lastTerm:12", 
+ "arrives":819,"sent":812,"dest":0} 
+, {"source":4,"RPC":"appendEntries","info":"append entries heartbeat<br>term:24<br>prevLogIndex:7<br>prevLogTerm:18<br>leaderCommit:7", 
+ "arrives":820,"sent":812,"dest":0} 
+, {"source":4,"RPC":"appendEntries","info":"append entries heartbeat<br>term:24<br>prevLogIndex:7<br>prevLogTerm:18<br>leaderCommit:7", 
+ "arrives":819,"sent":812,"dest":1} 
+, {"source":4,"RPC":"appendEntries","info":"append entries heartbeat<br>term:24<br>prevLogIndex:7<br>prevLogTerm:18<br>leaderCommit:7", 
+ "arrives":820,"sent":812,"dest":2} 
+, {"source":4,"RPC":"appendEntries","info":"append entries heartbeat<br>term:24<br>prevLogIndex:7<br>prevLogTerm:18<br>leaderCommit:7", 
+ "arrives":819,"sent":812,"dest":3} 
+, {"source":4,"RPC":"appendEntries","info":"append entries heartbeat<br>term:24<br>prevLogIndex:7<br>prevLogTerm:18<br>leaderCommit:7", 
+ "arrives":819,"sent":812,"dest":5} 
+, {"source":1,"RPC":"appendEntries","info":"appendEntries Response<br>Successful<br>term:24", 
+ "arrives":826,"sent":819,"dest":4} 
+, {"source":3,"RPC":"appendEntries","info":"appendEntries Response<br>Successful<br>term:24", 
+ "arrives":826,"sent":819,"dest":4} 
+, {"source":5,"RPC":"appendEntries","info":"appendEntries Response<br>Successful<br>term:24", 
+ "arrives":827,"sent":819,"dest":4} 
+, {"source":0,"RPC":"appendEntries","info":"appendEntries Response<br>Successful<br>term:24", 
+ "arrives":827,"sent":820,"dest":4} 
+, {"source":2,"RPC":"appendEntries","info":"appendEntries Response<br>Successful<br>term:24", 
+ "arrives":828,"sent":820,"dest":4} 
+, {"source":"client","RPC":"clientRq","info":"Client attempting to commit:<br>SERIAL NUMBER: 4ADD: 4, 4<br>Trying:1", 
+ "arrives":829,"sent":822,"dest":1} 
+, {"source":"client","RPC":"clientRq","info":"Client attempting to commit:<br>SERIAL NUMBER: 5ADD: 5, 5<br>Believes leader to be:4", 
+ "arrives":846,"sent":838,"dest":4} 
+, {"source":"client","RPC":"clientRq","info":"Client attempting to commit:<br>SERIAL NUMBER: 5ADD: 5, 5<br>Believes leader to be:4", 
+ "arrives":848,"sent":841,"dest":4} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:25<br>Last Index:7<br>Last Term:18", 
+ "arrives":862,"sent":854,"dest":0} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:25<br>Last Index:7<br>Last Term:18", 
+ "arrives":861,"sent":854,"dest":1} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:25<br>Last Index:7<br>Last Term:18", 
+ "arrives":862,"sent":854,"dest":2} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:25<br>Last Index:7<br>Last Term:18", 
+ "arrives":862,"sent":854,"dest":4} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:25<br>Last Index:7<br>Last Term:18", 
+ "arrives":862,"sent":854,"dest":5} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:25<br>Last Index:7<br>Last Term:18", 
+ "arrives":863,"sent":856,"dest":0} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:25<br>Last Index:7<br>Last Term:18", 
+ "arrives":863,"sent":856,"dest":1} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:25<br>Last Index:7<br>Last Term:18", 
+ "arrives":864,"sent":856,"dest":3} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:25<br>Last Index:7<br>Last Term:18", 
+ "arrives":863,"sent":856,"dest":4} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:25<br>Last Index:7<br>Last Term:18", 
+ "arrives":864,"sent":856,"dest":5} 
+, {"source":5,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:25<br>Last Index:7<br>Last Term:18", 
+ "arrives":865,"sent":858,"dest":0} 
+, {"source":5,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:25<br>Last Index:7<br>Last Term:18", 
+ "arrives":866,"sent":858,"dest":1} 
+, {"source":5,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:25<br>Last Index:7<br>Last Term:18", 
+ "arrives":865,"sent":858,"dest":2} 
+, {"source":5,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:25<br>Last Index:7<br>Last Term:18", 
+ "arrives":866,"sent":858,"dest":3} 
+, {"source":5,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:25<br>Last Index:7<br>Last Term:18", 
+ "arrives":866,"sent":858,"dest":4} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:25<br>Last Index:7<br>Last Term:18", 
+ "arrives":867,"sent":860,"dest":1} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:25<br>Last Index:7<br>Last Term:18", 
+ "arrives":867,"sent":860,"dest":2} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:25<br>Last Index:7<br>Last Term:18", 
+ "arrives":867,"sent":860,"dest":3} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:25<br>Last Index:7<br>Last Term:18", 
+ "arrives":867,"sent":860,"dest":4} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:25<br>Last Index:7<br>Last Term:18", 
+ "arrives":868,"sent":860,"dest":5} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:true<br>term:25<br>lastIndex:7<br>lastTerm:18", 
+ "arrives":869,"sent":861,"dest":3} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:false<br>term:25<br>lastIndex:7<br>lastTerm:18", 
+ "arrives":870,"sent":862,"dest":3} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:false<br>term:25<br>lastIndex:7<br>lastTerm:18", 
+ "arrives":869,"sent":862,"dest":3} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:25<br>lastIndex:9<br>lastTerm:24", 
+ "arrives":869,"sent":862,"dest":3} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:false<br>term:25<br>lastIndex:7<br>lastTerm:18", 
+ "arrives":869,"sent":862,"dest":3} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:false<br>term:25<br>lastIndex:7<br>lastTerm:18", 
+ "arrives":870,"sent":863,"dest":2} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:25<br>lastIndex:7<br>lastTerm:18", 
+ "arrives":870,"sent":863,"dest":2} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:25<br>lastIndex:9<br>lastTerm:24", 
+ "arrives":871,"sent":863,"dest":2} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:false<br>term:25<br>lastIndex:7<br>lastTerm:18", 
+ "arrives":871,"sent":864,"dest":2} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:false<br>term:25<br>lastIndex:7<br>lastTerm:18", 
+ "arrives":872,"sent":864,"dest":2} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:false<br>term:25<br>lastIndex:7<br>lastTerm:18", 
+ "arrives":872,"sent":865,"dest":5} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:false<br>term:25<br>lastIndex:7<br>lastTerm:18", 
+ "arrives":872,"sent":865,"dest":5} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:25<br>lastIndex:7<br>lastTerm:18", 
+ "arrives":873,"sent":866,"dest":5} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:false<br>term:25<br>lastIndex:7<br>lastTerm:18", 
+ "arrives":873,"sent":866,"dest":5} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:25<br>lastIndex:9<br>lastTerm:24", 
+ "arrives":874,"sent":866,"dest":5} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:25<br>lastIndex:7<br>lastTerm:18", 
+ "arrives":874,"sent":867,"dest":0} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:false<br>term:25<br>lastIndex:7<br>lastTerm:18", 
+ "arrives":874,"sent":867,"dest":0} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:false<br>term:25<br>lastIndex:7<br>lastTerm:18", 
+ "arrives":875,"sent":867,"dest":0} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:25<br>lastIndex:9<br>lastTerm:24", 
+ "arrives":875,"sent":867,"dest":0} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:false<br>term:25<br>lastIndex:7<br>lastTerm:18", 
+ "arrives":876,"sent":868,"dest":0} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:26<br>Last Index:7<br>Last Term:18", 
+ "arrives":894,"sent":886,"dest":0} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:26<br>Last Index:7<br>Last Term:18", 
+ "arrives":894,"sent":886,"dest":1} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:26<br>Last Index:7<br>Last Term:18", 
+ "arrives":894,"sent":886,"dest":2} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:26<br>Last Index:7<br>Last Term:18", 
+ "arrives":893,"sent":886,"dest":4} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:26<br>Last Index:7<br>Last Term:18", 
+ "arrives":893,"sent":886,"dest":5} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:26<br>Last Index:7<br>Last Term:18", 
+ "arrives":896,"sent":889,"dest":1} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:26<br>Last Index:7<br>Last Term:18", 
+ "arrives":896,"sent":889,"dest":2} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:26<br>Last Index:7<br>Last Term:18", 
+ "arrives":896,"sent":889,"dest":3} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:26<br>Last Index:7<br>Last Term:18", 
+ "arrives":896,"sent":889,"dest":4} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:26<br>Last Index:7<br>Last Term:18", 
+ "arrives":897,"sent":889,"dest":5} 
+, {"source":"client","RPC":"clientRq","info":"Client attempting to commit:<br>SERIAL NUMBER: 5ADD: 5, 5<br>Trying:0", 
+ "arrives":898,"sent":891,"dest":0} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:26<br>lastIndex:9<br>lastTerm:24", 
+ "arrives":900,"sent":893,"dest":3} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:false<br>term:26<br>lastIndex:7<br>lastTerm:18", 
+ "arrives":901,"sent":893,"dest":3} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:false<br>term:26<br>lastIndex:7<br>lastTerm:18", 
+ "arrives":902,"sent":894,"dest":3} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:true<br>term:26<br>lastIndex:7<br>lastTerm:18", 
+ "arrives":901,"sent":894,"dest":3} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:false<br>term:26<br>lastIndex:7<br>lastTerm:18", 
+ "arrives":902,"sent":894,"dest":3} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:26<br>lastIndex:7<br>lastTerm:18", 
+ "arrives":903,"sent":896,"dest":0} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:true<br>term:26<br>lastIndex:7<br>lastTerm:18", 
+ "arrives":903,"sent":896,"dest":0} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:false<br>term:26<br>lastIndex:7<br>lastTerm:18", 
+ "arrives":904,"sent":896,"dest":0} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:26<br>lastIndex:9<br>lastTerm:24", 
+ "arrives":903,"sent":896,"dest":0} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:true<br>term:26<br>lastIndex:7<br>lastTerm:18", 
+ "arrives":904,"sent":897,"dest":0} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:27<br>Last Index:9<br>Last Term:24", 
+ "arrives":918,"sent":911,"dest":0} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:27<br>Last Index:9<br>Last Term:24", 
+ "arrives":919,"sent":911,"dest":1} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:27<br>Last Index:9<br>Last Term:24", 
+ "arrives":918,"sent":911,"dest":2} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:27<br>Last Index:9<br>Last Term:24", 
+ "arrives":919,"sent":911,"dest":3} 
+, {"source":4,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:27<br>Last Index:9<br>Last Term:24", 
+ "arrives":918,"sent":911,"dest":5} 
+, {"source":"client","RPC":"clientRq","info":"Client attempting to commit:<br>SERIAL NUMBER: 5ADD: 5, 5<br>Trying:1", 
+ "arrives":918,"sent":911,"dest":1} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:27<br>Last Index:7<br>Last Term:18", 
+ "arrives":921,"sent":913,"dest":0} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:27<br>Last Index:7<br>Last Term:18", 
+ "arrives":920,"sent":913,"dest":1} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:27<br>Last Index:7<br>Last Term:18", 
+ "arrives":920,"sent":913,"dest":2} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:27<br>Last Index:7<br>Last Term:18", 
+ "arrives":920,"sent":913,"dest":4} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:27<br>Last Index:7<br>Last Term:18", 
+ "arrives":921,"sent":913,"dest":5} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:false<br>term:27<br>lastIndex:7<br>lastTerm:18", 
+ "arrives":926,"sent":918,"dest":4} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:true<br>term:27<br>lastIndex:7<br>lastTerm:18", 
+ "arrives":925,"sent":918,"dest":4} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:true<br>term:27<br>lastIndex:7<br>lastTerm:18", 
+ "arrives":926,"sent":918,"dest":4} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:true<br>term:27<br>lastIndex:7<br>lastTerm:18", 
+ "arrives":926,"sent":919,"dest":4} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:false<br>term:27<br>lastIndex:7<br>lastTerm:18", 
+ "arrives":926,"sent":919,"dest":4} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:27<br>lastIndex:7<br>lastTerm:18", 
+ "arrives":928,"sent":920,"dest":3} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:false<br>term:27<br>lastIndex:7<br>lastTerm:18", 
+ "arrives":927,"sent":920,"dest":3} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:27<br>lastIndex:9<br>lastTerm:24", 
+ "arrives":928,"sent":920,"dest":3} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:true<br>term:27<br>lastIndex:7<br>lastTerm:18", 
+ "arrives":929,"sent":921,"dest":3} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:false<br>term:27<br>lastIndex:7<br>lastTerm:18", 
+ "arrives":929,"sent":921,"dest":3} 
+, {"source":4,"RPC":"appendEntries","info":"append entries heartbeat<br>term:27<br>prevLogIndex:9<br>prevLogTerm:24<br>leaderCommit:9", 
+ "arrives":933,"sent":926,"dest":0} 
+, {"source":4,"RPC":"appendEntries","info":"append entries heartbeat<br>term:27<br>prevLogIndex:9<br>prevLogTerm:24<br>leaderCommit:9", 
+ "arrives":934,"sent":926,"dest":1} 
+, {"source":4,"RPC":"appendEntries","info":"append entries heartbeat<br>term:27<br>prevLogIndex:9<br>prevLogTerm:24<br>leaderCommit:9", 
+ "arrives":933,"sent":926,"dest":2} 
+, {"source":4,"RPC":"appendEntries","info":"append entries heartbeat<br>term:27<br>prevLogIndex:9<br>prevLogTerm:24<br>leaderCommit:9", 
+ "arrives":933,"sent":926,"dest":3} 
+, {"source":4,"RPC":"appendEntries","info":"append entries heartbeat<br>term:27<br>prevLogIndex:9<br>prevLogTerm:24<br>leaderCommit:9", 
+ "arrives":933,"sent":926,"dest":5} 
+, {"source":"client","RPC":"clientRq","info":"Client attempting to commit:<br>SERIAL NUMBER: 5ADD: 5, 5<br>Trying:2", 
+ "arrives":937,"sent":930,"dest":2} 
+, {"source":0,"RPC":"appendEntries","info":"appendEntries Response<br>Successful<br>term:27", 
+ "arrives":941,"sent":933,"dest":4} 
+, {"source":2,"RPC":"appendEntries","info":"appendEntries Response<br>Successful<br>term:27", 
+ "arrives":941,"sent":933,"dest":4} 
+, {"source":3,"RPC":"appendEntries","info":"appendEntries Response<br>Successful<br>term:27", 
+ "arrives":940,"sent":933,"dest":4} 
+, {"source":5,"RPC":"appendEntries","info":"appendEntries Response<br>Successful<br>term:27", 
+ "arrives":941,"sent":933,"dest":4} 
+, {"source":1,"RPC":"appendEntries","info":"appendEntries Response<br>Successful<br>term:27", 
+ "arrives":941,"sent":934,"dest":4} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:28<br>Last Index:9<br>Last Term:24", 
+ "arrives":970,"sent":963,"dest":0} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:28<br>Last Index:9<br>Last Term:24", 
+ "arrives":970,"sent":963,"dest":2} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:28<br>Last Index:9<br>Last Term:24", 
+ "arrives":970,"sent":963,"dest":3} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:28<br>Last Index:9<br>Last Term:24", 
+ "arrives":971,"sent":963,"dest":4} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:28<br>Last Index:9<br>Last Term:24", 
+ "arrives":970,"sent":963,"dest":5} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:28<br>Last Index:9<br>Last Term:24", 
+ "arrives":975,"sent":967,"dest":0} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:28<br>Last Index:9<br>Last Term:24", 
+ "arrives":975,"sent":967,"dest":1} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:28<br>Last Index:9<br>Last Term:24", 
+ "arrives":975,"sent":967,"dest":2} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:28<br>Last Index:9<br>Last Term:24", 
+ "arrives":974,"sent":967,"dest":4} 
+, {"source":3,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:28<br>Last Index:9<br>Last Term:24", 
+ "arrives":975,"sent":967,"dest":5} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:true<br>term:28<br>lastIndex:9<br>lastTerm:24", 
+ "arrives":977,"sent":970,"dest":1} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:true<br>term:28<br>lastIndex:9<br>lastTerm:24", 
+ "arrives":977,"sent":970,"dest":1} 
+, {"source":3,"RPC":"requestVote","info":"vote reply:false<br>term:28<br>lastIndex:9<br>lastTerm:24", 
+ "arrives":977,"sent":970,"dest":1} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:true<br>term:28<br>lastIndex:9<br>lastTerm:24", 
+ "arrives":977,"sent":970,"dest":1} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:false<br>term:28<br>lastIndex:9<br>lastTerm:24", 
+ "arrives":978,"sent":971,"dest":1} 
+, {"source":4,"RPC":"requestVote","info":"vote reply:true<br>term:28<br>lastIndex:9<br>lastTerm:24", 
+ "arrives":982,"sent":974,"dest":3} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:false<br>term:28<br>lastIndex:9<br>lastTerm:24", 
+ "arrives":982,"sent":975,"dest":3} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:28<br>lastIndex:9<br>lastTerm:24", 
+ "arrives":982,"sent":975,"dest":3} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:false<br>term:28<br>lastIndex:9<br>lastTerm:24", 
+ "arrives":983,"sent":975,"dest":3} 
+, {"source":5,"RPC":"requestVote","info":"vote reply:false<br>term:28<br>lastIndex:9<br>lastTerm:24", 
+ "arrives":982,"sent":975,"dest":3} 
+, {"source":1,"RPC":"appendEntries","info":"append entries heartbeat<br>term:28<br>prevLogIndex:0<br>prevLogTerm:0<br>leaderCommit:9", 
+ "arrives":985,"sent":977,"dest":0} 
+, {"source":1,"RPC":"appendEntries","info":"append entries heartbeat<br>term:28<br>prevLogIndex:0<br>prevLogTerm:0<br>leaderCommit:9", 
+ "arrives":985,"sent":977,"dest":2} 
+, {"source":1,"RPC":"appendEntries","info":"append entries heartbeat<br>term:28<br>prevLogIndex:0<br>prevLogTerm:0<br>leaderCommit:9", 
+ "arrives":985,"sent":977,"dest":3} 
+, {"source":1,"RPC":"appendEntries","info":"append entries heartbeat<br>term:28<br>prevLogIndex:0<br>prevLogTerm:0<br>leaderCommit:9", 
+ "arrives":984,"sent":977,"dest":4} 
+, {"source":1,"RPC":"appendEntries","info":"append entries heartbeat<br>term:28<br>prevLogIndex:0<br>prevLogTerm:0<br>leaderCommit:9", 
+ "arrives":985,"sent":977,"dest":5} 
+, {"source":4,"RPC":"appendEntries","info":"appendEntries Response<br>Failed - log inconsistent<br>term:28", 
+ "arrives":992,"sent":984,"dest":1} 
+, {"source":0,"RPC":"appendEntries","info":"appendEntries Response<br>Successful<br>term:28", 
+ "arrives":993,"sent":985,"dest":1} 
+, {"source":2,"RPC":"appendEntries","info":"appendEntries Response<br>Successful<br>term:28", 
+ "arrives":992,"sent":985,"dest":1} 
+, {"source":3,"RPC":"appendEntries","info":"appendEntries Response<br>Successful<br>term:28", 
+ "arrives":992,"sent":985,"dest":1} 
+, {"source":5,"RPC":"appendEntries","info":"appendEntries Response<br>Successful<br>term:28", 
+ "arrives":992,"sent":985,"dest":1} 
+],"nodeModeChanges":[ {"node":0,"newMode":"follower","time":0,"newTerm":0,"newInfo":"last index:0last Term:0"} 
+, {"node":1,"newMode":"follower","time":0,"newTerm":0,"newInfo":"last index:0last Term:0"} 
+, {"node":2,"newMode":"follower","time":0,"newTerm":0,"newInfo":"last index:0last Term:0"} 
+, {"node":3,"newMode":"follower","time":0,"newTerm":0,"newInfo":"last index:0last Term:0"} 
+, {"node":4,"newMode":"follower","time":0,"newTerm":0,"newInfo":"last index:0last Term:0"} 
+, {"node":5,"newMode":"follower","time":0,"newTerm":0,"newInfo":"last index:0last Term:0"} 
+, {"node":4,"newMode":"candidate","time":25,"newTerm":1,"newInfo":"last index:0last Term:0"} 
+, {"node":1,"newMode":"candidate","time":27,"newTerm":1,"newInfo":"last index:0last Term:0"} 
+, {"node":2,"newMode":"candidate","time":30,"newTerm":1,"newInfo":"last index:0last Term:0"} 
+, {"node":4,"newMode":"leader","time":41,"newTerm":1,"newInfo":"last index:0last Term:0"} 
+, {"node":1,"newMode":"follower","time":49,"newTerm":1,"newInfo":"last index:0last Term:0"} 
+, {"node":2,"newMode":"follower","time":49,"newTerm":1,"newInfo":"last index:0last Term:0"} 
+, {"node":5,"newMode":"candidate","time":75,"newTerm":2,"newInfo":"last index:0last Term:0"} 
+, {"node":3,"newMode":"candidate","time":76,"newTerm":2,"newInfo":"last index:0last Term:0"} 
+, {"node":1,"newMode":"candidate","time":80,"newTerm":2,"newInfo":"last index:0last Term:0"} 
+, {"node":4,"newMode":"follower","time":82,"newTerm":2,"newInfo":"last index:0last Term:0"} 
+, {"node":3,"newMode":"candidate","time":105,"newTerm":3,"newInfo":"last index:0last Term:0"} 
+, {"node":1,"newMode":"candidate","time":109,"newTerm":3,"newInfo":"last index:0last Term:0"} 
+, {"node":2,"newMode":"candidate","time":109,"newTerm":3,"newInfo":"last index:0last Term:0"} 
+, {"node":5,"newMode":"follower","time":113,"newTerm":3,"newInfo":"last index:0last Term:0"} 
+, {"node":3,"newMode":"candidate","time":137,"newTerm":4,"newInfo":"last index:0last Term:0"} 
+, {"node":1,"newMode":"follower","time":144,"newTerm":4,"newInfo":"last index:0last Term:0"} 
+, {"node":2,"newMode":"follower","time":144,"newTerm":4,"newInfo":"last index:0last Term:0"} 
+, {"node":5,"newMode":"candidate","time":145,"newTerm":4,"newInfo":"last index:0last Term:0"} 
+, {"node":4,"newMode":"candidate","time":179,"newTerm":5,"newInfo":"last index:0last Term:0"} 
+, {"node":2,"newMode":"candidate","time":179,"newTerm":5,"newInfo":"last index:0last Term:0"} 
+, {"node":3,"newMode":"candidate","time":186,"newTerm":5,"newInfo":"last index:0last Term:0"} 
+, {"node":5,"newMode":"follower","time":186,"newTerm":5,"newInfo":"last index:0last Term:0"} 
+, {"node":4,"newMode":"candidate","time":207,"newTerm":6,"newInfo":"last index:0last Term:0"} 
+, {"node":3,"newMode":"follower","time":214,"newTerm":6,"newInfo":"last index:0last Term:0"} 
+, {"node":2,"newMode":"follower","time":215,"newTerm":6,"newInfo":"last index:0last Term:0"} 
+, {"node":4,"newMode":"leader","time":222,"newTerm":6,"newInfo":"last index:0last Term:0"} 
+, {"node":1,"newMode":"candidate","time":261,"newTerm":7,"newInfo":"last index:0last Term:0"} 
+, {"node":0,"newMode":"candidate","time":262,"newTerm":7,"newInfo":"last index:0last Term:0"} 
+, {"node":2,"newMode":"candidate","time":263,"newTerm":7,"newInfo":"last index:0last Term:0"} 
+, {"node":4,"newMode":"follower","time":268,"newTerm":7,"newInfo":"last index:1last Term:6"} 
+, {"node":3,"newMode":"candidate","time":294,"newTerm":8,"newInfo":"last index:0last Term:0"} 
+, {"node":2,"newMode":"candidate","time":296,"newTerm":8,"newInfo":"last index:0last Term:0"} 
+, {"node":0,"newMode":"follower","time":301,"newTerm":8,"newInfo":"last index:0last Term:0"} 
+, {"node":1,"newMode":"follower","time":301,"newTerm":8,"newInfo":"last index:0last Term:0"} 
+, {"node":4,"newMode":"candidate","time":308,"newTerm":9,"newInfo":"last index:1last Term:6"} 
+, {"node":2,"newMode":"follower","time":315,"newTerm":9,"newInfo":"last index:0last Term:0"} 
+, {"node":3,"newMode":"follower","time":315,"newTerm":9,"newInfo":"last index:0last Term:0"} 
+, {"node":4,"newMode":"leader","time":323,"newTerm":9,"newInfo":"last index:1last Term:6"} 
+, {"node":5,"newMode":"candidate","time":356,"newTerm":10,"newInfo":"last index:1last Term:6"} 
+, {"node":1,"newMode":"candidate","time":357,"newTerm":10,"newInfo":"last index:1last Term:6"} 
+, {"node":3,"newMode":"candidate","time":360,"newTerm":10,"newInfo":"last index:1last Term:6"} 
+, {"node":0,"newMode":"candidate","time":363,"newTerm":10,"newInfo":"last index:1last Term:6"} 
+, {"node":4,"newMode":"follower","time":364,"newTerm":10,"newInfo":"last index:3last Term:9"} 
+, {"node":5,"newMode":"candidate","time":385,"newTerm":11,"newInfo":"last index:1last Term:6"} 
+, {"node":0,"newMode":"follower","time":392,"newTerm":11,"newInfo":"last index:1last Term:6"} 
+, {"node":1,"newMode":"follower","time":392,"newTerm":11,"newInfo":"last index:1last Term:6"} 
+, {"node":3,"newMode":"follower","time":392,"newTerm":11,"newInfo":"last index:1last Term:6"} 
+, {"node":4,"newMode":"candidate","time":411,"newTerm":12,"newInfo":"last index:3last Term:9"} 
+, {"node":3,"newMode":"candidate","time":418,"newTerm":12,"newInfo":"last index:1last Term:6"} 
+, {"node":5,"newMode":"follower","time":419,"newTerm":12,"newInfo":"last index:1last Term:6"} 
+, {"node":4,"newMode":"leader","time":427,"newTerm":12,"newInfo":"last index:3last Term:9"} 
+, {"node":3,"newMode":"follower","time":434,"newTerm":12,"newInfo":"last index:1last Term:6"} 
+, {"node":3,"newMode":"candidate","time":464,"newTerm":13,"newInfo":"last index:3last Term:9"} 
+, {"node":1,"newMode":"candidate","time":470,"newTerm":13,"newInfo":"last index:3last Term:9"} 
+, {"node":4,"newMode":"follower","time":472,"newTerm":13,"newInfo":"last index:5last Term:12"} 
+, {"node":3,"newMode":"leader","time":480,"newTerm":13,"newInfo":"last index:3last Term:9"} 
+, {"node":1,"newMode":"follower","time":487,"newTerm":13,"newInfo":"last index:3last Term:9"} 
+, {"node":2,"newMode":"candidate","time":513,"newTerm":14,"newInfo":"last index:0last Term:0"} 
+, {"node":1,"newMode":"candidate","time":518,"newTerm":14,"newInfo":"last index:0last Term:0"} 
+, {"node":5,"newMode":"candidate","time":519,"newTerm":14,"newInfo":"last index:0last Term:0"} 
+, {"node":3,"newMode":"follower","time":520,"newTerm":14,"newInfo":"last index:3last Term:9"} 
+, {"node":4,"newMode":"candidate","time":522,"newTerm":15,"newInfo":"last index:5last Term:12"} 
+, {"node":1,"newMode":"follower","time":529,"newTerm":15,"newInfo":"last index:0last Term:0"} 
+, {"node":2,"newMode":"follower","time":529,"newTerm":15,"newInfo":"last index:0last Term:0"} 
+, {"node":5,"newMode":"follower","time":529,"newTerm":15,"newInfo":"last index:0last Term:0"} 
+, {"node":1,"newMode":"candidate","time":556,"newTerm":16,"newInfo":"last index:0last Term:0"} 
+, {"node":5,"newMode":"candidate","time":556,"newTerm":16,"newInfo":"last index:0last Term:0"} 
+, {"node":0,"newMode":"candidate","time":560,"newTerm":16,"newInfo":"last index:0last Term:0"} 
+, {"node":4,"newMode":"follower","time":564,"newTerm":16,"newInfo":"last index:5last Term:12"} 
+, {"node":3,"newMode":"candidate","time":565,"newTerm":17,"newInfo":"last index:3last Term:9"} 
+, {"node":0,"newMode":"follower","time":572,"newTerm":17,"newInfo":"last index:0last Term:0"} 
+, {"node":5,"newMode":"follower","time":572,"newTerm":17,"newInfo":"last index:0last Term:0"} 
+, {"node":1,"newMode":"follower","time":573,"newTerm":17,"newInfo":"last index:0last Term:0"} 
+, {"node":4,"newMode":"candidate","time":592,"newTerm":18,"newInfo":"last index:5last Term:12"} 
+, {"node":3,"newMode":"candidate","time":597,"newTerm":18,"newInfo":"last index:3last Term:9"} 
+, {"node":4,"newMode":"leader","time":608,"newTerm":18,"newInfo":"last index:5last Term:12"} 
+, {"node":3,"newMode":"follower","time":616,"newTerm":18,"newInfo":"last index:3last Term:9"} 
+, {"node":1,"newMode":"candidate","time":645,"newTerm":19,"newInfo":"last index:5last Term:12"} 
+, {"node":3,"newMode":"candidate","time":645,"newTerm":19,"newInfo":"last index:5last Term:12"} 
+, {"node":5,"newMode":"candidate","time":648,"newTerm":19,"newInfo":"last index:5last Term:12"} 
+, {"node":4,"newMode":"follower","time":653,"newTerm":19,"newInfo":"last index:7last Term:18"} 
+, {"node":3,"newMode":"candidate","time":670,"newTerm":20,"newInfo":"last index:5last Term:12"} 
+, {"node":1,"newMode":"follower","time":678,"newTerm":20,"newInfo":"last index:5last Term:12"} 
+, {"node":5,"newMode":"follower","time":678,"newTerm":20,"newInfo":"last index:5last Term:12"} 
+, {"node":4,"newMode":"candidate","time":700,"newTerm":21,"newInfo":"last index:7last Term:18"} 
+, {"node":1,"newMode":"candidate","time":705,"newTerm":21,"newInfo":"last index:5last Term:12"} 
+, {"node":2,"newMode":"candidate","time":706,"newTerm":21,"newInfo":"last index:5last Term:12"} 
+, {"node":3,"newMode":"follower","time":707,"newTerm":21,"newInfo":"last index:5last Term:12"} 
+, {"node":0,"newMode":"candidate","time":708,"newTerm":21,"newInfo":"last index:5last Term:12"} 
+, {"node":0,"newMode":"candidate","time":734,"newTerm":22,"newInfo":"last index:5last Term:12"} 
+, {"node":4,"newMode":"candidate","time":736,"newTerm":22,"newInfo":"last index:7last Term:18"} 
+, {"node":1,"newMode":"candidate","time":737,"newTerm":22,"newInfo":"last index:5last Term:12"} 
+, {"node":5,"newMode":"candidate","time":738,"newTerm":22,"newInfo":"last index:5last Term:12"} 
+, {"node":2,"newMode":"follower","time":742,"newTerm":22,"newInfo":"last index:5last Term:12"} 
+, {"node":0,"newMode":"candidate","time":766,"newTerm":23,"newInfo":"last index:5last Term:12"} 
+, {"node":4,"newMode":"candidate","time":768,"newTerm":23,"newInfo":"last index:7last Term:18"} 
+, {"node":1,"newMode":"follower","time":773,"newTerm":23,"newInfo":"last index:5last Term:12"} 
+, {"node":5,"newMode":"follower","time":773,"newTerm":23,"newInfo":"last index:5last Term:12"} 
+, {"node":4,"newMode":"candidate","time":796,"newTerm":24,"newInfo":"last index:7last Term:18"} 
+, {"node":2,"newMode":"candidate","time":798,"newTerm":24,"newInfo":"last index:5last Term:12"} 
+, {"node":0,"newMode":"candidate","time":804,"newTerm":24,"newInfo":"last index:5last Term:12"} 
+, {"node":4,"newMode":"leader","time":812,"newTerm":24,"newInfo":"last index:7last Term:18"} 
+, {"node":0,"newMode":"follower","time":820,"newTerm":24,"newInfo":"last index:5last Term:12"} 
+, {"node":2,"newMode":"follower","time":820,"newTerm":24,"newInfo":"last index:5last Term:12"} 
+, {"node":3,"newMode":"candidate","time":854,"newTerm":25,"newInfo":"last index:7last Term:18"} 
+, {"node":2,"newMode":"candidate","time":856,"newTerm":25,"newInfo":"last index:7last Term:18"} 
+, {"node":5,"newMode":"candidate","time":858,"newTerm":25,"newInfo":"last index:7last Term:18"} 
+, {"node":0,"newMode":"candidate","time":860,"newTerm":25,"newInfo":"last index:7last Term:18"} 
+, {"node":4,"newMode":"follower","time":862,"newTerm":25,"newInfo":"last index:9last Term:24"} 
+, {"node":3,"newMode":"candidate","time":886,"newTerm":26,"newInfo":"last index:7last Term:18"} 
+, {"node":0,"newMode":"candidate","time":889,"newTerm":26,"newInfo":"last index:7last Term:18"} 
+, {"node":5,"newMode":"follower","time":893,"newTerm":26,"newInfo":"last index:7last Term:18"} 
+, {"node":2,"newMode":"follower","time":894,"newTerm":26,"newInfo":"last index:7last Term:18"} 
+, {"node":4,"newMode":"candidate","time":911,"newTerm":27,"newInfo":"last index:9last Term:24"} 
+, {"node":3,"newMode":"candidate","time":913,"newTerm":27,"newInfo":"last index:7last Term:18"} 
+, {"node":0,"newMode":"follower","time":918,"newTerm":27,"newInfo":"last index:7last Term:18"} 
+, {"node":4,"newMode":"leader","time":926,"newTerm":27,"newInfo":"last index:9last Term:24"} 
+, {"node":3,"newMode":"follower","time":933,"newTerm":27,"newInfo":"last index:7last Term:18"} 
+, {"node":1,"newMode":"candidate","time":963,"newTerm":28,"newInfo":"last index:9last Term:24"} 
+, {"node":3,"newMode":"candidate","time":967,"newTerm":28,"newInfo":"last index:9last Term:24"} 
+, {"node":4,"newMode":"follower","time":971,"newTerm":28,"newInfo":"last index:9last Term:24"} 
+, {"node":1,"newMode":"leader","time":977,"newTerm":28,"newInfo":"last index:9last Term:24"} 
+, {"node":3,"newMode":"follower","time":985,"newTerm":28,"newInfo":"last index:9last Term:24"} 
+],"timeouts":[ {"node":0,"start":0,"expires":38} 
+, {"node":1,"start":0,"expires":27} 
+, {"node":2,"start":0,"expires":30} 
+, {"node":3,"start":0,"expires":37} 
+, {"node":4,"start":0,"expires":25} 
+, {"node":5,"start":0,"expires":47} 
+, {"node":4,"start":25,"expires":69} 
+, {"node":1,"start":27,"expires":61} 
+, {"node":2,"start":30,"expires":56} 
+, {"node":5,"start":32,"expires":70} 
+, {"node":0,"start":33,"expires":76} 
+, {"node":3,"start":33,"expires":59} 
+, {"node":4,"start":41,"expires":116} 
+, {"node":3,"start":48,"expires":76} 
+, {"node":5,"start":48,"expires":75} 
+, {"node":0,"start":49,"expires":96} 
+, {"node":1,"start":49,"expires":78} 
+, {"node":1,"start":49,"expires":80} 
+, {"node":2,"start":49,"expires":91} 
+, {"node":2,"start":49,"expires":83} 
+, {"node":5,"start":75,"expires":114} 
+, {"node":3,"start":76,"expires":105} 
+, {"node":1,"start":80,"expires":109} 
+, {"node":2,"start":82,"expires":109} 
+, {"node":4,"start":82,"expires":126} 
+, {"node":0,"start":83,"expires":126} 
+, {"node":4,"start":83,"expires":132} 
+, {"node":3,"start":105,"expires":137} 
+, {"node":1,"start":109,"expires":150} 
+, {"node":2,"start":109,"expires":145} 
+, {"node":0,"start":113,"expires":150} 
+, {"node":4,"start":113,"expires":152} 
+, {"node":5,"start":113,"expires":151} 
+, {"node":5,"start":117,"expires":145} 
+, {"node":3,"start":137,"expires":186} 
+, {"node":0,"start":144,"expires":192} 
+, {"node":1,"start":144,"expires":191} 
+, {"node":2,"start":144,"expires":177} 
+, {"node":5,"start":145,"expires":190} 
+, {"node":4,"start":145,"expires":179} 
+, {"node":1,"start":152,"expires":193} 
+, {"node":2,"start":153,"expires":179} 
+, {"node":4,"start":179,"expires":207} 
+, {"node":2,"start":179,"expires":219} 
+, {"node":3,"start":186,"expires":222} 
+, {"node":0,"start":186,"expires":223} 
+, {"node":1,"start":186,"expires":231} 
+, {"node":5,"start":186,"expires":223} 
+, {"node":5,"start":187,"expires":229} 
+, {"node":4,"start":207,"expires":234} 
+, {"node":0,"start":214,"expires":259} 
+, {"node":1,"start":214,"expires":249} 
+, {"node":3,"start":214,"expires":258} 
+, {"node":2,"start":215,"expires":259} 
+, {"node":5,"start":215,"expires":260} 
+, {"node":4,"start":222,"expires":297} 
+, {"node":1,"start":229,"expires":261} 
+, {"node":3,"start":229,"expires":271} 
+, {"node":5,"start":229,"expires":271} 
+, {"node":0,"start":230,"expires":262} 
+, {"node":2,"start":230,"expires":263} 
+, {"node":1,"start":261,"expires":310} 
+, {"node":0,"start":262,"expires":303} 
+, {"node":2,"start":263,"expires":296} 
+, {"node":3,"start":268,"expires":294} 
+, {"node":4,"start":268,"expires":308} 
+, {"node":5,"start":269,"expires":318} 
+, {"node":3,"start":294,"expires":329} 
+, {"node":2,"start":296,"expires":341} 
+, {"node":0,"start":301,"expires":342} 
+, {"node":1,"start":301,"expires":347} 
+, {"node":5,"start":301,"expires":346} 
+, {"node":0,"start":303,"expires":333} 
+, {"node":1,"start":304,"expires":345} 
+, {"node":4,"start":308,"expires":340} 
+, {"node":0,"start":315,"expires":345} 
+, {"node":2,"start":315,"expires":357} 
+, {"node":3,"start":315,"expires":364} 
+, {"node":1,"start":316,"expires":353} 
+, {"node":5,"start":316,"expires":352} 
+, {"node":4,"start":323,"expires":398} 
+, {"node":3,"start":330,"expires":360} 
+, {"node":5,"start":330,"expires":356} 
+, {"node":0,"start":331,"expires":363} 
+, {"node":1,"start":331,"expires":357} 
+, {"node":2,"start":331,"expires":369} 
+, {"node":5,"start":356,"expires":385} 
+, {"node":1,"start":357,"expires":394} 
+, {"node":3,"start":360,"expires":405} 
+, {"node":0,"start":363,"expires":410} 
+, {"node":2,"start":364,"expires":402} 
+, {"node":4,"start":364,"expires":411} 
+, {"node":5,"start":385,"expires":432} 
+, {"node":0,"start":392,"expires":421} 
+, {"node":1,"start":392,"expires":435} 
+, {"node":2,"start":392,"expires":438} 
+, {"node":3,"start":392,"expires":418} 
+, {"node":4,"start":411,"expires":456} 
+, {"node":3,"start":418,"expires":456} 
+, {"node":1,"start":418,"expires":448} 
+, {"node":0,"start":419,"expires":459} 
+, {"node":2,"start":419,"expires":457} 
+, {"node":5,"start":419,"expires":450} 
+, {"node":5,"start":426,"expires":467} 
+, {"node":4,"start":427,"expires":502} 
+, {"node":0,"start":434,"expires":482} 
+, {"node":3,"start":434,"expires":464} 
+, {"node":3,"start":434,"expires":464} 
+, {"node":5,"start":434,"expires":481} 
+, {"node":1,"start":435,"expires":470} 
+, {"node":2,"start":435,"expires":478} 
+, {"node":3,"start":464,"expires":512} 
+, {"node":1,"start":470,"expires":508} 
+, {"node":2,"start":471,"expires":514} 
+, {"node":0,"start":472,"expires":501} 
+, {"node":4,"start":472,"expires":517} 
+, {"node":5,"start":472,"expires":516} 
+, {"node":3,"start":480,"expires":555} 
+, {"node":0,"start":487,"expires":527} 
+, {"node":1,"start":487,"expires":517} 
+, {"node":1,"start":487,"expires":518} 
+, {"node":4,"start":487,"expires":522} 
+, {"node":5,"start":487,"expires":519} 
+, {"node":2,"start":488,"expires":513} 
+, {"node":2,"start":513,"expires":549} 
+, {"node":1,"start":518,"expires":548} 
+, {"node":5,"start":519,"expires":556} 
+, {"node":3,"start":520,"expires":556} 
+, {"node":0,"start":521,"expires":553} 
+, {"node":4,"start":522,"expires":569} 
+, {"node":0,"start":529,"expires":560} 
+, {"node":1,"start":529,"expires":556} 
+, {"node":2,"start":529,"expires":574} 
+, {"node":5,"start":529,"expires":556} 
+, {"node":3,"start":530,"expires":565} 
+, {"node":1,"start":556,"expires":601} 
+, {"node":5,"start":556,"expires":582} 
+, {"node":0,"start":560,"expires":592} 
+, {"node":2,"start":563,"expires":597} 
+, {"node":4,"start":564,"expires":592} 
+, {"node":3,"start":565,"expires":597} 
+, {"node":0,"start":572,"expires":619} 
+, {"node":5,"start":572,"expires":602} 
+, {"node":1,"start":573,"expires":618} 
+, {"node":2,"start":573,"expires":600} 
+, {"node":4,"start":592,"expires":626} 
+, {"node":3,"start":597,"expires":626} 
+, {"node":1,"start":599,"expires":627} 
+, {"node":2,"start":599,"expires":646} 
+, {"node":0,"start":600,"expires":646} 
+, {"node":5,"start":600,"expires":644} 
+, {"node":4,"start":608,"expires":683} 
+, {"node":0,"start":615,"expires":661} 
+, {"node":1,"start":615,"expires":645} 
+, {"node":2,"start":615,"expires":663} 
+, {"node":5,"start":615,"expires":648} 
+, {"node":3,"start":616,"expires":665} 
+, {"node":3,"start":616,"expires":645} 
+, {"node":1,"start":645,"expires":684} 
+, {"node":3,"start":645,"expires":670} 
+, {"node":5,"start":648,"expires":682} 
+, {"node":0,"start":652,"expires":695} 
+, {"node":2,"start":653,"expires":679} 
+, {"node":4,"start":653,"expires":700} 
+, {"node":3,"start":670,"expires":709} 
+, {"node":0,"start":677,"expires":708} 
+, {"node":2,"start":677,"expires":706} 
+, {"node":1,"start":678,"expires":705} 
+, {"node":5,"start":678,"expires":711} 
+, {"node":4,"start":700,"expires":736} 
+, {"node":1,"start":705,"expires":737} 
+, {"node":2,"start":706,"expires":755} 
+, {"node":3,"start":707,"expires":753} 
+, {"node":0,"start":708,"expires":734} 
+, {"node":5,"start":708,"expires":738} 
+, {"node":3,"start":713,"expires":751} 
+, {"node":0,"start":734,"expires":766} 
+, {"node":4,"start":736,"expires":768} 
+, {"node":1,"start":737,"expires":779} 
+, {"node":5,"start":738,"expires":774} 
+, {"node":2,"start":742,"expires":784} 
+, {"node":3,"start":742,"expires":789} 
+, {"node":2,"start":743,"expires":789} 
+, {"node":0,"start":766,"expires":804} 
+, {"node":4,"start":768,"expires":796} 
+, {"node":1,"start":773,"expires":816} 
+, {"node":2,"start":773,"expires":798} 
+, {"node":5,"start":773,"expires":813} 
+, {"node":3,"start":774,"expires":810} 
+, {"node":5,"start":775,"expires":809} 
+, {"node":1,"start":776,"expires":807} 
+, {"node":4,"start":796,"expires":825} 
+, {"node":2,"start":798,"expires":831} 
+, {"node":1,"start":803,"expires":849} 
+, {"node":3,"start":803,"expires":838} 
+, {"node":0,"start":804,"expires":846} 
+, {"node":5,"start":804,"expires":830} 
+, {"node":4,"start":812,"expires":887} 
+, {"node":1,"start":819,"expires":863} 
+, {"node":3,"start":819,"expires":854} 
+, {"node":5,"start":819,"expires":858} 
+, {"node":0,"start":820,"expires":867} 
+, {"node":0,"start":820,"expires":860} 
+, {"node":2,"start":820,"expires":857} 
+, {"node":2,"start":820,"expires":856} 
+, {"node":3,"start":854,"expires":886} 
+, {"node":2,"start":856,"expires":901} 
+, {"node":5,"start":858,"expires":898} 
+, {"node":0,"start":860,"expires":889} 
+, {"node":1,"start":861,"expires":910} 
+, {"node":4,"start":862,"expires":911} 
+, {"node":3,"start":886,"expires":913} 
+, {"node":0,"start":889,"expires":927} 
+, {"node":5,"start":893,"expires":932} 
+, {"node":1,"start":894,"expires":940} 
+, {"node":2,"start":894,"expires":936} 
+, {"node":2,"start":896,"expires":921} 
+, {"node":5,"start":897,"expires":926} 
+, {"node":4,"start":911,"expires":957} 
+, {"node":3,"start":913,"expires":941} 
+, {"node":0,"start":918,"expires":955} 
+, {"node":2,"start":918,"expires":944} 
+, {"node":5,"start":918,"expires":949} 
+, {"node":1,"start":919,"expires":950} 
+, {"node":0,"start":921,"expires":959} 
+, {"node":4,"start":926,"expires":1001} 
+, {"node":0,"start":933,"expires":976} 
+, {"node":2,"start":933,"expires":979} 
+, {"node":3,"start":933,"expires":978} 
+, {"node":3,"start":933,"expires":967} 
+, {"node":5,"start":933,"expires":978} 
+, {"node":1,"start":934,"expires":963} 
+, {"node":1,"start":963,"expires":1007} 
+, {"node":3,"start":967,"expires":999} 
+, {"node":0,"start":970,"expires":1013} 
+, {"node":2,"start":970,"expires":999} 
+, {"node":5,"start":970,"expires":1003} 
+, {"node":4,"start":971,"expires":998} 
+, {"node":4,"start":974,"expires":1018} 
+, {"node":1,"start":977,"expires":1052} 
+, {"node":4,"start":984,"expires":1009} 
+, {"node":0,"start":985,"expires":1012} 
+, {"node":2,"start":985,"expires":1031} 
+, {"node":3,"start":985,"expires":1025} 
+, {"node":3,"start":985,"expires":1018} 
+, {"node":5,"start":985,"expires":1032} 
+]}
