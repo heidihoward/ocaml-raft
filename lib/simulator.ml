@@ -144,7 +144,13 @@ let rec  startCand (s:State.t) =
       last_index = s_new.lastlogIndex;
       last_term = s_new.lastlogTerm; 
     }) in
-  json ("{'source':'"^(IntID.to_string s_new.id)^
+  json("{'node':"^(IntID.to_string
+  s_new.id)^",'newMode':'candidate','time':"^(MonoTime.to_string
+  (s_new.time()))^",'newTerm':"^(Index.to_string
+  s_new.term)^",'newInfo':'last index:"^(Index.to_string
+  s_new.lastlogIndex)^"last Term:"^(Index.to_string s_new.lastlogTerm)^"'}");
+
+  json ("{'source':"^(IntID.to_string s_new.id)^
        ",'RPC':'requestVote','info':'Request Vote Broadcast<br>term:"^(Index.to_string s_new.term)^"<br>Last Index:"^
          (Index.to_string s_new.lastlogIndex)^"<br>Last Term:"^(Index.to_string
          s_new.lastlogTerm)^ "',");
@@ -156,6 +162,10 @@ let rec  startCand (s:State.t) =
 and refreshTimer (s:State.t) = 
   let s_new = State.tick Set s in
   let timeout = MonoTime.add (s.time()) (timeout s.mode) in
+
+  json("{'node':"^(IntID.to_string s.id)^",'start':"^(MonoTime.to_string
+    (s.time()))^",'expires':"^(MonoTime.to_string timeout)^"}");
+
   let (event:EventList.item) = RaftEvent (timeout, s.id, checkTimer s_new.timer) in 
   (s_new,[event])
 
@@ -202,8 +212,7 @@ and dispatchAppendEntries (s:State.t) =
           ~f:(fun (i,t,c_sexp) -> (i,t,Mach.sexp_of_cmd c_sexp)) ; (*emprt list means this is heartbeat *)
         } ) in
     json ("{'source':"^(IntID.to_string
-    s.id)^",'RPC':'appendentries','info':'append entries
-    heartbeat<br>term:"^(Index.to_string
+    s.id)^",'RPC':'appendEntries','info':'append entries heartbeat<br>term:"^(Index.to_string
     s.term)^"<br>prevLogIndex:"^(Index.to_string
     prev_index)^"<br>prevLogTerm:"^(Index.to_string
     prev_term)^"<br>leaderCommit:"^(Index.to_string s.commitIndex)^"',");   
@@ -217,10 +226,22 @@ and dispatchAppendEntries (s:State.t) =
 and startFollow term (s:State.t)  = debug "Entering Follower mode";
   (* used for setdown too so need to reset follower state *)
   let s = State.tick (StepDown term) s in 
+  
+  json("{'node':"^(IntID.to_string
+    s.id)^",'newMode':'follower','time':"^(MonoTime.to_string
+    (s.time()))^",'newTerm':"^(Index.to_string
+    s.term)^",'newInfo':'last index:"^(Index.to_string
+    s.lastlogIndex)^"last Term:"^(Index.to_string s.lastlogTerm)^"'}"); 
+
   refreshTimer s
 
 and startLeader (s:State.t) = debug "Election Won - Becoming Leader";
   let s_new,dispatch_pkts = dispatchAppendEntries (State.tick StartLeader s) in
+  json("{'node':"^(IntID.to_string
+    s_new.id)^",'newMode':'leader','time':"^(MonoTime.to_string
+    (s_new.time()))^",'newTerm':"^(Index.to_string
+    s_new.term)^",'newInfo':'last index:"^(Index.to_string
+    s_new.lastlogIndex)^"last Term:"^(Index.to_string s_new.lastlogTerm)^"'}");
   if (data.firstele=None) then data.firstele <- Some (s.time()) else ();
   (s_new, dispatch_pkts)
 
@@ -297,6 +318,11 @@ and requestVoteRq (args: Rpcs.RequestVoteArg.t) (s:State.t) =
         votegranted = vote;
         replyto = args;
       }) in
+  json ("{'source':"^(IntID.to_string
+    s_new.id)^",'RPC':'requestVote','info':'vote reply:"^(string_of_bool vote)^"<br>term:"^(Index.to_string
+    s_new.term)^"<br>lastIndex:"^(Index.to_string
+    s_new.lastlogIndex)^"<br>lastTerm:"^(Index.to_string
+    s_new.lastlogTerm)^"',");
   (s_new, (Comms.unicast_replica(args.cand_id) (s_new.time()) (requestVoteRs res
   s_new.id))::e_new)
   
@@ -362,8 +388,7 @@ and appendEntriesRq (args: Rpcs.AppendEntriesArg.t) (s:State.t) =
                 s_new )) in
           (*works finished now sent reply *)
          json ("{'source':"^(IntID.to_string
-         s.id)^",'RPC':'appendEntries','info':'appendEntries
-         Response<br>Successful<br>term:"^
+         s.id)^",'RPC':'appendEntries','info':'appendEntries Response<br>Successful<br>term:"^
          (Index.to_string s_new.term)^"',");
           let res = Rpcs.AppendEntriesRes.(
                 { term = s_new.term; success=true; replyto = args; follower_id = s.id;} ) in
@@ -376,8 +401,7 @@ and appendEntriesRq (args: Rpcs.AppendEntriesArg.t) (s:State.t) =
        let res = Rpcs.AppendEntriesRes.(
         { term = s_new.term; success= false; replyto = args; follower_id = s.id;} ) in
         json ("{'source':"^(IntID.to_string
-         s.id)^",'RPC':'appendEntries','info':'appendEntries
-         Response<br>Failed - log inconsistent<br>term:"^
+         s.id)^",'RPC':'appendEntries','info':'appendEntries Response<br>Failed - log inconsistent<br>term:"^
          (Index.to_string s_new.term)^"',");
         (s_new,(Comms.unicast_replica(args.lead_id) (s_new.time()) (appendEntriesRs res s.id))::e_stepdown@e_timeout) )
 
@@ -389,8 +413,7 @@ and appendEntriesRq (args: Rpcs.AppendEntriesArg.t) (s:State.t) =
     let res = Rpcs.AppendEntriesRes.(
     { term = s.term; success= false; replyto = args; follower_id = s.id;} ) in
     json ("{'source':"^(IntID.to_string
-         s.id)^",'RPC':'appendEntries','info':'appendEntries
-         Response<br>Failed - term too low<br>term:"^
+         s.id)^",'RPC':'appendEntries','info':'appendEntries Response<br>Failed - term too low<br>term:"^
          (Index.to_string s.term)^"',");
     (s,[Comms.unicast_replica(args.lead_id) (s.time()) (appendEntriesRs res s.id)])
     end
@@ -487,13 +510,11 @@ and clientCommit (s: Client.t) =
     let timer_check = ClientEvent (timeout,checkTimer_client s_new.timer) in
     (match s.leader with
     | Leader id -> 
-      json ("{'source':'client','RPC':'clientRq','info':'Client attempting to
-       commit:<br>"^(Mach.cmd_to_string cmd)^"<br>Believes leader to be:"^
+      json ("{'source':'client','RPC':'clientRq','info':'Client attempting to commit:<br>"^(Mach.cmd_to_string cmd)^"<br>Believes leader to be:"^
          (IntID.to_string id)^"',");
       (s_new, [timer_check; Comms.unicast_replica id (s.time()) (clientRq args) ])
     | TryAsking (id::_) -> 
-      json ("{'source':'client','RPC':'clientRq','info':'Client attempting to
-       commit:<br>"^(Mach.cmd_to_string cmd)^"<br>Trying:"^
+      json ("{'source':'client','RPC':'clientRq','info':'Client attempting to commit:<br>"^(Mach.cmd_to_string cmd)^"<br>Trying:"^
          (IntID.to_string id)^"',");
       (s_new, [timer_check; Comms.unicast_replica id (s.time()) (clientRq args) ]) )
   | [] -> 
@@ -670,6 +691,7 @@ let init_eventlist num  :EventList.t  =
 
 let start () =
   debug "Raft Simulator is Starting Up ...";
+  json ("'numNodes':"^(string_of_int P.nodes)^",");
   run_multi 
   (StateList.init P.nodes)  
   (init_eventlist P.nodes)
