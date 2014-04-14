@@ -50,7 +50,7 @@ let common () =
 let realtime =
   Command.basic
     ~summary:"Realtime Simulator for Raft's Leader Election"
-    ~readme: (fun () -> "see www.cl.cam.ac.uk/~hh360 for more information ")
+    ~readme: (fun () -> "see github.com/heidi-ann/ocaml-raft for more information ")
   Command.Spec.(
     empty
      ++ common ()
@@ -63,7 +63,7 @@ let realtime =
 let discrete =
   Command.basic
     ~summary:"Discrete Event Simulator for Raft's Leader Election"
-    ~readme: (fun () -> "see www.cl.cam.ac.uk/~hh360 for more information ")
+    ~readme: (fun () -> "see github.com/heidi-ann/ocaml-raft for more information ")
   Command.Spec.(
     empty
      ++ common ()
