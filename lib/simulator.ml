@@ -484,19 +484,23 @@ and clientRs (res: Rpcs.ClientRes.t) (s:Client.t) =
   (*TODO: make check if old packets mess this up *)
   debug ("Simulating clients response");
   debug (Rpcs.ClientRes.to_string res);
-  match res.success with
-  | Some result_sexp -> 
-    let result = Mach.res_of_sexp result_sexp in 
-    let timer = MonoTime.add (s.time()) (MonoTime.span_of_int P.client_wait_success ) in
-    debug ("successfully committed result is "^Mach.res_to_string result); 
-    debug ("Expected result is "^Mach.res_to_string (List.hd_exn s.expected_results));
-    client_latency (`Stop (s.time()) );
-    let s_new = Client.tick (Successful (res.node_id,result) )s in
-    (s_new,[ClientEvent (timer,clientCommit) ]) 
-  | None -> debug "unsucessful, try again";
-    let s_new = Client.tick (Unsuccessful (res.node_id,res.leader) ) s in
-   let timer = MonoTime.add (s.time()) (MonoTime.span_of_int P.client_wait_failure ) in   
-    (s_new,[ClientEvent (timer,clientCommit)]) 
+  match List.hd s.workload with
+  | Some request when ( Mach.cmd_of_sexp res.replyto.cmd ) = request -> (
+      match res.success with
+      | Some result_sexp -> 
+        let result = Mach.res_of_sexp result_sexp in 
+        let timer = MonoTime.add (s.time()) (MonoTime.span_of_int P.client_wait_success ) in
+        debug ("successfully committed result is "^Mach.res_to_string result); 
+        debug ("Expected result is "^Mach.res_to_string (List.hd_exn s.expected_results));
+        client_latency (`Stop (s.time()) );
+        let s_new = Client.tick (Successful (res.node_id,result) )s in
+        (s_new,[ClientEvent (timer,clientCommit) ]) 
+      | None -> debug "unsucessful, try again";
+        let s_new = Client.tick (Unsuccessful (res.node_id,res.leader) ) s in
+       let timer = MonoTime.add (s.time()) (MonoTime.span_of_int P.client_wait_failure ) in   
+        (s_new,[ClientEvent (timer,clientCommit)])  )
+  | Some _ | None -> 
+    debug "ignoring reponse as its not for the currently outstanding request"; (s,[])
 
 
 and clientCommit (s: Client.t) =
