@@ -38,12 +38,31 @@ module NumberGen = struct
     (* TODO fix this *)
     const +. (-1.0 /. lam)*.log(Random.float 1.0)
 
+  let znormal () = 
+   Caml.Pervasives.(
+  let pi = 4.0 *. atan 1.0 in 
+  let u1 = Random.float 1. in
+  let u2 = Random.float 1. in
+  sqrt(-2. *. (log u1) ) *. cos (2. *. pi *. u2)
+  )
+
+  let normal mean sd () =
+   (znormal () *. sd) +. mean
+
+
+  let rec normal_discardneg mean sd () =
+  let potential_value = normal mean sd () in
+  if (potential_value>0.) then potential_value else normal_discardneg mean sd ()
+ 
+
  let string_to_dist str =
    let flt = Float.of_string in
    match (String.split str ~on:'-') with
    | "Fixed"::value::_ -> fixed (flt value)
    | "Uniform"::min::max::[] -> uniform (flt min) (flt max)
    | "Exp"::lamda::const::[] -> exp (flt lamda) (flt const)
+   | "Normal"::mean::sd::[] -> normal_discardneg (flt mean) (flt sd)
+   | "NormalNoDiscard"::mean::sd::[] -> normal (flt mean) (flt sd)
    | er ->  eprintf "failure to parse: %s" (List.to_string ~f:(fun x -> x) er) ; exit 1
 
 end
