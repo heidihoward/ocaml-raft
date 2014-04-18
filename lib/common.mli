@@ -29,6 +29,7 @@ module NumberGen :
   sig
    (** string_to_dist takes a string specifying parameters and return a random number generaters *)
     val string_to_dist : string -> (unit -> float)
+     val to_drop: float -> bool
   end
 
 (** [PARAMETERS] defines the outcome the command line options are used the
@@ -48,6 +49,7 @@ module type PARAMETERS = sig
   val client_wait_failure : int
   val client_timeout : int
   val backoff : bool
+  val loss: float
 end
 
 (** [Index] is a single monotonically increasing discrete value *) 
@@ -90,6 +92,7 @@ module Event :
       | SimulationEvent of ('time * 'id * failures)
       | ClientEvent of ('time * ('time, 'id, 'state,'client) client)
       | Terminate of 'time
+      | Ignore of 'time
     and ('time, 'id, 'state,'client) event = 'state -> 'state * ('time, 'id, 'state,'client) t list
     and ('time, 'id, 'state,'client) client = 'client -> 'client * ('time, 'id, 'state,'client) t list
 

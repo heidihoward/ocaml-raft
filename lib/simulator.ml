@@ -115,21 +115,27 @@ module Comms : COMMS = struct
 let unicast_replica (dist: IntID.t) (t:MonoTime.t) (e) = 
   (*TODO: modify these to allow the user to specify some deley
    * distribution/bound *)
+ if (NumberGen.to_drop P.loss) then 
+  (debug "packet dropped"; Ignore t)
+ else (
   let delay = MonoTime.span_of_float (P.pkt_delay()) in
   let arriv = MonoTime.add t delay in
   debug ("dispatching msg to "^(IntID.to_string dist) ^ " to arrive at "^
   (MonoTime.to_string arriv));
   json ("'arrives':"^(MonoTime.to_string arriv)^",'sent':"^(MonoTime.to_string t)^",'dest':"^(IntID.to_string dist)^"}");
   data.pkts <- data.pkts + 1;
-  RaftEvent (arriv ,dist ,e ) 
+  RaftEvent (arriv ,dist ,e ) )
 
 let unicast_client (t:MonoTime.t) (e) =
+  if (NumberGen.to_drop P.loss) then 
+  (debug "packet dropped"; Ignore t)
+ else (
   let delay = MonoTime.span_of_float (P.pkt_delay()) in
   let arriv = MonoTime.add t delay in
   debug ("dispatching msg to client to arrive at "^
   (MonoTime.to_string arriv));
   data.client_pkts <- data.client_pkts + 1;
-  ClientEvent (arriv, e)
+  ClientEvent (arriv, e))
 
 let broadcast (dests:IntID.t list) (t:MonoTime.t) e  = 
   List.map dests ~f:(fun dst -> unicast_replica(dst) t e) 
@@ -691,6 +697,8 @@ let rec run_multi
 
   | Some (Terminate t,_) -> 
       terminate Timeout sl cl
+
+  | Some (Ignore t, els) -> run_multi sl els cl
 
 
 let init_eventlist num  :EventList.t  =  

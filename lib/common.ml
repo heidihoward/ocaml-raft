@@ -30,9 +30,12 @@ module NumberGen = struct
    * ones for continous *)
 
   let () = Random.self_init ()
+
+  let to_drop p = (Random.float 1.0 <= p)
+
   let fixed x () =  x
 
-  let uniform  min max () = (Random.float (max-.min) +. min)
+  let uniform  min max multi () = (Random.float ((multi*.max)-.min) +. min)
 
   let exp lam const () = 
     (* TODO fix this *)
@@ -59,7 +62,7 @@ module NumberGen = struct
    let flt = Float.of_string in
    match (String.split str ~on:'-') with
    | "Fixed"::value::_ -> fixed (flt value)
-   | "Uniform"::min::max::[] -> uniform (flt min) (flt max)
+   | "Uniform"::min::max::[] -> uniform (flt min) (flt max) 1.0
    | "Exp"::lamda::const::[] -> exp (flt lamda) (flt const)
    | "Normal"::mean::sd::[] -> normal_discardneg (flt mean) (flt sd)
    | "NormalNoDiscard"::mean::sd::[] -> normal (flt mean) (flt sd)
@@ -82,6 +85,7 @@ module type PARAMETERS = sig
   val client_wait_failure : int
   val client_timeout : int
   val backoff: bool
+  val loss: float
 end
 
 module Index = struct
@@ -121,6 +125,7 @@ module Event = struct
       | SimulationEvent of ('time * 'id * failures)
       | ClientEvent of ('time *  ('time, 'id, 'state,'client) client)
       | Terminate of 'time
+      | Ignore of 'time
     and ('time, 'id, 'state,'client) event = 'state -> 'state * ('time, 'id, 'state,'client) t list
     and ('time, 'id, 'state,'client) client = 'client -> 'client * ('time, 'id, 'state,'client) t list
 
@@ -129,6 +134,7 @@ module Event = struct
   | SimulationEvent (x,_,_)
   | ClientEvent (x,_) -> x
   | Terminate x -> x
+  | Ignore x -> x
 
   let compare x y = compare (get_time x) (get_time y)
 
