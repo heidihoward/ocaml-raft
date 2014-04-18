@@ -34,7 +34,14 @@ let debug x = if (P.debug_mode) then (printf " %s  \n" x) else ()
 let json x = if (P.json_mode) then (printf " %s \n" x) else ()
 
 (* TODO: consider spliting this up into 3 functions*)
-let timeout (m:role) = MonoTime.span_of_float (P.timeout () m)
+let timeout (s:State.t) = 
+  match s.mode with
+  | Follower | Leader -> MonoTime.span_of_float (P.timeout () s.mode)
+  | Candidate ->
+    if P.backoff then
+     MonoTime.span_of_float ((P.timeout () Candidate)*.((Float.of_int 2)**(Float.of_int s.backoff)))
+    else
+      MonoTime.span_of_float (P.timeout () Candidate)
 
 type datacollection = {
   mutable pkts: int; 
@@ -161,7 +168,7 @@ let rec  startCand (s:State.t) =
 
 and refreshTimer (s:State.t) = 
   let s_new = State.tick Set s in
-  let timeout = MonoTime.add (s.time()) (timeout s.mode) in
+  let timeout = MonoTime.add (s.time()) (timeout s) in
 
   json("{'node':"^(IntID.to_string s.id)^",'start':"^(MonoTime.to_string
     (s.time()))^",'expires':"^(MonoTime.to_string timeout)^"}");
@@ -235,7 +242,8 @@ and startFollow term (s:State.t)  = debug "Entering Follower mode";
 
   refreshTimer s
 
-and startLeader (s:State.t) = debug "Election Won - Becoming Leader";
+and startLeader (s:State.t) = 
+  debug "Election Won - Becoming Leader";
   let s_new,dispatch_pkts = dispatchAppendEntries (State.tick StartLeader s) in
   json("{'node':"^(IntID.to_string
     s_new.id)^",'newMode':'leader','time':"^(MonoTime.to_string
@@ -584,7 +592,7 @@ let termination_output reason sl (cl: Client.t) =
 
 let wake (s:State.t) : EventList.item list =
   debug ((IntID.to_string s.id)^" node is restarting after failing");
-  let timeout = MonoTime.add (s.time()) (timeout Follower) in
+  let timeout = MonoTime.add (s.time()) (timeout s) in
   let (event:EventList.item) = RaftEvent (timeout, s.id, RaftImpl.checkTimer s.timer) in 
   [(SimulationEvent (nxt_failure (s.time()), s.id, Kill)); event]
 

@@ -33,7 +33,8 @@ module PureState  =
           leader : IntID.t option;
           state_mach : Mach.t;
           outstanding_request : (Index.t * Rpcs.ClientArg.t) option;
-          safety_monitor : RaftMonitor.t
+          safety_monitor : RaftMonitor.t;
+          backoff: int;
         }
    
 
@@ -81,6 +82,7 @@ module PureState  =
       state_mach = Mach.init();
       outstanding_request = None;
       safety_monitor = RaftMonitor.tick (RaftMonitor.init()) `Startup ;
+      backoff = 0;
     } 
 
   let refresh s:t =
@@ -103,6 +105,7 @@ module PureState  =
       state_mach = s.state_mach;
       outstanding_request = None;
       safety_monitor =  RaftMonitor.tick (RaftMonitor.init()) `Recover;
+      backoff = 0;
     } 
 
 
@@ -119,6 +122,7 @@ module PureState  =
     " | All Nodes: "^(List.to_string ~f:IntID.to_string s.allNodes)^
     " | Votes Unsuccessful: "^ (List.to_string ~f:IntID.to_string s.votesFailed)^    
     " | Votes Successful: "^ (List.to_string ~f:IntID.to_string s.votesGranted)^
+    " | Backoff Number: "^(Int.to_string s.backoff)^
     " | Leader: "^(string_of_option (IntID.to_string) s.leader)^"\n"^
     " | State Machine: "^(Mach.to_string s.state_mach)^
     " | Match Index: "^(List.to_string s.matchIndex ~f:id_index_print)^"\n"^
@@ -175,6 +179,7 @@ module PureState  =
         nextIndex  = [];
         matchIndex = []; 
         leader = None;
+        backoff = 0;
         safety_monitor = (
             match s.mode with 
             | Candidate -> RaftMonitor.tick s.safety_monitor `StepDown_from_Candidate
@@ -183,6 +188,7 @@ module PureState  =
         }
     | StartCandidate -> 
         { s with mode=Candidate;
+        backoff = if (List.length s.votesFailed * 2 >= List.length s.allNodes) then s.backoff +1 else s.backoff;
         votedFor = Some s.id;
         votesFailed=[];
         votesGranted=[s.id];
@@ -202,6 +208,7 @@ module PureState  =
        (* votesResponded=[]; *)
        (* votesGranted=[]; *)
         leader = Some s.id;
+        backoff = 0;
         nextIndex  = List.map s.allNodes ~f:(fun id -> (id,Index.succ (s.lastlogIndex)) );
         matchIndex = List.map s.allNodes ~f:(fun id -> (id,Index.init()) );
         safety_monitor = RaftMonitor.tick s.safety_monitor `WinElection;
