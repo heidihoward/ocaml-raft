@@ -24,7 +24,7 @@ module State :
           lastlogIndex : Index.t;
           lastlogTerm : Index.t;
           commitIndex : Index.t;
-          votesResponded : IntID.t list;
+          votesFailed : IntID.t list;
           votesGranted : IntID.t list;
           nextIndex : (IntID.t * Index.t) list;
           matchIndex : (IntID.t * Index.t) list;
@@ -51,7 +51,7 @@ module State :
           | Set
           | Vote of IntID.t
           | StepDown of Index.t
-          | VoteFrom of IntID.t
+          | VoteFrom of IntID.t * bool
           | StartCandidate
           | StartLeader
           | SetTime of MonoTime.t

@@ -330,13 +330,19 @@ and requestVoteRs (res: Rpcs.RequestVoteRes.t) id (s:State.t) =
   debug ("Receive vote request reply from "^ IntID.to_string id );
   debug (Rpcs.RequestVoteRes.to_string res);
   (* TODO: consider how term check may effect old votes in the network *)
-  if (res.term > s.term)  then startFollow res.term s
-  else if (res.votegranted)&&(s.mode=Candidate)&&(s.term=res.term) 
-    then begin 
-      debug "Vote was granted";
-      let s = State.tick (VoteFrom id) s in
-      (if (checkElection s) then startLeader s else  (s, [])) end
-    else (s, [])
+  if (res.term > s.term)  
+    then startFollow res.term s
+  else (
+    if (s.mode=Candidate)&&(s.term=res.term) 
+      then ( 
+      let s = State.tick (VoteFrom (id,res.votegranted)) s in
+      if (res.votegranted) then (
+        debug "Vote was granted";
+        (if (checkElection s) then startLeader s else (s, [])) 
+      ) else(
+        debug "Vote wasn't granted"; (s,[]) 
+      )
+      ) else (s, []) )
 
 and appendEntriesRq (args: Rpcs.AppendEntriesArg.t) (s:State.t) =
   (* in terms of log consistenty there our 4 states: 

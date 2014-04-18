@@ -47,6 +47,7 @@ module type PARAMETERS = sig
   val client_wait_success : int
   val client_wait_failure : int
   val client_timeout : int
+  val backoff : bool
 end
 
 (** [Index] is a single monotonically increasing discrete value *) 

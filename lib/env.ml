@@ -16,7 +16,7 @@ module PureState  =
           lastlogIndex : Index.t;
           lastlogTerm : Index.t;
           commitIndex : Index.t;
-          votesResponded : IntID.t list;
+          votesFailed : IntID.t list;
           votesGranted : IntID.t list;
           nextIndex : (IntID.t * Index.t) list;
           matchIndex : (IntID.t * Index.t) list;
@@ -44,7 +44,7 @@ module PureState  =
    | Reset | Set
    | Vote of IntID.t
    | StepDown of Index.t
-   | VoteFrom of IntID.t
+   | VoteFrom of IntID.t * bool
    | StartCandidate
    | StartLeader
    | SetTime of MonoTime.t
@@ -71,7 +71,7 @@ module PureState  =
       lastlogIndex = Index.init();
       lastlogTerm = Index.init();
       commitIndex = Index.init();
-      votesResponded = [];
+      votesFailed = [];
       votesGranted = [];
       nextIndex  = [];
       matchIndex = [];
@@ -93,7 +93,7 @@ module PureState  =
       lastlogIndex = Index.init();
       lastlogTerm = Index.init();
       commitIndex = Index.init();
-      votesResponded = [];
+      votesFailed = [];
       votesGranted = [];
       nextIndex  = [];
       matchIndex = [];
@@ -117,7 +117,8 @@ module PureState  =
     " | Mode: "^(string_of_role s.mode)^"\n"^
     " | VotedFor: "^(string_of_option IntID.to_string s.votedFor)^
     " | All Nodes: "^(List.to_string ~f:IntID.to_string s.allNodes)^
-    " | Votes Recieved: "^ (List.to_string ~f:IntID.to_string s.votesGranted)^
+    " | Votes Unsuccessful: "^ (List.to_string ~f:IntID.to_string s.votesFailed)^    
+    " | Votes Successful: "^ (List.to_string ~f:IntID.to_string s.votesGranted)^
     " | Leader: "^(string_of_option (IntID.to_string) s.leader)^"\n"^
     " | State Machine: "^(Mach.to_string s.state_mach)^
     " | Match Index: "^(List.to_string s.matchIndex ~f:id_index_print)^"\n"^
@@ -160,13 +161,16 @@ module PureState  =
          assert(s.votedFor = None);
          assert(s.mode=Follower);
         { s with votedFor = Some id}
-    | VoteFrom id ->
+    | VoteFrom (id,success) -> (
+      if success then 
         { s with votesGranted = id::s.votesGranted }
+      else
+        {s with votesFailed = id::s.votesFailed} )
     | StepDown tm ->
         { s with mode=Follower;
         term = tm;
         votedFor = None;
-        votesResponded=[];
+        votesFailed=[];
         votesGranted=[];
         nextIndex  = [];
         matchIndex = []; 
@@ -180,7 +184,7 @@ module PureState  =
     | StartCandidate -> 
         { s with mode=Candidate;
         votedFor = Some s.id;
-        votesResponded=[];
+        votesFailed=[];
         votesGranted=[s.id];
         term = (Index.succ s.term);
         leader = None;

@@ -43,7 +43,9 @@ let common () =
       +> flag "-clientWaitFailure" (optional_with_default 5 int)
         ~doc:"Time a client waits after a failed requests"        
       +> flag "-clientTimeout" (optional_with_default 50 int)
-        ~doc:"Timeout that a client waits for the response from the cluster"   
+        ~doc:"Timeout that a client waits for the response from the cluster"  
+      +> flag "-backoff" no_arg
+        ~doc:"Enable the binary exponential for candidates with majority rejections" 
 
  )
 
@@ -56,9 +58,9 @@ let realtime =
      ++ common ()
       )
     (fun nodes term debug_enabled json_enabled iter data follower candidate leader delay failure recover term_ele 
-        term_client cmds wait_succ wait_fail timeout_client () ->  
+        term_client cmds wait_succ wait_fail timeout_client backoff () ->  
       printf "%s" (Parser.run ~time:Real ~nodes ~term ~debug_enabled ~json_enabled ~iter ~data ~follower ~candidate ~leader ~delay 
-      ~failure ~recover ~term_ele ~term_client ~cmds ~wait_succ ~wait_fail ~timeout_client)) 
+      ~failure ~recover ~term_ele ~term_client ~cmds ~wait_succ ~wait_fail ~timeout_client ~backoff)) 
 
 let discrete =
   Command.basic
@@ -69,9 +71,9 @@ let discrete =
      ++ common ()
       )
     (fun nodes term debug_enabled json_enabled iter data follower candidate leader delay failure recover term_ele 
-        term_client cmds wait_succ wait_fail timeout_client () ->  
+        term_client cmds wait_succ wait_fail timeout_client backoff () ->  
       printf "%s" (Parser.run ~time:Discrete ~nodes ~term ~debug_enabled ~json_enabled ~iter ~data ~follower ~candidate ~leader ~delay 
-      ~failure ~recover ~term_ele ~term_client ~cmds ~wait_succ ~wait_fail ~timeout_client))
+      ~failure ~recover ~term_ele ~term_client ~cmds ~wait_succ ~wait_fail ~timeout_client ~backoff))
 
 let () =  
   ["realtime",realtime;"discrete",discrete]
