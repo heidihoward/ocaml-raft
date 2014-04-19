@@ -478,19 +478,21 @@ and appendEntriesRs (res: Rpcs.AppendEntriesRes.t) id (s:State.t) =
 
  and clientRq (args: Rpcs.ClientArg.t) (s:State.t) = 
   debug (Rpcs.ClientArg.to_string args);
-  match s.mode with
-  | Follower  | Candidate ->
+  let cmd = Mach.cmd_of_sexp args.cmd in
+  match s.mode , (Mach.check_cmd s.state_mach cmd) with
+  | Follower, None  | Candidate, None ->
     let res = { Rpcs.ClientRes.success = None; node_id = s.id; leader = s.leader; replyto = args; } in
     debug("I'm not the leader so can't commit");
     (s, [Comms.unicast_client (s.time()) (clientRs res)] )
- (* | Leader when args.seqNum = s.seqNum -> (
+  | _, Some result -> (
     debug "This command has already been committed";
-    match (s_new.outstanding_request) with
-    | Some (i,res) ->
-          let s_new = State.tick RemoveClientRes s_new in
+    match (s.outstanding_request) with
+    | Some (i,response) ->
+          let s_new = State.tick RemoveClientRes s in
+          let res = { Rpcs.ClientRes.success = Some (Mach.sexp_of_res result) ; node_id = s.id; leader = s.leader; replyto = response; } in
           (s_new, [Comms.unicast_client (s.time()) (clientRs res)])
-    | None -> assert false) *)
-  | Leader (* when args.seqNum > s.seqNum *) -> 
+    | None -> assert false) 
+  | Leader, None -> 
     let entry_index = Index.succ s.lastlogIndex in
     let log_entry = (entry_index, s.term, (Mach.cmd_of_sexp args.cmd)) in
     let to_string (i,t,c) = (Index.to_string i)^" "^(Index.to_string t)^" "^(Mach.cmd_to_string c) in

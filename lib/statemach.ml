@@ -9,10 +9,11 @@ module type MACHINE = sig
   val init : unit -> t
   val to_string : t -> string
   val cmd_to_string : cmd -> string
-   val res_to_string : res -> string
+  val res_to_string : res -> string
   val gen_workload : int -> cmd list
   val gen_results : int -> res list
   val get_last_res: t -> res
+  val check_cmd: t -> cmd -> res option
 end
 
 module KeyValStr : MACHINE = struct
@@ -80,5 +81,10 @@ module KeyValStr : MACHINE = struct
     List.map (List.range ~stop:`inclusive 1 size) ~f:(fun x -> Some (Int.to_string x)) 
 
   let get_last_res s = s.last_response
+  let check_cmd s (serial_num,_) = 
+    if serial_num = s.last_serial 
+    then Some s.last_response
+  else None
+
 
 end

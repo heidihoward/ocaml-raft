@@ -11,5 +11,6 @@ module type MACHINE =
   val gen_workload : int -> cmd list
    val gen_results : int -> res list
   val get_last_res: t -> res
+  val check_cmd: t -> cmd -> res option 
   end
 module KeyValStr : MACHINE
