@@ -86,6 +86,7 @@ module type PARAMETERS = sig
   val client_timeout : int
   val backoff: bool
   val loss: float
+  val hist: bool
 end
 
 module Index = struct

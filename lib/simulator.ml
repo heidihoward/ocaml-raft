@@ -719,7 +719,7 @@ let start () =
   debug "Raft Simulator is Starting Up ...";
   json ("'numNodes':"^(string_of_int P.nodes)^",");
   run_multi 
-  (StateList.init P.nodes)  
+  (StateList.init P.nodes P.hist)  
   (init_eventlist P.nodes)
   (Client.init P.nodes P.workload_size)
 

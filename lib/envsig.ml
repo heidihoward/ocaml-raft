@@ -91,7 +91,7 @@ module State :
          * status. If you try to update  *)
         val add : t -> IntID.t -> State.t -> t
 (*        val from_listassoc : (IntID.t *  State.t status) list -> t *)
-        val init : int -> t
+        val init : int -> bool -> t
 
         val check_condition : t -> f:( (IntID.t * State.t status) -> bool) -> bool
         

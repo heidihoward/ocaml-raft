@@ -354,13 +354,18 @@ module StateHandlerHist =
   functor (Mach: Statemach.MACHINE ) -> struct
 
 module State = PureState(MonoTime)(Mach)
+  
+  let hist = ref false
 
   type t = (IntID.t,State.t status list) List.Assoc.t
   (*this is only created by init so we are assuming list always have at least
    * one element, hence use of hd_exn*)
 
   let append sl id (s: State.t status) = 
+  if !hist then
     List.Assoc.add sl id (s::(List.Assoc.find_exn sl id))
+  else
+    List.Assoc.add sl id [s]
 
   let find sl id  = match (List.Assoc.find sl id) with
     | Some x -> List.hd_exn x
@@ -404,10 +409,11 @@ module State = PureState(MonoTime)(Mach)
   
 (*  let from_listassoc x = x *)
 
-  let init n : t =
+  let init n store_hist : t =
     let id_list = List.init n ~f:(IntID.from_int) in
     let remove x xs = List.filter xs ~f:(fun y -> not (x = y)) in 
     let gen_state id id_list = State.init id (remove id id_list) in
+    hist := store_hist; 
     List.map 
     ~f:(fun node_id -> node_id , [(Live (gen_state node_id id_list))] ) id_list
 
