@@ -484,14 +484,11 @@ and appendEntriesRs (res: Rpcs.AppendEntriesRes.t) id (s:State.t) =
     let res = { Rpcs.ClientRes.success = None; node_id = s.id; leader = s.leader; replyto = args; } in
     debug("I'm not the leader so can't commit");
     (s, [Comms.unicast_client (s.time()) (clientRs res)] )
-  | _, Some result -> (
+  | _, Some result -> 
     debug "This command has already been committed";
-    match (s.outstanding_request) with
-    | Some (i,response) ->
           let s_new = State.tick RemoveClientRes s in
-          let res = { Rpcs.ClientRes.success = Some (Mach.sexp_of_res result) ; node_id = s.id; leader = s.leader; replyto = response; } in
+          let res = { Rpcs.ClientRes.success = Some (Mach.sexp_of_res result) ; node_id = s.id; leader = s.leader; replyto = args; } in
           (s_new, [Comms.unicast_client (s.time()) (clientRs res)])
-    | None -> assert false) 
   | Leader, None -> 
     let entry_index = Index.succ s.lastlogIndex in
     let log_entry = (entry_index, s.term, (Mach.cmd_of_sexp args.cmd)) in
