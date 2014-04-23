@@ -3,6 +3,7 @@ branches:
     - simulator
 language: c
 script: bash -ex travis.sh
+after_failure: cat output.log
 env:
     global:
     - OCAML_VERSION=4.01.0 OPAM_VERSION=1.1.0

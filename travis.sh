@@ -32,10 +32,6 @@ do
 ./cmdstart.byte discrete -termOnClient -nodes 100 -follower Uniform-150-300 -candidate Uniform-15-30 -leader Fixed-75 -delay Normal-7-4 -cmds 50 -failure Uniform-0-1000 -recover Uniform-5-10 > output.log
 done 
 
-function finish {
-  cat output.log
-}
-trap finish EXIT
 
 # unit testing
 ./test_splaytree.byte
