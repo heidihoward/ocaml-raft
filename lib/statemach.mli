@@ -12,5 +12,6 @@ module type MACHINE =
    val gen_results : int -> res list
   val get_last_res: t -> res
   val check_cmd: t -> cmd -> res option 
+  val expected_serial: t -> cmd -> bool
   end
 module KeyValStr : MACHINE

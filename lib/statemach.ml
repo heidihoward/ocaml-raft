@@ -14,6 +14,7 @@ module type MACHINE = sig
   val gen_results : int -> res list
   val get_last_res: t -> res
   val check_cmd: t -> cmd -> res option
+  val expected_serial: t -> cmd -> bool
 end
 
 module KeyValStr : MACHINE = struct
@@ -54,6 +55,7 @@ module KeyValStr : MACHINE = struct
       { mach = new_state; last_serial=id; last_response =(List.Assoc.find new_state key); serial_applied = id::state.serial_applied; }
     | Find key -> 
       { state with last_serial=id; last_response =(List.Assoc.find state.mach key); serial_applied = id::state.serial_applied; } )
+    else if (id<state.last_serial) then state
     else assert false
 
 
@@ -89,5 +91,7 @@ module KeyValStr : MACHINE = struct
     then Some s.last_response
   else None
 
+  let expected_serial s (serial_num,_) = 
+    (s.last_serial+1) = serial_num 
 
 end

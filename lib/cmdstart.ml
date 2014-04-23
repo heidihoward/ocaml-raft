@@ -42,7 +42,7 @@ let common () =
         ~doc:"Time a client waits after a successful requests"
       +> flag "-clientWaitFailure" (optional_with_default 5 int)
         ~doc:"Time a client waits after a failed requests"        
-      +> flag "-clientTimeout" (optional_with_default 50 int)
+      +> flag "-clientTimeout" (optional_with_default 100 int)
         ~doc:"Timeout that a client waits for the response from the cluster"  
       +> flag "-backoff" no_arg
         ~doc:"Enable the binary exponential for candidates with majority rejections" 

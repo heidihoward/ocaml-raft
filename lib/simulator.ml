@@ -476,7 +476,7 @@ and appendEntriesRs (res: Rpcs.AppendEntriesRes.t) id (s:State.t) =
             let res = { Rpcs.ClientRes.success = Some result; node_id = s_new.id; leader = s_new.leader; replyto=args; } in
             (s_new, [Comms.unicast_client (s.time()) (clientRs res)]) 
          | None ->
-            debug "SERIOUS ISSUE"; 
+            debug "this is a delayed request so ignore"; 
             (s_new,[]) ))
         else if (i>s_new.commitIndex) then (
           debug "try to commit but can't yet"; (s_new,[]) )
@@ -507,7 +507,8 @@ and appendEntriesRs (res: Rpcs.AppendEntriesRes.t) id (s:State.t) =
           let s_new = State.tick RemoveClientRes s in
           let res = { Rpcs.ClientRes.success = Some (Mach.sexp_of_res result) ; node_id = s.id; leader = s.leader; replyto = args; } in
           (s_new, [Comms.unicast_client (s.time()) (clientRs res)])
-  | Leader, None -> 
+  | Leader, None -> (
+    if (Mach.expected_serial s.state_mach cmd) then (
     let entry_index = Index.succ s.lastlogIndex in
     let log_entry = (entry_index, s.term, (Mach.cmd_of_sexp args.cmd)) in
     let to_string (i,t,c) = (Index.to_string i)^" "^(Index.to_string t)^" "^(Mach.cmd_to_string c) in
@@ -515,7 +516,10 @@ and appendEntriesRs (res: Rpcs.AppendEntriesRes.t) id (s:State.t) =
   (*  let s_new = State.tick (Commit entry_index) s_new in *)
     let s_new = State.tick (AddClientRequest (entry_index,args)) s_new in
     debug("I'm the leader so will try to commit command "^to_string log_entry);
-    (s_new, [] )
+    (s_new, [] ))
+    else 
+    ( debug ("State machine isn't expecting this cmd so ignore"); (s,[]))
+    )
 
 and clientRs (res: Rpcs.ClientRes.t) (s:Client.t) = 
   (*TODO: make check if old packets mess this up *)
