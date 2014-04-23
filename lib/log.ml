@@ -4,8 +4,18 @@ open Common
   (*highest element is always at head *)
   type 'a t = (Index.t * Index.t * 'a) list with sexp
   let init () = []
-  let append new_ele lst = new_ele :: lst
-  let appends elements lst = elements @ lst
+
+  let append new_ele lst = 
+   match new_ele,lst with
+    | (new_index, new_term, new_cmd), [] -> assert(new_index= Index.succ (Index.init())); [new_ele]
+    | (new_index, new_term, new_cmd), (index,term,cmd)::_ -> assert(new_index = (Index.succ index)); new_ele :: lst
+
+  let appends elements lst = 
+    match (List.last elements),lst with
+    | None,_ -> lst
+    | (Some new_ele ),_-> 
+      let _ = append new_ele lst in
+      elements @ lst
 
   let last_index_term = function 
   | [] -> ( Index.init(),Index.init() )
