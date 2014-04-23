@@ -516,7 +516,8 @@ and appendEntriesRs (res: Rpcs.AppendEntriesRes.t) id (s:State.t) =
   (*  let s_new = State.tick (Commit entry_index) s_new in *)
     let s_new = State.tick (AddClientRequest (entry_index,args)) s_new in
     debug("I'm the leader so will try to commit command "^to_string log_entry);
-    (s_new, [] ))
+    (if P.cons then
+    (s_new, [] ) else dispatchAppendEntries s_new ))
     else 
     ( debug ("State machine isn't expecting this cmd so ignore"); (s,[]))
     )
