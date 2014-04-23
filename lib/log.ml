@@ -8,7 +8,10 @@ open Common
   let append new_ele lst = 
    match new_ele,lst with
     | (new_index, new_term, new_cmd), [] -> assert(new_index= Index.succ (Index.init())); [new_ele]
-    | (new_index, new_term, new_cmd), (index,term,cmd)::_ -> assert(new_index = (Index.succ index)); new_ele :: lst
+    | (new_index, new_term, new_cmd), (index,term,cmd)::_ -> 
+      assert(new_index = (Index.succ index)); 
+      assert((Index.to_int index) = List.length lst);
+      new_ele :: lst
 
   let appends elements lst = 
     match (List.last elements),lst with

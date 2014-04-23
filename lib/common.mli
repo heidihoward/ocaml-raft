@@ -62,6 +62,7 @@ module Index :
     val pred : t -> t
     val init : unit -> t
     val to_string : t -> string
+    val to_int: t -> int
   end
 
 (** [IntID] is the identifier used for nodes, this could later be used to store
