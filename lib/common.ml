@@ -87,6 +87,7 @@ module type PARAMETERS = sig
   val backoff: bool
   val loss: float
   val hist: bool
+  val cons: bool
 end
 
 module Index = struct

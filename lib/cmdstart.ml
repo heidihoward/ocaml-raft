@@ -50,6 +50,8 @@ let common () =
         ~doc:"Probabilty that a packet will be lossed"
       +> flag "-hist" no_arg
         ~doc:"Enable storage of simulation trace"
+      +> flag "-conservative" no_arg
+        ~doc:"Enable conservative use of AppendEntries so they only go out on ehop"
  )
 
 let realtime =
@@ -61,9 +63,9 @@ let realtime =
      ++ common ()
       )
     (fun nodes term debug_enabled json_enabled iter data follower candidate leader delay failure recover term_ele 
-        term_client cmds wait_succ wait_fail timeout_client backoff loss hist () ->  
+        term_client cmds wait_succ wait_fail timeout_client backoff loss hist cons () ->  
       printf "%s" (Parser.run ~time:Real ~nodes ~term ~debug_enabled ~json_enabled ~iter ~data ~follower ~candidate ~leader ~delay 
-      ~failure ~recover ~term_ele ~term_client ~cmds ~wait_succ ~wait_fail ~timeout_client ~backoff ~loss ~hist )) 
+      ~failure ~recover ~term_ele ~term_client ~cmds ~wait_succ ~wait_fail ~timeout_client ~backoff ~loss ~hist ~cons )) 
 
 let discrete =
   Command.basic
@@ -74,9 +76,9 @@ let discrete =
      ++ common ()
       )
     (fun nodes term debug_enabled json_enabled iter data follower candidate leader delay failure recover term_ele 
-        term_client cmds wait_succ wait_fail timeout_client backoff loss hist () ->  
+        term_client cmds wait_succ wait_fail timeout_client backoff loss hist cons () ->  
       printf "%s" (Parser.run ~time:Discrete ~nodes ~term ~debug_enabled ~json_enabled ~iter ~data ~follower ~candidate ~leader ~delay 
-      ~failure ~recover ~term_ele ~term_client ~cmds ~wait_succ ~wait_fail ~timeout_client ~backoff ~loss ~hist ))
+      ~failure ~recover ~term_ele ~term_client ~cmds ~wait_succ ~wait_fail ~timeout_client ~backoff ~loss ~hist ~cons ))
 
 let () =  
   ["realtime",realtime;"discrete",discrete]
