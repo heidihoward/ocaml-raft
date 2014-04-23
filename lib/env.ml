@@ -184,6 +184,7 @@ module PureState  =
         matchIndex = []; 
         leader = None;
         backoff = 0;
+        outstanding_request = None;
         safety_monitor = (
             match s.mode with 
             | Candidate -> RaftMonitor.tick s.safety_monitor `StepDown_from_Candidate
@@ -197,6 +198,7 @@ module PureState  =
         votesFailed=[];
         votesGranted=[s.id];
         term = (Index.succ s.term);
+        outstanding_request = None;
         leader = None;
         safety_monitor =
             match s.mode with
@@ -213,6 +215,7 @@ module PureState  =
        (* votesGranted=[]; *)
         leader = Some s.id;
         backoff = 0;
+        outstanding_request = None;
         nextIndex  = List.map s.allNodes ~f:(fun id -> (id,Index.succ (s.lastlogIndex)) );
         matchIndex = List.map s.allNodes ~f:(fun id -> (id,Index.init()) );
         safety_monitor = RaftMonitor.tick s.safety_monitor `WinElection;

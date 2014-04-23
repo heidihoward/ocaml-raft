@@ -48,6 +48,7 @@ type datacollection = {
   mutable client_pkts: int; 
   mutable firstele: MonoTime.t option;
   mutable full_latency: (MonoTime.t option ) * (MonoTime.span list);
+  mutable commit_requests: int;
     }
 
 let data = {
@@ -55,6 +56,7 @@ let data = {
   client_pkts=0; 
   firstele=None; 
   full_latency= (None,[]);
+  commit_requests =0;
   }
 
 
@@ -87,6 +89,7 @@ module type RAFT = sig
 
   val startCand: eventsig
   val dispatchAppendEntries: eventsig
+  val dispatchAppendEntries_unicast: IntID.t -> State.t -> EventList.item
   val startLeader: eventsig
   val refreshTimer: eventsig
 
@@ -234,6 +237,21 @@ and dispatchAppendEntries (s:State.t) =
   let reqs = List.map s.allNodes ~f:dispatch in
   let s_new,timeout_event = refreshTimer s in
   (s_new, timeout_event@reqs )
+
+and dispatchAppendEntries_unicast id (s:State.t) =
+    let next_index = List.Assoc.find_exn s.nextIndex id in
+    let (prev_index,prev_term) = Log.specific_index_term (Index.pred (List.Assoc.find_exn s.nextIndex id)) s.log in
+    let args = Rpcs.AppendEntriesArg.(
+      (*just a heartbeat message *)
+        { term = s.term;
+        lead_id = s.id;
+        prevLogIndex = prev_index;
+        prevLogTerm = prev_term;
+        leaderCommit = s.commitIndex;
+        entries = List.map (Log.get_entries next_index s.log) 
+          ~f:(fun (i,t,c_sexp) -> (i,t,Mach.sexp_of_cmd c_sexp)) ; (*emprt list means this is heartbeat *)
+        } ) in  
+  Comms.unicast_replica id (s.time()) (appendEntriesRq args) 
 
 
 and startFollow term (s:State.t)  = debug "Entering Follower mode";
@@ -490,7 +508,11 @@ and appendEntriesRs (res: Rpcs.AppendEntriesRes.t) id (s:State.t) =
   | false -> (
     debug "Unsuccessful at adding to followers log";
     match s.mode with
-    | Leader -> ( State.tick (ReplicationFailure (res.follower_id, res.replyto.prevLogIndex)) s, []) 
+    | Leader -> (
+      let s_new = State.tick (ReplicationFailure (res.follower_id, res.replyto.prevLogIndex)) s in
+      if P.cons 
+        then (s_new,[])
+        else (s_new, [dispatchAppendEntries_unicast id s_new]) )
     | Candidate | Follower -> (s,[]) ) )
 
 
@@ -549,6 +571,7 @@ and clientCommit (s: Client.t) =
   match (s.workload) with
   | cmd::later -> 
     debug ("Client is attempting to commit "^(Mach.cmd_to_string cmd)) ;
+    data.commit_requests <- data.commit_requests +1;
     client_latency (`Start (s.time()) );
     let args = {Rpcs.ClientArg.cmd = (Mach.sexp_of_cmd cmd); } in
     let s_new = Client.tick Set s in
@@ -609,6 +632,7 @@ let termination_output reason sl (cl: Client.t) =
       Some x -> MonoTime.to_string x 
       | None -> "" in
    let latency_list = List.rev (match data.full_latency with (_,lst) -> lst) in
+  let ava = ( (Int.to_float (List.length latency_list)) /.(Int.to_float data.commit_requests)) *. 100.0 in
  (* let term_str = Index.to_string StateList.get_leader term in *)
   "Reason: "^(termination_to_string reason)^
   "\n Time: "^time_str^
@@ -616,6 +640,7 @@ let termination_output reason sl (cl: Client.t) =
   "\n Client Packets: "^(Int.to_string data.client_pkts)^
   "\n Leader Established: "^first_election^
   "\n Client Latency: "^(List.to_string ~f:MonoTime.span_to_string latency_list)^
+  "\n Avalability: "^(Float.to_string ava)^
   "\n"
 
 let wake (s:State.t) : EventList.item list =

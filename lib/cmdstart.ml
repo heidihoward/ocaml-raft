@@ -38,9 +38,9 @@ let common () =
          ~doc:"Terminate when a client workload is empty"
       +> flag "-cmds" (optional_with_default 5 int)
           ~doc:"Size of test workload"
-      +> flag "-clientWaitSuccess" (optional_with_default 5 int)
+      +> flag "-clientWaitSuccess" (optional_with_default 0 int)
         ~doc:"Time a client waits after a successful requests"
-      +> flag "-clientWaitFailure" (optional_with_default 5 int)
+      +> flag "-clientWaitFailure" (optional_with_default 0 int)
         ~doc:"Time a client waits after a failed requests"        
       +> flag "-clientTimeout" (optional_with_default 100 int)
         ~doc:"Timeout that a client waits for the response from the cluster"  
