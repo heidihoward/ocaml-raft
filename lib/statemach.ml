@@ -32,28 +32,29 @@ module KeyValStr : MACHINE = struct
   | Some x -> ("Found "^x)
   
   let mach_cmd_to_string = function 
-    | Add (k,v) -> "ADD: "^(Int.to_string k)^", "^v
-    | Find k -> "FIND: "^(Int.to_string k)
+    | Add (k,v) -> " ADD: "^(Int.to_string k)^", "^v
+    | Find k -> " FIND: "^(Int.to_string k)
 
   let cmd_to_string (serial_num,cmd) =
-    "SERIAL NUMBER: "^(Int.to_string serial_num)^(mach_cmd_to_string cmd)
+    " SERIAL #: "^(Int.to_string serial_num)^": "^(mach_cmd_to_string cmd)
 
   type t = 
     { mach: (int * string) list;
       last_serial: int;
       last_response: res;
+      serial_applied: int list
       } with sexp
 
   let commit state (id, mach_cmd) = 
-    if (id=state.last_serial) 
-      then state 
-      else (
+    if (id=state.last_serial) then state 
+    else if (id=state.last_serial+1) then (
     match mach_cmd with
     | Add (key,value) -> 
       let new_state = List.Assoc.add state.mach key value in
-      { mach = new_state; last_serial=id; last_response =(List.Assoc.find new_state key); }
+      { mach = new_state; last_serial=id; last_response =(List.Assoc.find new_state key); serial_applied = id::state.serial_applied; }
     | Find key -> 
-      { state with last_serial=id; last_response =(List.Assoc.find state.mach key); } )
+      { state with last_serial=id; last_response =(List.Assoc.find state.mach key); serial_applied = id::state.serial_applied; } )
+    else assert false
 
 
   let rec commit_many state cmds = 
@@ -65,12 +66,14 @@ module KeyValStr : MACHINE = struct
     | [] -> state
 
   let init () = 
-    { mach = []; last_serial=0;last_response=None; }
+    { mach = []; last_serial=0;last_response=None; serial_applied=[]; }
 
   let to_string kvs = 
   "Key Value Store: "^(List.to_string ~f:( fun (k,v) -> (Int.to_string k)^" "^v) kvs.mach)^
   " Last serial: "^(Int.to_string kvs.last_serial)^
-  " Last response: "^(res_to_string kvs.last_response)^"\n"
+  " Last response: "^(res_to_string kvs.last_response)^
+  " Serial Applied: "^(List.to_string ~f:Int.to_string kvs.serial_applied )^
+  "\n"
 
   (* let sample_workload  = [
     Add (1,"a"); Add (2,"b"); Add(3,"c")] *)

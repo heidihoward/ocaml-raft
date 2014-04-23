@@ -131,6 +131,7 @@ module PureState  =
     " | Last Log Term: "^(Index.to_string s.lastlogTerm)^
     " | Commit Index: "^(Index.to_string s.commitIndex)^
     " | Replicated Log: "^(Log.to_string ~cmd_to_string:Mach.cmd_to_string s.log)^
+    " | Outstanding Request: "^(string_of_option (fun (id,_) -> Index.to_string id) s.outstanding_request)^
     "\n-------------------------------------------------------------------------------------"
  (* sexp_of_t s |> Sexp.to_string *)
 
@@ -142,12 +143,15 @@ module PureState  =
 
 
  let update_commitIndex match_list commitIndex log curr_term =
-    let magority = (List.length match_list +1 / 2) in
+    let magority = ((List.length match_list +1) / 2) in
     let discard (_,index) = 
       (if index > commitIndex then Some index else None) in
     let new_list = 
       List.sort ~cmp:(fun x y -> -1* (Index.compare x y))
         (List.filter_map ~f:discard match_list) in
+    (* new_list is now a list of indexes which are greater then current commit index *)
+    (* nth starts counting at 0 *)
+    printf "new_list %s nth %s " (List.to_string ~f:Index.to_string new_list) (Int.to_string magority);
     match List.nth new_list magority with 
     | Some index -> 
       let (_,term) = Log.specific_index_term index log in
@@ -261,10 +265,12 @@ module PureState  =
             if (match_index<index_new) then 
             List.Assoc.add s.matchIndex id index_new
             else s.matchIndex ) in
+          let new_commitIndex = update_commitIndex new_matchIndex s.commitIndex s.log s.term in
             { s with 
             matchIndex = new_matchIndex ;
             nextIndex = (List.Assoc.add s.nextIndex id (Index.succ index_new));
-            commitIndex = update_commitIndex new_matchIndex s.commitIndex s.log s.term ; }
+            commitIndex = new_commitIndex ; 
+            state_mach =  Mach.commit_many s.state_mach (Log.to_commit s.commitIndex new_commitIndex s.log)}
         | _ -> assert false )
     | AddClientRequest (index,res) ->
       {s with outstanding_request = Some (index,res); }

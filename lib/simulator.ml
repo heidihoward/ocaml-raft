@@ -459,21 +459,39 @@ and appendEntriesRs (res: Rpcs.AppendEntriesRes.t) id (s:State.t) =
      | [] -> (*it was a heartbeat so nextIndex is already correct *)
         res.replyto.prevLogIndex
      | (i,_,_)::_ -> i) in
+    (* update commit index *)
     let s_new = State.tick (ReplicationSuccess (res.follower_id, new_index)) s in
     match (s_new.outstanding_request) with
+    (* handle replying to client *)
     | Some (i,args) ->
-        if (i>=s_new.commitIndex) then
+    debug ("we have an outstanding request "^(Index.to_string i));
+    debug ("we are ready to commit upto (inclusive) "^(Index.to_string s_new.commitIndex));
+       begin
+        if (i=s_new.commitIndex) then (
           let s_new = State.tick RemoveClientRes s_new in
-          let result = Mach.sexp_of_res (Mach.get_last_res s_new.state_mach) in
-          let res = { Rpcs.ClientRes.success = Some result; node_id = s_new.id; leader = s_new.leader; replyto=args; } in
-          (s_new, [Comms.unicast_client (s.time()) (clientRs res)])
-        else (s_new,[])
-    | None -> (s_new,[]) )
-  | false -> 
+          let s_new = State.tick (Commit i) s_new in (
+          match (Mach.check_cmd s_new.state_mach (Mach.cmd_of_sexp args.cmd)) with
+         | Some res ->
+            let result = Mach.sexp_of_res res in
+            let res = { Rpcs.ClientRes.success = Some result; node_id = s_new.id; leader = s_new.leader; replyto=args; } in
+            (s_new, [Comms.unicast_client (s.time()) (clientRs res)]) 
+         | None ->
+            debug "SERIOUS ISSUE"; 
+            (s_new,[]) ))
+        else if (i>s_new.commitIndex) then (
+          debug "try to commit but can't yet"; (s_new,[]) )
+        else (
+          debug "over commited"; assert false )
+       end
+    (* no outstanding client requests *)
+    | None -> 
+    debug "we have no outstanding requests";
+    (s_new,[]) )
+  | false -> (
     debug "Unsuccessful at adding to followers log";
     match s.mode with
     | Leader -> ( State.tick (ReplicationFailure (res.follower_id, res.replyto.prevLogIndex)) s, []) 
-    | Candidate | Follower -> (s,[]) )
+    | Candidate | Follower -> (s,[]) ) )
 
 
  and clientRq (args: Rpcs.ClientArg.t) (s:State.t) = 
@@ -494,7 +512,7 @@ and appendEntriesRs (res: Rpcs.AppendEntriesRes.t) id (s:State.t) =
     let log_entry = (entry_index, s.term, (Mach.cmd_of_sexp args.cmd)) in
     let to_string (i,t,c) = (Index.to_string i)^" "^(Index.to_string t)^" "^(Mach.cmd_to_string c) in
     let s_new = State.tick (AppendEntry log_entry) s in
-    let s_new = State.tick (Commit entry_index) s_new in
+  (*  let s_new = State.tick (Commit entry_index) s_new in *)
     let s_new = State.tick (AddClientRequest (entry_index,args)) s_new in
     debug("I'm the leader so will try to commit command "^to_string log_entry);
     (s_new, [] )
