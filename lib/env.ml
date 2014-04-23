@@ -151,7 +151,7 @@ module PureState  =
         (List.filter_map ~f:discard match_list) in
     (* new_list is now a list of indexes which are greater then current commit index *)
     (* nth starts counting at 0 *)
-    printf "new_list %s nth %s " (List.to_string ~f:Index.to_string new_list) (Int.to_string magority);
+  (*  printf "new_list %s nth %s " (List.to_string ~f:Index.to_string new_list) (Int.to_string magority); *)
     match List.nth new_list magority with 
     | Some index -> 
       let (_,term) = Log.specific_index_term index log in
