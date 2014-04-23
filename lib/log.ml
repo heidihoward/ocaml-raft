@@ -28,10 +28,10 @@ open Common
   | None -> ( Index.init(), Index.init())
 
   let consistency_check log prev_index prev_term =
-    match log with 
-    | [] -> `Consistent
-    | _::_ -> 
-      match List.find log ~f:(fun (index,_,_) -> (index=prev_index)) with
+  if (prev_index = Index.init())&&(prev_term = Index.init()) then
+    `Consistent
+  else
+    match List.find log ~f:(fun (index,_,_) -> (index=prev_index)) with
     | Some (_,term,_) when term=prev_term -> `Consistent
     | _ -> `Inconsistent
 
