@@ -20,7 +20,7 @@ eval `opam config env`
 
 
 # testing ocaml-raft
-for i in {1..100}
+for i in {1..20}
 do
    echo "Test $i "
 ./cmdstart.byte discrete -termOnClient -nodes 2 -follower Uniform-150-300 -candidate Fixed-50 -leader Fixed-50 -delay Fixed-6 
