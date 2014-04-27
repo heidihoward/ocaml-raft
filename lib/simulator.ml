@@ -49,6 +49,8 @@ type datacollection = {
   mutable firstele: MonoTime.t option;
   mutable full_latency: (MonoTime.t option ) * (MonoTime.span list);
   mutable commit_requests: int;
+  mutable election_time: (IntID.t * MonoTime.t) list;
+  mutable total_election_time: MonoTime.t
     }
 
 let data = {
@@ -57,7 +59,27 @@ let data = {
   firstele=None; 
   full_latency= (None,[]);
   commit_requests =0;
+  election_time = [];
+  total_election_time = MonoTime.init();
   }
+
+let election_timer_start id start_time =
+    data.election_time <- (List.Assoc.add data.election_time id start_time)
+
+let election_timer_stop id stop_time =
+   let start_time = List.Assoc.find_exn data.election_time id  in
+   let duration = MonoTime.diff stop_time start_time in
+   data.election_time <- (List.Assoc.remove data.election_time id );
+   data.total_election_time <- (MonoTime.add data.total_election_time duration)
+
+let rec final_election_time final_time = 
+  match data.election_time with
+  | [] -> ()
+  | (id,start_time)::_ -> 
+       let duration = MonoTime.diff final_time start_time in
+        data.election_time <- (List.Assoc.remove data.election_time id );
+        data.total_election_time <- (MonoTime.add data.total_election_time duration);
+        final_election_time final_time
 
 
 let client_latency opt = 
@@ -165,6 +187,7 @@ let rec  startCand (s:State.t) =
   (s_new.time()))^",'newTerm':"^(Index.to_string
   s_new.term)^",'newInfo':'last index:"^(Index.to_string
   s_new.lastlogIndex)^"last Term:"^(Index.to_string s_new.lastlogTerm)^"'}");
+  election_timer_start s.id (s.time());
 
   json ("{'source':"^(IntID.to_string s_new.id)^
        ",'RPC':'requestVote','info':'Request Vote Broadcast<br>term:"^(Index.to_string s_new.term)^"<br>Last Index:"^
@@ -257,7 +280,6 @@ and dispatchAppendEntries_unicast id (s:State.t) =
 and startFollow term (s:State.t)  = debug "Entering Follower mode";
   (* used for setdown too so need to reset follower state *)
   let s = State.tick (StepDown term) s in 
-  
   json("{'node':"^(IntID.to_string
     s.id)^",'newMode':'follower','time':"^(MonoTime.to_string
     (s.time()))^",'newTerm':"^(Index.to_string
@@ -269,6 +291,7 @@ and startFollow term (s:State.t)  = debug "Entering Follower mode";
 and startLeader (s:State.t) = 
   debug "Election Won - Becoming Leader";
   let s_new,dispatch_pkts = dispatchAppendEntries (State.tick StartLeader s) in
+  election_timer_stop s.id (s.time());
   json("{'node':"^(IntID.to_string
     s_new.id)^",'newMode':'leader','time':"^(MonoTime.to_string
     (s_new.time()))^",'newTerm':"^(Index.to_string
@@ -293,6 +316,7 @@ and stepDown incoming_mode term lead_id_maybe (s:State.t) =
       assert false
       | Candidate -> 
       debug "leader has been discovered, stopping election and step down";
+      election_timer_stop s.id (s.time());
       startFollow term s
       | Follower -> 
       debug "all is upto date"; 
@@ -633,6 +657,7 @@ let termination_output reason sl (cl: Client.t) =
       | None -> "" in
    let latency_list = List.rev (match data.full_latency with (_,lst) -> lst) in
   let ava = ( (Int.to_float (List.length latency_list)) /.(Int.to_float data.commit_requests)) *. 100.0 in
+  final_election_time (cl.time());
  (* let term_str = Index.to_string StateList.get_leader term in *)
   "Reason: "^(termination_to_string reason)^
   "\n Time: "^time_str^
@@ -641,6 +666,7 @@ let termination_output reason sl (cl: Client.t) =
   "\n Leader Established: "^first_election^
   "\n Client Latency: "^(List.to_string ~f:MonoTime.span_to_string latency_list)^
   "\n Avalability: "^(Float.to_string ava)^
+  "\n ElectionTime: "^(MonoTime.to_string data.total_election_time)^
   "\n"
 
 let wake (s:State.t) : EventList.item list =
