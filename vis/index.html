@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Graph vis</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width">
+</head>
+
+<body>
+    <button id="start">Start</button>
+    <button id="pause">Pause</button>
+    <button id="back">&lt;</button>
+    <button id="forward">&gt;</button>
+    Time:
+    <span id="time">0</span>
+    <button id="fastforward">&gt;&gt;</button>
+    <div id="container"></div>
+    <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+<!--    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>-->
+    <script src="d3.js"></script>
+    <script src="graph.js" charset="utf-8"></script>
+</body>
+<style>
+    div.tooltip {
+        position: absolute;
+        text-align: center;
+        /*  width: 60px;
+  height: 28px;*/
+        padding: 2px;
+        font: 12px sans-serif;
+        background: lightsteelblue;
+        border: 0px;
+        border-radius: 8px;
+        pointer-events: none;
+    }
+    
+    .legend {
+	            padding: 5px;
+	            font: 10px sans-serif;
+	            background: yellow;
+	            box-shadow: 2px 2px 1px #888;
+            }
+    
+/*    .legend {
+        position: absolute;
+        text-align: center;
+          width: 60px;
+  height: 28px;
+        padding: 10px;
+        font: 12px sans-serif;
+        background: lightblue;
+        border: 0px;
+        border-radius: 8px;
+        pointer-events: none;
+    }*/
+    .link {
+        fill: none;
+        stroke: #666;
+        stroke-width: 0.05px;
+    }
+    .node circle,
+    .node circle.follower, .legend circle.follower {
+        fill: #ccc;
+        stroke: #fff;
+        stroke-width: 1.5px;
+    }
+    .node circle.leader, .legend circle.leader {
+        fill: green;
+    }
+    .node circle.candidate, .legend circle.candidate {
+        fill: blue;
+    }
+    text {
+        font: 10px sans-serif;
+        pointer-events: none;
+    }
+    .packet {
+        //font: 8px sans-serif;
+        //pointer-events: none;
+        fill: red;
+    }
+    .packet.appendEntries, .legend rect.appendEntries {
+        fill: purple;
+    }
+    .packet.requestVote, .legend rect.requestVote {
+        fill: red;
+    }
+</style>
+
+</html>

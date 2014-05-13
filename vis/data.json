@@ -1,0 +1,101 @@
+{
+    "numNodes": 6,
+    "messages": [{
+        "source": 0,
+        "dest": 1,
+        "sent": 0,
+        "arrives": 5,
+        "info": "append entries heartbeat<br>term:2",
+        "RPC": "appendEntries"
+    }, {
+        "source": 2,
+        "dest": 0,
+        "sent": 6,
+        "arrives": 10,
+        "info": "requestVote for node 2<br>term:3",
+        "RPC": "requestVote"
+    }, {
+        "source": 0,
+        "dest": 2,
+        "sent": 11,
+        "arrives": 12,
+        "info": "requestVote reply for node 2<br>term:3<br>source:0",
+        "RPC": "requestVote"
+    }, {
+        "source": 2,
+        "dest": 1,
+        "sent": 6,
+        "arrives": 10,
+        "info": "requestVote for node 2<br>term:3",
+        "RPC": "requestVote"
+    }, {
+        "source": 1,
+        "dest": 2,
+        "sent": 11,
+        "arrives": 14,
+        "info": "requestVote reply for node 2<br>term:3<br>source:1",
+        "RPC": "requestVote"
+    }, {
+        "source": 2,
+        "dest": 3,
+        "sent": 6,
+        "arrives": 8,
+        "info": "requestVote for node 2<br>term:3",
+        "RPC": "requestVote"
+    }, {
+        "source": 3,
+        "dest": 2,
+        "sent": 9,
+        "arrives": 12,
+        "info": "requestVote reply for node 2<br>term:3<br>source:3",
+        "RPC": "requestVote"
+    }, {
+        "source": 2,
+        "dest": 4,
+        "sent": 6,
+        "arrives": 9,
+        "info": "requestVote for node 2<br>term:3",
+        "RPC": "requestVote"
+    }, {
+        "source": 4,
+        "dest": 2,
+        "sent": 10,
+        "arrives": 13,
+        "info": "requestVote reply for node 2<br>term:3<br>source:4",
+        "RPC": "requestVote"
+    }, {
+        "source": 2,
+        "dest": 5,
+        "sent": 6,
+        "arrives": 8,
+        "info": "requestVote for node 2<br>term:3",
+        "RPC": "requestVote"
+    }, {
+        "source": 5,
+        "dest": 2,
+        "sent": 9,
+        "arrives": 10,
+        "info": "requestVote reply for node 2<br>term:3<br>source:5",
+        "RPC": "requestVote"
+    }],
+
+    "nodeModeChanges": [{
+        "node": 0,
+        "newMode": "leader",
+        "time": 0,
+        "newTerm": 1,
+        "newInfo": "Now the leader!"
+    }, {
+        "node": 2,
+        "newMode": "candidate",
+        "time": 6,
+        "newInfo": "Now a candidate"
+    }],
+
+    "timeouts": [{
+        "node": 3,
+        "start": 6,
+        "expires": 15,
+        "type": "follower"
+    }]
+}
