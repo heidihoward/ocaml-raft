@@ -2,7 +2,6 @@ _build/
 *.native
 *.byte
 *~
-*.log
 *.swp
 *.data
 *_testing
