@@ -1,6 +1,6 @@
 branches:
   only:
-    - simulator
+    - master
 language: c
 script: bash -ex travis.sh
 after_failure: cat output.log
