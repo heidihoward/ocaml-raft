@@ -1,5 +1,6 @@
 open Core.Std
 open Common
+open Summary
 
 let follower_timeouts =
   [
@@ -50,5 +51,5 @@ let run (min,max) =
   DES.start()
 
 let () =
-  List.map follower_timeouts ~f:(fun x -> run x |> printf "%s")
+  List.map follower_timeouts ~f:(fun x -> run x |> to_string |> printf "%s")
   |> fun _ -> printf "END"

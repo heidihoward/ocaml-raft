@@ -1,11 +1,12 @@
 open Core.Std
 open Common
+open Summary
 
 type time = Discrete | Real 
 
 let rec repeat n f = match n with
   | 0 -> ""
-  | _ -> f() ^" "^ (repeat (n-1) f)
+  | _ -> to_string (f()) ^" "^ (repeat (n-1) f)
 
 
 let distribution = 

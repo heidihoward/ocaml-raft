@@ -6,7 +6,8 @@ corebuild -Is lib,test,spl \
 spl/raftMonitor.byte spl/raftMonitorWrapper.byte \
 lib/common.byte lib/client.byte lib/eventlst.byte \
 lib/splaytree.byte lib/rpcs.byte lib/statemach.byte \
-lib/clock.byte lib/env.byte lib/simulator.byte \
+lib/clock.byte lib/env.byte lib/summary.byte \
+lib/simulator.byte \
 lib/parser.byte lib/cmdstart.byte lib/config.byte
 
 corebuild -Is lib,test,spl \

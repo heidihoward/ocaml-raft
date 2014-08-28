@@ -1,6 +1,7 @@
 open Core.Std
 open Common
 open Eventlst 
+open Summary
 
 (* [RaftSim] is a main body of the implementation, it handles the simulation, the
  * core protcol implementation and communication. This aspects need to be
@@ -659,15 +660,16 @@ let termination_output reason sl (cl: Client.t) =
   let ava = ( (Int.to_float (List.length latency_list)) /.(Int.to_float data.commit_requests)) *. 100.0 in
   final_election_time (cl.time());
  (* let term_str = Index.to_string StateList.get_leader term in *)
-  "Reason: "^(termination_to_string reason)^
-  "\n Time: "^time_str^
-  "\n Replica Packets: "^(Int.to_string data.pkts)^
-  "\n Client Packets: "^(Int.to_string data.client_pkts)^
-  "\n Leader Established: "^first_election^
-  "\n Client Latency: "^(List.to_string ~f:MonoTime.span_to_string latency_list)^
-  "\n Avalability: "^(Float.to_string ava)^
-  "\n ElectionTime: "^(MonoTime.to_string data.total_election_time)^
-  "\n"
+  {
+  reason = reason;
+  time = time_str;
+  replica_pkts = data.pkts;
+  client_pkts = data.client_pkts;
+  leader_est = first_election;
+  client_latency = (List.to_string ~f:MonoTime.span_to_string latency_list);
+  avalability = ava;
+  election_time = MonoTime.to_string data.total_election_time; 
+  }
 
 let wake (s:State.t) : EventList.item list =
   debug ((IntID.to_string s.id)^" node is restarting after failing");
