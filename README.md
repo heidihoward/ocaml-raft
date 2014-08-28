@@ -1,6 +1,6 @@
 ocaml-raft Simulator
 ==========
-[![Build Status](https://travis-ci.org/heidi-ann/ocaml-raft.svg?branch=simulator)](https://travis-ci.org/heidi-ann/ocaml-raft)
+[![Build Status](https://travis-ci.org/heidi-ann/ocaml-raft.svg?branch=master)](https://travis-ci.org/heidi-ann/ocaml-raft)
 
 This is a complete implementation of base Raft consensus algorithm (not inc. membership changes and log compation)
 
