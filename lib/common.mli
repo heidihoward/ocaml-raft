@@ -29,7 +29,15 @@ module NumberGen :
   sig
    (** string_to_dist takes a string specifying parameters and return a random number generaters *)
     val string_to_dist : string -> (unit -> float)
-     val to_drop: float -> bool
+    val to_drop: float -> bool
+
+    val fixed: float -> unit -> float
+    val uniform: float -> float -> float -> unit -> float
+    val exp: float -> float -> unit -> float
+    val znormal: unit -> float
+    val normal: float -> float -> unit -> float
+    val normal_discardneg: float -> float -> unit -> float 
+
   end
 
 (** [PARAMETERS] defines the outcome the command line options are used the
