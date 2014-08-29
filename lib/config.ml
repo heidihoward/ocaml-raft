@@ -36,7 +36,7 @@ let run (min,max) =
       | LeaderEst -> true
       | WorkloadEmpty -> false
     let workload_size = 0
-    let term_time = (scale_int 1000)
+    let term_time = (scale_int 100000)
     let client_wait_success = 0
     let client_wait_failure = 0
     let client_timeout = 100
@@ -53,7 +53,7 @@ let run (min,max) =
 let run_and_extract (min,max) =
   let filename = sprintf "data/%.0f-%.0fresults.log" min max in
   let output_stream = open_out filename in
-  for i=1 to 30 do 
+  for i=1 to 100 do 
     let results = run (min,max) in 
       sprintf "%s\n" results.time
       |> output_string output_stream
