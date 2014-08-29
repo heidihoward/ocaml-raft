@@ -7,8 +7,8 @@ let follower_timeouts =
   (12.0,24.0); 
   (25.0,50.0); 
   (50.0,100.0);
-  (100.0,200.0);
-  (150.0,151.0); 
+  (100.0,200.0); 
+  (150.0,151.0);
   (150.0,155.0);
   (150.0,175.0);
   (150.0,200.0);
@@ -55,7 +55,7 @@ let run_and_extract (min,max) =
   let output_stream = open_out filename in
   for i=1 to 30 do 
     let results = run (min,max) in 
-      sprintf "%s\n" results.leader_est
+      sprintf "%s\n" results.time
       |> output_string output_stream
   done;
   close_out_noerr output_stream
