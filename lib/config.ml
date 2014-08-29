@@ -23,12 +23,12 @@ let run (min,max) =
     let nodes = 5
     let timeout () = function
       | Follower -> 
-          NumberGen.normal_discardneg (scale min) (scale max) ()
+          NumberGen.uniform (scale min) (scale max) 1.0 ()
       | Candidate -> 
-          NumberGen.normal_discardneg (scale min) (scale max) ()
+          NumberGen.uniform (scale min) (scale max) 1.0 ()
       | Leader -> NumberGen.fixed (scale min/.2.0) ()
     let pkt_delay = NumberGen.normal_discardneg (scale 7.0) (scale 2.0)
-    let debug_mode = false 
+    let debug_mode = false
     let json_mode = false
     let nxt_failure = None
     let nxt_recover = None
@@ -50,6 +50,17 @@ let run (min,max) =
     Simulator.RaftSim(Clock.FakeTime)(Statemach.KeyValStr)(Par) in 
   DES.start()
 
+let run_and_extract (min,max) =
+  let filename = sprintf "data/%.0f-%.0fresults.log" min max in
+  let output_stream = open_out filename in
+  for i=1 to 30 do 
+    let results = run (min,max) in 
+      sprintf "%s\n" results.leader_est
+      |> output_string output_stream
+  done;
+  close_out_noerr output_stream
+
+
 let () =
-  List.map follower_timeouts ~f:(fun x -> run x |> to_string |> printf "%s")
-  |> fun _ -> printf "END"
+  ignore (List.map follower_timeouts ~f:run_and_extract)
+
