@@ -13,6 +13,7 @@ module type TIME = sig
   val span_of_float : float -> span
   val span_to_string: span -> string
   val to_string: t -> string
+  val to_int: t -> int
   val wait_until: t -> unit
   val store: t -> (unit -> t)
 end 
@@ -29,6 +30,7 @@ module FakeTime : TIME = struct
   let span_of_float = Float.to_int
   let span_to_string = string_of_int
   let to_string t = string_of_int t
+  let to_int t = t
 (*  let wait t span = 
     Printf.printf "fake wait %s\n%!" (to_string t); 
     add t span *)
@@ -47,6 +49,9 @@ module RealTime : TIME = struct
   let span_of_float s = span_of_int (Float.to_int s)
   let span_to_string = Time.Span.to_string 
   let to_string = Time.to_string 
+  let to_int t = 
+    Time.to_float t 
+    |> Int.of_float
   let diff a b = Time.diff a b
 
 (*  let wait t span =

@@ -12,6 +12,7 @@ module type TIME =
     val span_of_float : float -> span
     val span_to_string : span -> string
     val to_string : t -> string
+    val to_int: t -> int
     val wait_until : t -> unit
     val store : t -> unit -> t 
   end

@@ -654,8 +654,8 @@ let termination_output reason sl (cl: Client.t) =
       MonoTime.span_to_string (MonoTime.span_of_int P.term_time) in
   let first_election = 
     match data.firstele with 
-      Some x -> MonoTime.to_string x 
-      | None -> "" in
+      Some x -> Some (MonoTime.to_int x)
+      | None -> None in
    let latency_list = List.rev (match data.full_latency with (_,lst) -> lst) in
   let ava = ( (Int.to_float (List.length latency_list)) /.(Int.to_float data.commit_requests)) *. 100.0 in
   final_election_time (cl.time());

@@ -18,6 +18,10 @@ let follower_timeouts =
 let scale x = 100.0 *. x
 let scale_int x = 100 * x
 
+let correction min = 
+  NumberGen.uniform (scale 0.0) (scale min/.2.0) 1.0 ()
+  |> Float.to_int
+
 let run (min,max) =
   let module Par = (struct
     let nodes = 5
@@ -54,9 +58,13 @@ let run_and_extract (min,max) =
   let filename = sprintf "data/%.0f-%.0fresults.log" min max in
   let output_stream = open_out filename in
   for i=1 to 100 do 
-    let results = run (min,max) in 
-      sprintf "%s\n" results.time
-      |> output_string output_stream
+    let results = run (min,max) in
+      match results.leader_est with
+        | Some time -> (
+            let correction_val = correction min in
+            sprintf "%i\n" (time - correction_val)
+            |> output_string output_stream )
+        | None -> () 
   done;
   close_out_noerr output_stream
 

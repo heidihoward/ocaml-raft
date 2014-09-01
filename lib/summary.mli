@@ -7,7 +7,7 @@ type t =
   time: string;
   replica_pkts: int;
   client_pkts: int;
-  leader_est: string;
+  leader_est: int option;
   client_latency: string;
   avalability: float;
   election_time: string; 
