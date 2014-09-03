@@ -9,6 +9,7 @@ opam init
 opam install core async ounit
 eval `opam config env`
 
+git clone https://github.com/heidi-ann/ocaml-raft-data.git ../ocaml-raft-data
 # spl
 # git clone https://github.com/avsm/melange.git
 # cd melange/tools/spl
