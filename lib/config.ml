@@ -29,6 +29,7 @@ let follower_timeouts =
 
 let scale x = 100.0 *. x
 let scale_int x = 100 * x
+let unscale_int x = x / 100
 
 let correction min = 
   NumberGen.uniform (scale 0.0) (scale min/.2.0) 1.0 ()
@@ -82,7 +83,7 @@ let run_and_extract fig (min,max) =
       match results.leader_est with
         | Some time -> (
             let correction_val = correction min in
-            sprintf "%i\n" (time - correction_val)
+            sprintf "%i\n" (unscale_int(time - correction_val))
             |> output_string output_stream )
         | None -> () 
   done;
