@@ -25,6 +25,7 @@ let correction min =
 let run (min,max) =
   let module Par = (struct
     let nodes = 5
+    let possible_leaders = 2
     let timeout () = function
       | Follower -> 
           NumberGen.uniform (scale min) (scale max) 1.0 ()

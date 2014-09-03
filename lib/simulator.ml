@@ -197,7 +197,10 @@ let rec  startCand (s:State.t) =
   let reqs = Comms.broadcast s_new.allNodes (s_new.time()) 
     (requestVoteRq args) in
   let s_new,timeout_event = refreshTimer s_new in
-  (s_new, timeout_event@reqs )
+  if s.possible_leader then
+    (s_new, timeout_event@reqs)
+  else
+    (s_new,timeout_event)
 
 and refreshTimer (s:State.t) = 
   let s_new = State.tick Set s in
@@ -794,7 +797,7 @@ let start () =
   debug "Raft Simulator is Starting Up ...";
   json ("'numNodes':"^(string_of_int P.nodes)^",");
   run_multi 
-  (StateList.init P.nodes P.hist)  
+  (StateList.init P.nodes P.hist P.possible_leaders)  
   (init_eventlist P.nodes)
   (Client.init P.nodes P.workload_size)
 

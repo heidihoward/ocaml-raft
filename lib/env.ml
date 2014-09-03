@@ -35,6 +35,7 @@ module PureState  =
           outstanding_request : (Index.t * Rpcs.ClientArg.t) option;
           safety_monitor : RaftMonitor.t;
           backoff: int;
+          possible_leader: bool;
         }
    
 
@@ -62,7 +63,7 @@ module PureState  =
    | RemoveClientRes 
 
 
-  let init me all =
+  let init me all leader =
     { term = Index.init();
       mode = Follower;
       time = MonoTime.init;
@@ -83,6 +84,7 @@ module PureState  =
       outstanding_request = None;
       safety_monitor = RaftMonitor.tick (RaftMonitor.init()) `Startup ;
       backoff = 0;
+      possible_leader = leader;
     } 
 
   let refresh s:t =
@@ -106,6 +108,7 @@ module PureState  =
       outstanding_request = None;
       safety_monitor =  RaftMonitor.tick (RaftMonitor.init()) `Recover;
       backoff = 0;
+      possible_leader = s.possible_leader;
     } 
 
 
@@ -418,10 +421,11 @@ module State = PureState(MonoTime)(Mach)
   
 (*  let from_listassoc x = x *)
 
-  let init n store_hist : t =
+  let init n store_hist possible_leaders : t =
     let id_list = List.init n ~f:(IntID.from_int) in
     let remove x xs = List.filter xs ~f:(fun y -> not (x = y)) in 
-    let gen_state id id_list = State.init id (remove id id_list) in
+    let gen_state id id_list = 
+      State.init id (remove id id_list) (IntID.to_int(id)<=possible_leaders) in
     hist := store_hist; 
     List.map 
     ~f:(fun node_id -> node_id , [(Live (gen_state node_id id_list))] ) id_list

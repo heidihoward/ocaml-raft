@@ -42,7 +42,7 @@ module State :
           outstanding_request : (Index.t * Rpcs.ClientArg.t) option;
           safety_monitor : RaftMonitorWrapper.t;
           backoff :int ;
-
+          possible_leader: bool;
         } 
 
         (** [statecall] are created to modify state *)
@@ -71,7 +71,7 @@ module State :
 
         
         (** [init] id (list of other ids) will create the state *)
-        val init : IntID.t -> IntID.t list -> t
+        val init : IntID.t -> IntID.t list -> bool -> t
         (** [print] turns state into string for debugging *)
         val print : t -> string
         (** [tick] is the only way to modify state *)
@@ -91,7 +91,7 @@ module State :
          * status. If you try to update  *)
         val add : t -> IntID.t -> State.t -> t
 (*        val from_listassoc : (IntID.t *  State.t status) list -> t *)
-        val init : int -> bool -> t
+        val init : int -> bool -> int -> t
 
         val check_condition : t -> f:( (IntID.t * State.t status) -> bool) -> bool
         

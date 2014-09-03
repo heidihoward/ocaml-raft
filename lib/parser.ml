@@ -16,6 +16,7 @@ let run ~time ~nodes ~term ~debug_enabled ~json_enabled ~iter ~data ~follower ~c
 ~failure ~recover ~term_ele ~term_client ~cmds ~wait_succ ~wait_fail ~timeout_client ~backoff ~loss ~hist ~cons =
   let module Par = (struct
     let nodes = nodes
+    let possible_leaders = nodes
     let timeout () = function
       | Leader -> leader ()
       | Follower -> follower ()

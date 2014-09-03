@@ -73,6 +73,7 @@ end
 module type PARAMETERS = sig
   val timeout: unit -> role -> float
   val nodes: int
+  val possible_leaders: int
   val pkt_delay: unit -> float
   val debug_mode: bool
   val nxt_failure: (unit -> float) option
