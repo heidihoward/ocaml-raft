@@ -180,7 +180,10 @@ let rec  startCand (s:State.t) =
   let args = Rpcs.RequestVoteArg.(
     { term = s_new.term;
       cand_id = s_new.id;
-      last_index = s_new.lastlogIndex;
+      last_index = 
+        if s.possible_leader then 
+        s_new.lastlogIndex 
+        else Index.init() |> Index.pred ;
       last_term = s_new.lastlogTerm; 
     }) in
   json("{'node':"^(IntID.to_string
@@ -197,10 +200,7 @@ let rec  startCand (s:State.t) =
   let reqs = Comms.broadcast s_new.allNodes (s_new.time()) 
     (requestVoteRq args) in
   let s_new,timeout_event = refreshTimer s_new in
-  if s.possible_leader then
-    (s_new, timeout_event@reqs)
-  else
-    (s_new,timeout_event)
+  (s_new, timeout_event@reqs)
 
 and refreshTimer (s:State.t) = 
   let s_new = State.tick Set s in
