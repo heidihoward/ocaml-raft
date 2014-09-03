@@ -56,7 +56,7 @@ let run (min,max) =
   DES.start()
 
 let run_and_extract (min,max) =
-  let filename = sprintf "data/%.0f-%.0fresults.log" min max in
+  let filename = sprintf "../ocaml-raft-data/raw/%.0f-%.0fresults.log" min max in
   let output_stream = open_out filename in
   for i=1 to 100 do 
     let results = run (min,max) in
