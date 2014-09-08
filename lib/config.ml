@@ -38,7 +38,7 @@ let correction min =
 let run (min,max) fig =
   let module Par = (struct
     let nodes = 5
-    let possible_leaders = 5
+    let possible_leaders = 3
     let timeout () = function
       | Follower -> 
           NumberGen.uniform (scale min) (scale max) 1.0 ()
@@ -49,7 +49,7 @@ let run (min,max) fig =
           | Fixed | Combo -> 
             NumberGen.uniform (scale 23.0) (scale 46.0) 1.0 () )
       | Leader -> NumberGen.fixed (scale min/.2.0) ()
-    let pkt_delay = NumberGen.normal_discardneg (scale 7.0) (scale 2.0)
+    let pkt_delay = NumberGen.normal_discardneg (scale 5.0) (scale 3.0)
     let debug_mode = false
     let json_mode = false
     let nxt_failure = None
@@ -83,7 +83,7 @@ let run_and_extract fig (min,max) =
       match results.leader_est with
         | Some time -> (
             let correction_val = correction min in
-            sprintf "%i\n" (unscale_int(time - correction_val))
+            sprintf "%i, %i\n" (unscale_int(time - correction_val)) results.replica_pkts
             |> output_string output_stream )
         | None -> () 
   done;

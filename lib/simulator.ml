@@ -64,6 +64,11 @@ let data = {
   total_election_time = MonoTime.init();
   }
 
+let incr_pkts() =
+  match (P.term_conditions LeaderEst), data.firstele with
+  | false,_ | true,None -> data.pkts <- data.pkts +1
+  | _ -> ()
+
 let election_timer_start id start_time =
     data.election_time <- (List.Assoc.add data.election_time id start_time)
 
@@ -149,7 +154,7 @@ let unicast_replica (dist: IntID.t) (t:MonoTime.t) (e) =
   debug ("dispatching msg to "^(IntID.to_string dist) ^ " to arrive at "^
   (MonoTime.to_string arriv));
   json ("'arrives':"^(MonoTime.to_string arriv)^",'sent':"^(MonoTime.to_string t)^",'dest':"^(IntID.to_string dist)^"}");
-  data.pkts <- data.pkts + 1;
+  incr_pkts();
   RaftEvent (arriv ,dist ,e ) )
 
 let unicast_client (t:MonoTime.t) (e) =
@@ -294,6 +299,7 @@ and startFollow term (s:State.t)  = debug "Entering Follower mode";
 
 and startLeader (s:State.t) = 
   debug "Election Won - Becoming Leader";
+  if (data.firstele=None) then data.firstele <- Some (s.time()) else ();
   let s_new,dispatch_pkts = dispatchAppendEntries (State.tick StartLeader s) in
   election_timer_stop s.id (s.time());
   json("{'node':"^(IntID.to_string
@@ -301,7 +307,6 @@ and startLeader (s:State.t) =
     (s_new.time()))^",'newTerm':"^(Index.to_string
     s_new.term)^",'newInfo':'last index:"^(Index.to_string
     s_new.lastlogIndex)^"last Term:"^(Index.to_string s_new.lastlogTerm)^"'}");
-  if (data.firstele=None) then data.firstele <- Some (s.time()) else ();
   (s_new, dispatch_pkts)
 
 and stepDown incoming_mode term lead_id_maybe (s:State.t) = 
