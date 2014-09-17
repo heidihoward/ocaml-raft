@@ -7,12 +7,14 @@ type figure =
   | Fixed 
   | Expo
   | Combo
+  | Ineligiable of int
 
 let fig2str = function
   | Original -> "org"
   | Fixed -> "fixed"
   | Expo -> "expo"
   | Combo -> "combo"
+  | Ineligiable numb -> sprintf "ine-%i" numb
 
 let follower_timeouts =
   [
@@ -38,13 +40,16 @@ let correction min =
 let run (min,max) fig =
   let module Par = (struct
     let nodes = 5
-    let possible_leaders = 3
+    let possible_leaders = 
+      match fig with 
+      | Ineligiable numb -> numb 
+      | _ -> 3
     let timeout () = function
       | Follower -> 
           NumberGen.uniform (scale min) (scale max) 1.0 ()
       | Candidate -> (
           match fig with
-          | Original | Expo -> 
+          | Original | Expo | Ineligiable _ -> 
              NumberGen.uniform (scale min) (scale max) 1.0 ()
           | Fixed | Combo -> 
             NumberGen.uniform (scale 23.0) (scale 46.0) 1.0 () )
@@ -64,7 +69,7 @@ let run (min,max) fig =
     let client_timeout = 100
     let backoff = 
       match fig with
-      | Original | Fixed -> false
+      | Original | Fixed | Ineligiable _ -> false
       | Expo | Combo -> true
     let loss = 0.0
     let hist = false
@@ -92,5 +97,5 @@ let run_and_extract fig (min,max) =
 
 let () =
   let run_one fig = List.iter follower_timeouts ~f:(run_and_extract fig) in
-  List.iter ~f:run_one [Original; Fixed; Expo; Combo]
+  List.iter ~f:run_one [Original; Fixed; Expo; Combo; Ineligiable 1; Ineligiable 3; Ineligiable 5]
 
