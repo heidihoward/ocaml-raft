@@ -1,9 +1,9 @@
 # OASIS_START
-# DO NOT EDIT (digest: d9a301c6a9ad7376360734f5d2aeaa80)
+# DO NOT EDIT (digest: f987cbdeeca5cc7408cd4dd376ab3b6a)
 version = "0.0"
 description = "simulator for raft consensus"
 requires =
-"core camlp4 threads sexplib.syntax bin_prot.syntax comparelib.syntax fieldslib.syntax variantslib.syntax async raft_spl"
+"core camlp4 threads sexplib.syntax bin_prot.syntax comparelib.syntax fieldslib.syntax variantslib.syntax async yojson raft_spl"
 archive(byte) = "raft.cma"
 archive(byte, plugin) = "raft.cma"
 archive(native) = "raft.cmxa"

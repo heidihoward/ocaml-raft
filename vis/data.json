@@ -1,101 +1,105 @@
-{
-    "numNodes": 6,
-    "messages": [{
-        "source": 0,
-        "dest": 1,
-        "sent": 0,
-        "arrives": 5,
-        "info": "append entries heartbeat<br>term:2",
-        "RPC": "appendEntries"
-    }, {
-        "source": 2,
-        "dest": 0,
-        "sent": 6,
-        "arrives": 10,
-        "info": "requestVote for node 2<br>term:3",
-        "RPC": "requestVote"
-    }, {
-        "source": 0,
-        "dest": 2,
-        "sent": 11,
-        "arrives": 12,
-        "info": "requestVote reply for node 2<br>term:3<br>source:0",
-        "RPC": "requestVote"
-    }, {
-        "source": 2,
-        "dest": 1,
-        "sent": 6,
-        "arrives": 10,
-        "info": "requestVote for node 2<br>term:3",
-        "RPC": "requestVote"
-    }, {
-        "source": 1,
-        "dest": 2,
-        "sent": 11,
-        "arrives": 14,
-        "info": "requestVote reply for node 2<br>term:3<br>source:1",
-        "RPC": "requestVote"
-    }, {
-        "source": 2,
-        "dest": 3,
-        "sent": 6,
-        "arrives": 8,
-        "info": "requestVote for node 2<br>term:3",
-        "RPC": "requestVote"
-    }, {
-        "source": 3,
-        "dest": 2,
-        "sent": 9,
-        "arrives": 12,
-        "info": "requestVote reply for node 2<br>term:3<br>source:3",
-        "RPC": "requestVote"
-    }, {
-        "source": 2,
-        "dest": 4,
-        "sent": 6,
-        "arrives": 9,
-        "info": "requestVote for node 2<br>term:3",
-        "RPC": "requestVote"
-    }, {
-        "source": 4,
-        "dest": 2,
-        "sent": 10,
-        "arrives": 13,
-        "info": "requestVote reply for node 2<br>term:3<br>source:4",
-        "RPC": "requestVote"
-    }, {
-        "source": 2,
-        "dest": 5,
-        "sent": 6,
-        "arrives": 8,
-        "info": "requestVote for node 2<br>term:3",
-        "RPC": "requestVote"
-    }, {
-        "source": 5,
-        "dest": 2,
-        "sent": 9,
-        "arrives": 10,
-        "info": "requestVote reply for node 2<br>term:3<br>source:5",
-        "RPC": "requestVote"
-    }],
-
-    "nodeModeChanges": [{
-        "node": 0,
-        "newMode": "leader",
-        "time": 0,
-        "newTerm": 1,
-        "newInfo": "Now the leader!"
-    }, {
-        "node": 2,
-        "newMode": "candidate",
-        "time": 6,
-        "newInfo": "Now a candidate"
-    }],
-
-    "timeouts": [{
-        "node": 3,
-        "start": 6,
-        "expires": 15,
-        "type": "follower"
-    }]
-}
+{  "numNodes":3, 
+"messages":[ {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:1<br>Last Index:0<br>Last Term:0", 
+  "arrives":159,"sent":152,"dest":1} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:1<br>Last Index:0<br>Last Term:0", 
+  "arrives":159,"sent":152,"dest":2} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:1<br>Last Index:0<br>Last Term:0", 
+  "arrives":161,"sent":154,"dest":0} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:1<br>Last Index:0<br>Last Term:0", 
+  "arrives":161,"sent":154,"dest":2} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:1<br>Last Index:0<br>Last Term:0", 
+  "arrives":161,"sent":154,"dest":0} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:1<br>Last Index:0<br>Last Term:0", 
+  "arrives":161,"sent":154,"dest":1} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:1<br>lastIndex:0<br>lastTerm:0", 
+  "arrives":166,"sent":159,"dest":0} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:false<br>term:1<br>lastIndex:0<br>lastTerm:0", 
+  "arrives":166,"sent":159,"dest":0} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:false<br>term:1<br>lastIndex:0<br>lastTerm:0", 
+  "arrives":168,"sent":161,"dest":1} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:false<br>term:1<br>lastIndex:0<br>lastTerm:0", 
+  "arrives":168,"sent":161,"dest":1} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:false<br>term:1<br>lastIndex:0<br>lastTerm:0", 
+  "arrives":168,"sent":161,"dest":2} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:1<br>lastIndex:0<br>lastTerm:0", 
+  "arrives":168,"sent":161,"dest":2} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:2<br>Last Index:0<br>Last Term:0", 
+  "arrives":175,"sent":168,"dest":0} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:2<br>Last Index:0<br>Last Term:0", 
+  "arrives":175,"sent":168,"dest":1} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:2<br>Last Index:0<br>Last Term:0", 
+  "arrives":177,"sent":170,"dest":1} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:2<br>Last Index:0<br>Last Term:0", 
+  "arrives":177,"sent":170,"dest":2} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:2<br>Last Index:0<br>Last Term:0", 
+  "arrives":178,"sent":171,"dest":0} 
+, {"source":1,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:2<br>Last Index:0<br>Last Term:0", 
+  "arrives":178,"sent":171,"dest":2} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:false<br>term:2<br>lastIndex:0<br>lastTerm:0", 
+  "arrives":182,"sent":175,"dest":2} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:2<br>lastIndex:0<br>lastTerm:0", 
+  "arrives":182,"sent":175,"dest":2} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:2<br>lastIndex:0<br>lastTerm:0", 
+  "arrives":184,"sent":177,"dest":0} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:false<br>term:2<br>lastIndex:0<br>lastTerm:0", 
+  "arrives":184,"sent":177,"dest":0} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:false<br>term:2<br>lastIndex:0<br>lastTerm:0", 
+  "arrives":185,"sent":178,"dest":1} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:false<br>term:2<br>lastIndex:0<br>lastTerm:0", 
+  "arrives":185,"sent":178,"dest":1} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:3<br>Last Index:0<br>Last Term:0", 
+  "arrives":196,"sent":189,"dest":0} 
+, {"source":2,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:3<br>Last Index:0<br>Last Term:0", 
+  "arrives":196,"sent":189,"dest":1} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:3<br>Last Index:0<br>Last Term:0", 
+  "arrives":201,"sent":194,"dest":1} 
+, {"source":0,"RPC":"requestVote","info":"Request Vote Broadcast<br>term:3<br>Last Index:0<br>Last Term:0", 
+  "arrives":201,"sent":194,"dest":2} 
+, {"source":0,"RPC":"requestVote","info":"vote reply:false<br>term:3<br>lastIndex:0<br>lastTerm:0", 
+  "arrives":203,"sent":196,"dest":2} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:false<br>term:3<br>lastIndex:0<br>lastTerm:0", 
+  "arrives":203,"sent":196,"dest":2} 
+, {"source":1,"RPC":"requestVote","info":"vote reply:true<br>term:3<br>lastIndex:0<br>lastTerm:0", 
+  "arrives":208,"sent":201,"dest":0} 
+, {"source":2,"RPC":"requestVote","info":"vote reply:false<br>term:3<br>lastIndex:0<br>lastTerm:0", 
+  "arrives":208,"sent":201,"dest":0} 
+, {"source":0,"RPC":"appendEntries","info":"append entries heartbeat<br>term:3<br>prevLogIndex:0<br>prevLogTerm:0<br>leaderCommit:0", 
+  "arrives":215,"sent":208,"dest":1} 
+, {"source":0,"RPC":"appendEntries","info":"append entries heartbeat<br>term:3<br>prevLogIndex:0<br>prevLogTerm:0<br>leaderCommit:0", 
+  "arrives":215,"sent":208,"dest":2} 
+, {"source":1,"RPC":"appendEntries","info":"appendEntries Response<br>Successful<br>term:3", 
+  "arrives":222,"sent":215,"dest":0} 
+, {"source":2,"RPC":"appendEntries","info":"appendEntries Response<br>Successful<br>term:3", 
+  "arrives":222,"sent":215,"dest":0} 
+],"nodeModeChanges":[ {"node":0,"newMode":"follower","time":0,"newTerm":0,"newInfo":"last index:0last Term:0"} 
+, {"node":1,"newMode":"follower","time":0,"newTerm":0,"newInfo":"last index:0last Term:0"} 
+, {"node":2,"newMode":"follower","time":0,"newTerm":0,"newInfo":"last index:0last Term:0"} 
+, {"node":0,"newMode":"candidate","time":152,"newTerm":1,"newInfo":"last index0last Term0"} 
+, {"node":1,"newMode":"candidate","time":154,"newTerm":1,"newInfo":"last index0last Term0"} 
+, {"node":2,"newMode":"candidate","time":154,"newTerm":1,"newInfo":"last index0last Term0"} 
+, {"node":2,"newMode":"candidate","time":168,"newTerm":2,"newInfo":"last index0last Term0"} 
+, {"node":0,"newMode":"candidate","time":170,"newTerm":2,"newInfo":"last index0last Term0"} 
+, {"node":1,"newMode":"candidate","time":171,"newTerm":2,"newInfo":"last index0last Term0"} 
+, {"node":2,"newMode":"candidate","time":189,"newTerm":3,"newInfo":"last index0last Term0"} 
+, {"node":0,"newMode":"candidate","time":194,"newTerm":3,"newInfo":"last index0last Term0"} 
+, {"node":1,"newMode":"follower","time":196,"newTerm":3,"newInfo":"last index:0last Term:0"} 
+, {"node":0,"newMode":"leader","time":208,"newTerm":3,"newInfo":"last index:0last Term:0"} 
+, {"node":2,"newMode":"follower","time":215,"newTerm":3,"newInfo":"last index:0last Term:0"} 
+],"timeouts":[ {"node":0,"start":0,"expires":152} 
+, {"node":1,"start":0,"expires":154} 
+, {"node":2,"start":0,"expires":154} 
+, {"node":0,"start":152,"expires":170} 
+, {"node":1,"start":154,"expires":171} 
+, {"node":2,"start":154,"expires":168} 
+, {"node":2,"start":168,"expires":189} 
+, {"node":0,"start":170,"expires":194} 
+, {"node":1,"start":171,"expires":212} 
+, {"node":2,"start":189,"expires":229} 
+, {"node":0,"start":194,"expires":272} 
+, {"node":1,"start":196,"expires":347} 
+, {"node":1,"start":201,"expires":354} 
+, {"node":0,"start":208,"expires":283} 
+, {"node":1,"start":215,"expires":365} 
+, {"node":2,"start":215,"expires":368} 
+, {"node":2,"start":215,"expires":366} 
+]}

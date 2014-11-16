@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 7bfa80e000a8341a7a85f61539c8a224)
+# DO NOT EDIT (digest: a2778529404ab8f3feb9689bda66f4e5)
 # Ignore VCS directories, you can use the same kind of rule outside
 # OASIS_START/STOP if you want to exclude directories that contains
 # useless stuff for the build process
@@ -25,6 +25,7 @@ true: annot, bin_annot
 <spl/*.ml{,i,y}>: pkg_sexplib.syntax
 <spl/*.ml{,i,y}>: pkg_threads
 <spl/*.ml{,i,y}>: pkg_variantslib.syntax
+<spl/*.ml{,i,y}>: pkg_yojson
 # Library raft
 "lib/raft.cmxs": use_raft
 <lib/*.ml{,i,y}>: use_raft_spl
@@ -38,6 +39,7 @@ true: annot, bin_annot
 "lib/cmdstart.byte": pkg_sexplib.syntax
 "lib/cmdstart.byte": pkg_threads
 "lib/cmdstart.byte": pkg_variantslib.syntax
+"lib/cmdstart.byte": pkg_yojson
 # Executable configstart
 "lib/config.byte": pkg_async
 "lib/config.byte": pkg_bin_prot.syntax
@@ -48,6 +50,7 @@ true: annot, bin_annot
 "lib/config.byte": pkg_sexplib.syntax
 "lib/config.byte": pkg_threads
 "lib/config.byte": pkg_variantslib.syntax
+"lib/config.byte": pkg_yojson
 <lib/*.ml{,i,y}>: pkg_async
 <lib/*.ml{,i,y}>: pkg_bin_prot.syntax
 <lib/*.ml{,i,y}>: pkg_camlp4
@@ -57,4 +60,5 @@ true: annot, bin_annot
 <lib/*.ml{,i,y}>: pkg_sexplib.syntax
 <lib/*.ml{,i,y}>: pkg_threads
 <lib/*.ml{,i,y}>: pkg_variantslib.syntax
+<lib/*.ml{,i,y}>: pkg_yojson
 # OASIS_STOP
