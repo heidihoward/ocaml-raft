@@ -7,8 +7,3 @@ _build/
 *.swp
 *.data
 *_testing
-
-# manually added
-_oasis
-myocamlbuild.ml
-setup.ml

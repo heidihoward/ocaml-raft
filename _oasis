@@ -1,0 +1,32 @@
+OASISFormat: 0.4
+Name:        raft-sim
+Version:     0.0
+Synopsis:    simulator for raft consensus
+Authors:     Heidi Howard
+License:     MIT
+BuildTools:  ocamlbuild
+BuildDepends: core, camlp4, threads, sexplib.syntax,bin_prot.syntax,comparelib.syntax,fieldslib.syntax,variantslib.syntax,async
+
+Library raft_spl
+  Path:          spl
+  Findlibname:   raft_spl
+  Pack:          false
+  Modules:       RaftMonitor, RaftMonitorWrapper
+
+
+Library raft
+  Path:          lib
+  Findlibname:   raft
+  Pack:          false
+  Modules:       Client, Clock, Cmdstart, Common, Config, Env, Envsig, Log, Parser, Rpcs, Simulator, Splaytree, 					   Statemach, Summary
+  BuildDepends:  raft_spl
+
+Executable cmdstart
+  Path:       lib
+  BuildTools: ocamlbuild
+  MainIs:     cmdstart.ml
+  
+Executable configstart
+  Path:       lib
+  BuildTools: ocamlbuild
+  MainIs:     config.ml
