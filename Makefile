@@ -1,5 +1,7 @@
-.PHONY: all clean build
+.PHONY: all clean install build
 all: build 
+
+NAME=raft
 
 setup.bin: setup.ml
 	ocamlopt.opt -o $@ $< || ocamlopt -o $@ $< || ocamlc -o $@ $<
@@ -10,6 +12,16 @@ setup.data: setup.bin
 
 build: setup.data setup.bin
 	./setup.bin -build -classic-display
+
+install: setup.bin
+	./setup.bin -install
+
+test: setup.bin build
+	./setup.bin -test
+
+reinstall: setup.bin
+	ocamlfind remove $(NAME) || true
+	./setup.bin -reinstall
 
 clean:
 	ocamlbuild -clean

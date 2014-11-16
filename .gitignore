@@ -1,14 +1,18 @@
-# OCaml general
+# system specific
+*~
+*.swp
 
+# ocaml
 _build/
 *.native
 *.byte
-*~
-*.swp
-*.data
-*_testing
 
-# OASIS
+# oasis
 setup.data
 setup.log
 setup.bin
+
+# project specific 
+*_testing
+output.log
+*.data

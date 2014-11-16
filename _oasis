@@ -4,6 +4,7 @@ Version:     0.0
 Synopsis:    simulator for raft consensus
 Authors:     Heidi Howard
 License:     MIT
+Plugins:     META (0.2)
 BuildTools:  ocamlbuild
 BuildDepends: core, camlp4, threads, sexplib.syntax,bin_prot.syntax,comparelib.syntax,fieldslib.syntax,variantslib.syntax,async
 
