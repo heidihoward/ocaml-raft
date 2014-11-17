@@ -19,16 +19,16 @@ let to_distribution json =
     |> function | None -> "Uniform" | Some d -> d in
     match distr with
     | "Fixed" -> 
-      [distr, Int.to_string (member "value" json |> to_int)]
+      [distr; Int.to_string (member "value" json |> to_int)]
       |> String.concat ~sep:"-"
       |> NumberGen.string_to_dist 
-    | _ -> 
-      NumberGen.string_to_dist (String.concat ~sep:"-" 
-      [distr, 
-       Int.to_string (member "min" json |> to_int),
-       Int.to_string (member "max" json |> to_int)]) 
-
-
+    | _ ->
+      [distr;
+       Int.to_string (member "min" json |> to_int);
+       Int.to_string (member "max" json |> to_int)]
+      |> String.concat ~sep:"-" 
+      |> NumberGen.string_to_dist
+      
 let run json =
   let module Par = 
   (struct
