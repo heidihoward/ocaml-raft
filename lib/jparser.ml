@@ -4,13 +4,9 @@ open Yojson.Basic
 open Util
 
 
-let get_by_name_op cat str json =
-  json 
-  |> member cat 
-  |> to_list 
-  |> List.find ~f:(fun x -> (=) str (x |> member "name"|> to_string))
+let to_option f x = 
+  try Some (f x) with type_error -> None
 
-let get_by_name cat str json = match get_by_name_op cat str json with Some x -> x
 
 let to_distribution json = 
   let distr = 
@@ -43,17 +39,17 @@ let run json =
 
     let timeout () = function
       | Leader -> 
-        json |> get_by_name "timers" "leader" 
+        json |> member "timers" |> member "leader" 
         |> to_distribution |> fun f -> f()
       | Follower -> 
-        json |> get_by_name "timers" "follower" 
+        json |> member "timers" |> member "follower" 
         |> to_distribution |> fun f -> f()
       | Candidate -> 
-        json |> get_by_name "timers" "candidate" 
+        json |> member "timers" |> member "candidate" 
         |> to_distribution |> fun f -> f()
 
     let pkt_delay = 
-      json |> get_by_name "network" "packet delay" 
+      json |> member "network" |> member "packetDelay" 
       |> to_distribution
 
     let debug_mode = json 
@@ -66,12 +62,12 @@ let run json =
       |> List.exists ~f:((=) "json")
 
     let nxt_failure = 
-      json |> get_by_name_op "network" "failure" 
-      |> Option.map ~f:to_distribution 
+      json |> member "network" |> member "failure" 
+      |> to_option to_distribution 
 
     let nxt_recover =
-      json |> get_by_name_op "network" "failure" 
-      |> Option.map ~f:to_distribution 
+      json |> member "network" |> member "recover" 
+      |> to_option to_distribution 
 
     let term_conditions = function
       | LeaderEst -> true
@@ -82,7 +78,7 @@ let run json =
     let client_wait_failure = 100
     let client_timeout = 100
     let backoff = false
-    let loss = json |> member "packet loss" |> to_float
+    let loss = json |> member "network" |> member "packetLoss" |> to_float
     let hist = false
     let cons = false
   end : PARAMETERS) in 

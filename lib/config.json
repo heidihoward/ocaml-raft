@@ -1,29 +1,35 @@
 {
   "nodes": 5,
   "eligible": 3,
-  "timers": [
+  "timers": 
     {
-      "name":"follower",
-      "min": 150,
-      "max": 300 
+      "follower": 
+        {
+          "distribution": "Uniform",
+          "min": 150,
+          "max": 300 
+        },
+      "candidate":
+        {
+          "distribution": "Uniform",
+          "min": 150,
+          "max": 300 
+        },
+      "leader":
+        {
+          "distribution": "Uniform",
+          "min": 150,
+          "max": 300 
+        }
     },
-    {
-      "name":"candidate",
-      "min": 150,
-      "max": 300 
-    },
-    {
-      "name":"leader",
-      "min": 150,
-      "max": 300 
-    } ],
   "output": [ "debug", "json" ],
-  "network": [
+  "network": 
     {
-      "name": "packet delay",
-      "value": 5,
-      "distribution": "Fixed"
+      "packetDelay":
+        {
+          "distribution": "Fixed",
+          "value": 5
+        },
+      "packetLoss": 0.0
     }
-    ],
-  "packet loss": 0.0
 }
