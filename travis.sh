@@ -29,7 +29,7 @@ git clone https://github.com/heidi-ann/ocaml-raft-data.git ../ocaml-raft-data
 # cd ~
 
 # build ocaml-raft
-./build.sh
+make
 
 
 # testing ocaml-raft
