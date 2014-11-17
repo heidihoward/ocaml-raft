@@ -24,5 +24,6 @@
       "value": 5,
       "distribution": "Fixed"
     }
-  ]
+    ],
+  "packet loss": 0.0
 }

@@ -42,7 +42,7 @@ make
 
 
 # unit testing
-./test_splaytree.byte
-./test_spl.byte
+# ./test_splaytree.byte
+# ./test_spl.byte
 
 

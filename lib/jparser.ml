@@ -82,7 +82,7 @@ let run json =
     let client_wait_failure = 100
     let client_timeout = 100
     let backoff = false
-    let loss = 0.0
+    let loss = json |> member "packet loss" |> to_float
     let hist = false
     let cons = false
   end : PARAMETERS) in 
