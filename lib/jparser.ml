@@ -4,15 +4,29 @@ open Yojson.Basic
 open Util
 
 
-let to_distribution str json =
+let get_by_name_op cat str json =
   json 
-  |> member "timers" 
+  |> member cat 
   |> to_list 
-  |> List.find ~f:(fun x -> (=) "follower" (x |> member "name"|> to_string))
-  |> function | Some x -> x
-  |> (fun para -> NumberGen.string_to_dist 
-      ("Uniform-"^(Int.to_string (member "min" para |> to_int))^"-"^
-          (Int.to_string (member "max" para |> to_int)))) 
+  |> List.find ~f:(fun x -> (=) str (x |> member "name"|> to_string))
+
+let get_by_name cat str json = match get_by_name_op cat str json with Some x -> x
+
+let to_distribution json = 
+  let distr = 
+    member "distribution" json 
+    |> to_string_option 
+    |> function | None -> "Uniform" | Some d -> d in
+    match distr with
+    | "Fixed" -> 
+      [distr, Int.to_string (member "value" json |> to_int)]
+      |> String.concat ~sep:"-"
+      |> NumberGen.string_to_dist 
+    | _ -> 
+      NumberGen.string_to_dist (String.concat ~sep:"-" 
+      [distr, 
+       Int.to_string (member "min" json |> to_int),
+       Int.to_string (member "max" json |> to_int)]) 
 
 
 let run json =
@@ -28,11 +42,19 @@ let run json =
       |> function | None -> nodes | Some x -> x
 
     let timeout () = function
-      | Leader -> (to_distribution "leader" json) ()
-      | Follower -> (to_distribution "follower" json) ()
-      | Candidate -> (to_distribution "candidate" json) ()
+      | Leader -> 
+        json |> get_by_name "timers" "leader" 
+        |> to_distribution |> fun f -> f()
+      | Follower -> 
+        json |> get_by_name "timers" "follower" 
+        |> to_distribution |> fun f -> f()
+      | Candidate -> 
+        json |> get_by_name "timers" "candidate" 
+        |> to_distribution |> fun f -> f()
 
-    let pkt_delay () = 7.0
+    let pkt_delay = 
+      json |> get_by_name "network" "packet delay" 
+      |> to_distribution
 
     let debug_mode = json 
       |> member "output" 
@@ -43,9 +65,14 @@ let run json =
       |> to_list |> filter_string 
       |> List.exists ~f:((=) "json")
 
-    let nxt_failure = None
-    let nxt_recover = None
-    
+    let nxt_failure = 
+      json |> get_by_name_op "network" "failure" 
+      |> Option.map ~f:to_distribution 
+
+    let nxt_recover =
+      json |> get_by_name_op "network" "failure" 
+      |> Option.map ~f:to_distribution 
+
     let term_conditions = function
       | LeaderEst -> true
       | WorkloadEmpty -> false

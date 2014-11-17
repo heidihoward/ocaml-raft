@@ -17,5 +17,12 @@
       "min": 150,
       "max": 300 
     } ],
-  "output": [ "debug", "json" ]
+  "output": [ "debug", "json" ],
+  "network": [
+    {
+      "name": "packet delay",
+      "value": 5,
+      "distribution": "Fixed"
+    }
+  ]
 }
