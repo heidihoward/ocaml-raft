@@ -18,7 +18,7 @@ sudo apt-get install -qq ocaml ocaml-native-compilers camlp4-extra opam
 
 export OPAMYES=1
 opam init
-opam install core async ounit
+opam install core async ounit yojson
 eval `opam config env`
 
 git clone https://github.com/heidi-ann/ocaml-raft-data.git ../ocaml-raft-data
