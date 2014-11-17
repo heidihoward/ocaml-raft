@@ -1,0 +1,21 @@
+{
+  "nodes": 5,
+  "eligible": 3,
+  "timers": [
+    {
+      "name":"follower",
+      "min": 150,
+      "max": 300 
+    },
+    {
+      "name":"candidate",
+      "min": 150,
+      "max": 300 
+    },
+    {
+      "name":"leader",
+      "min": 150,
+      "max": 300 
+    } ],
+  "output": [ "debug", "json" ]
+}
