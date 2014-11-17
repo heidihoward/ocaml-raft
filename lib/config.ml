@@ -83,7 +83,7 @@ let run (min,max) fig =
 let run_and_extract fig (min,max) =
   let filename = sprintf "../ocaml-raft-data/raw/%s/%.0f-%.0fresults.log" (fig2str fig) min max in
   let output_stream = open_out filename in
-  for i=1 to 1000 do 
+  for i=1 to 10 do 
     let results = run (min,max) fig in
       match results.leader_est with
         | Some time -> (
