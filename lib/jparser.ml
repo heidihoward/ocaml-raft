@@ -70,10 +70,10 @@ let run json =
       |> to_option to_distribution 
 
     let term_conditions = function
-      | LeaderEst -> true
-      | WorkloadEmpty -> false
+      | LeaderEst -> json |> member "termination" |> member "leader" |> to_bool
+      | WorkloadEmpty -> json |> member "termination" |> member "client" |> to_bool
     let workload_size = 0
-    let term_time = 1000
+    let term_time = json |> member "termination" |> member "time" |> to_int
     let client_wait_success = 100
     let client_wait_failure = 100
     let client_timeout = 100

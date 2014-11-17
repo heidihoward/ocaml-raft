@@ -31,5 +31,11 @@
           "value": 5
         },
       "packetLoss": 0.0
+    },
+  "termination":
+    {
+      "leader": true,
+      "client": false,
+      "time": 1000
     }
 }
