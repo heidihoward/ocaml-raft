@@ -19,7 +19,7 @@ Library raft
   Path:          lib
   Findlibname:   raft
   Pack:          false
-  Modules:       Client, Clock, Cmdstart, Common, Config, Env, Envsig, Log, Parser, Rpcs, Simulator, Splaytree, 					   Statemach, Summary
+  Modules:       Client, Clock, Cmdstart, Common, Config, Env, Envsig, Jparser, Log, Parser, Rpcs, Simulator, Splaytree, 					   Statemach, Summary
   BuildDepends:  raft_spl
 
 Executable cmdstart
@@ -31,3 +31,8 @@ Executable configstart
   Path:       lib
   BuildTools: ocamlbuild
   MainIs:     config.ml
+
+Executable jsonstart
+  Path:       lib
+  BuildTools: ocamlbuild
+  MainIs:     jparser.ml  

@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: dee15d34fc593b25eae6a2be4ef38eff)
+# DO NOT EDIT (digest: e1808c13dad46558e1f37a67ec7752a6)
 Client
 Clock
 Cmdstart
@@ -7,6 +7,7 @@ Common
 Config
 Env
 Envsig
+Jparser
 Log
 Parser
 Rpcs
