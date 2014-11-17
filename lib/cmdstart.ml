@@ -10,50 +10,47 @@ let common () =
       +> flag "-eligible" (optional int)
         ~doc:"int Number of simulated nodes which are eligible for leadership, default to all"
       +> flag "-termOnTimeout" (optional_with_default 5000 int)
-        ~doc:"int The maxiumun number of terms before termination"
+        ~doc:"int The maximum number of terms before termination"
       +> flag "-d" no_arg
-        ~doc:"Enable debugging output (disabled by default)"
+        ~doc:"flag Enable debugging output (disabled by default)"
       +> flag "-json" no_arg
-        ~doc:"Enable Json Output (disabled by default)"
+        ~doc:"flag Enable JSON Output (disabled by default)"
       +> flag "-iter" (optional_with_default 1 int) 
         ~doc:"int Number of Simulations to run (not working) "
       +> flag "-data" (optional string) 
         ~doc:"filename File to output data to as .data (currently not working)"
      +> flag "-follower" (required Parser.distribution)
-        ~doc:"distribution Follower timeout Statistical Distribution, this gives
-        the distribution of the follower timeout which lead to the start of an
-        electon"
+        ~doc:"distribution Follower timeout statistical distribution"
      +> flag "-candidate" (required Parser.distribution)
-        ~doc:"distribution Candidate timeout Statistical Distribution, this
-        gives the distrubut"
+        ~doc:"distribution Candidate timeout statistical distribution"
      +> flag "-leader" (required Parser.distribution)
-        ~doc:"distribution Leader Statistical Distribution"     
+        ~doc:"distribution LeadersStatistical distribution"     
      +> flag "-delay" (required Parser.distribution)
-        ~doc:"distribution Packet Delay Statistical Distribution"
+        ~doc:"distribution Packet Delay statistical distribution"
      +> flag "-failure" (optional Parser.distribution)
-        ~doc:"distribution Node failure Statistical Distribution"
+        ~doc:"distribution Node failure statistical distribution"
      +> flag "-recover" (optional Parser.distribution)
-        ~doc:"distribution Node recovery Statistical Distribution"
+        ~doc:"distribution Node recovery statistical distribution"
      +> flag "-termOnElec" no_arg
-         ~doc:"Terminate when a leader has successfully been established"
+         ~doc:"flag Terminate when a leader has successfully been established"
       +> flag "-termOnClient" no_arg
-         ~doc:"Terminate when a client workload is empty"
+         ~doc:"flag Terminate when a client workload is empty"
       +> flag "-cmds" (optional_with_default 5 int)
-          ~doc:"Size of test workload"
+          ~doc:"int Size of test workload"
       +> flag "-clientWaitSuccess" (optional_with_default 0 int)
-        ~doc:"Time a client waits after a successful requests"
+        ~doc:"int Time a client waits after a successful requests"
       +> flag "-clientWaitFailure" (optional_with_default 0 int)
-        ~doc:"Time a client waits after a failed requests"        
+        ~doc:"int Time a client waits after a failed requests"        
       +> flag "-clientTimeout" (optional_with_default 100 int)
-        ~doc:"Timeout that a client waits for the response from the cluster"  
+        ~doc:"int Timeout that a client waits for the response from the cluster"  
       +> flag "-backoff" no_arg
-        ~doc:"Enable the binary exponential for candidates with majority rejections" 
+        ~doc:"flag Enable the binary exponential for candidates with majority rejections" 
       +> flag "-loss" (optional_with_default 0.0 float)
-        ~doc:"Probabilty that a packet will be lossed"
+        ~doc:"float Probability that a packet will be lost in the network"
       +> flag "-hist" no_arg
-        ~doc:"Enable storage of simulation trace"
+        ~doc:"flag Enable storage of simulation trace"
       +> flag "-conservative" no_arg
-        ~doc:"Enable conservative use of AppendEntries so they only go out on ehop"
+        ~doc:"flag Enable conservative use of AppendEntries so they only go out on each ehop"
  )
 
 let realtime =
