@@ -7,6 +7,8 @@ let common () =
       empty
       +> flag "-nodes" (required int) 
         ~doc:"int Number of nodes to simulate, must be 2 or greater"
+      +> flag "-eligible" (optional int)
+        ~doc:"int Number of simulated nodes which are eligible for leadership, default to all"
       +> flag "-termOnTimeout" (optional_with_default 5000 int)
         ~doc:"int The maxiumun number of terms before termination"
       +> flag "-d" no_arg
@@ -62,9 +64,9 @@ let realtime =
     empty
      ++ common ()
       )
-    (fun nodes term debug_enabled json_enabled iter data follower candidate leader delay failure recover term_ele 
+    (fun nodes eligible term debug_enabled json_enabled iter data follower candidate leader delay failure recover term_ele 
         term_client cmds wait_succ wait_fail timeout_client backoff loss hist cons () ->  
-      printf "%s" (Parser.run ~time:Real ~nodes ~term ~debug_enabled ~json_enabled ~iter ~data ~follower ~candidate ~leader ~delay 
+      printf "%s" (Parser.run ~time:Real ~nodes ~eligible ~term ~debug_enabled ~json_enabled ~iter ~data ~follower ~candidate ~leader ~delay 
       ~failure ~recover ~term_ele ~term_client ~cmds ~wait_succ ~wait_fail ~timeout_client ~backoff ~loss ~hist ~cons )) 
 
 let discrete =
@@ -75,9 +77,9 @@ let discrete =
     empty
      ++ common ()
       )
-    (fun nodes term debug_enabled json_enabled iter data follower candidate leader delay failure recover term_ele 
+    (fun nodes eligible term debug_enabled json_enabled iter data follower candidate leader delay failure recover term_ele 
         term_client cmds wait_succ wait_fail timeout_client backoff loss hist cons () ->  
-      printf "%s" (Parser.run ~time:Discrete ~nodes ~term ~debug_enabled ~json_enabled ~iter ~data ~follower ~candidate ~leader ~delay 
+      printf "%s" (Parser.run ~time:Discrete ~nodes ~eligible ~term ~debug_enabled ~json_enabled ~iter ~data ~follower ~candidate ~leader ~delay 
       ~failure ~recover ~term_ele ~term_client ~cmds ~wait_succ ~wait_fail ~timeout_client ~backoff ~loss ~hist ~cons ))
 
 let () =  
