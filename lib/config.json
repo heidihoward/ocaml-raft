@@ -1,6 +1,7 @@
 {
   "nodes": 5,
   "eligible": 3,
+  "workload": 0,
   "timers": 
     {
       "follower": 
@@ -37,5 +38,13 @@
       "leader": true,
       "client": false,
       "time": 1000
+    },
+  "client": {},
+  "modifications": 
+    {
+      "exponentialBackoff": false,
+      "checker": false,
+      "conservative": false
     }
+
 }

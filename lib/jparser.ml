@@ -72,15 +72,36 @@ let run json =
     let term_conditions = function
       | LeaderEst -> json |> member "termination" |> member "leader" |> to_bool
       | WorkloadEmpty -> json |> member "termination" |> member "client" |> to_bool
-    let workload_size = 0
+
+    let workload_size = 
+      json |> member "workload" |> to_int_option 
+      |> function | None -> 0 | Some x -> x
+
     let term_time = json |> member "termination" |> member "time" |> to_int
-    let client_wait_success = 100
-    let client_wait_failure = 100
-    let client_timeout = 100
-    let backoff = false
+
+    let client_wait_success = 
+      json 
+      |> member "client" |> member "timer" 
+      |> to_int_option 
+      |> function | None -> 0 | Some x -> x
+
+    let client_wait_failure =
+      json 
+      |> member "client" |> member "timer" 
+      |> to_int_option 
+      |> function | None -> 0 | Some x -> x
+
+    let client_timeout =
+      json 
+      |> member "client" |> member "timer" 
+      |> to_int_option 
+      |> function | None -> 0 | Some x -> x
+
     let loss = json |> member "network" |> member "packetLoss" |> to_float
-    let hist = false
-    let cons = false
+
+    let backoff = json |> member "modifications" |> member "exponentialBackoff" |> to_bool
+    let hist = json |> member "modifications" |> member "checker" |> to_bool
+    let cons = json |> member "modifications" |> member "conservative" |> to_bool
   end : PARAMETERS) in 
    
   let module DES =  Simulator.RaftSim(Clock.FakeTime)(Statemach.KeyValStr)(Par) in 
