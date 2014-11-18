@@ -1,8 +1,8 @@
 open Core.Std
 open Common
+open MonoTime
 
 module ClientHandler = 
-  functor (MonoTime: Clock.TIME) ->
   functor (Mach: Statemach.MACHINE) -> struct
 
   (* for now we only have one client *)
@@ -14,7 +14,7 @@ module ClientHandler =
 
   type t = { workload : Mach.cmd list;
              expected_results: Mach.res list;
-             time : unit -> MonoTime.t;
+             time : MonoTime.t;
              allNodes : IntID.t list;
              leader : cluster_leader;
              outstanding_request : Rpcs.ClientArg.t option;
@@ -56,7 +56,7 @@ module ClientHandler =
   | NoResponse -> 
     {state with leader = TryAsking state.allNodes}
   | SetTime t -> 
-    { state with time=(MonoTime.store t)}
+    { state with time= t}
   | Set -> 
     { state with timer = Int.succ (state.timer)}
 
@@ -74,7 +74,7 @@ module ClientHandler =
 
   let print (s:t) = 
     "-- CLIENT STATE -----------------------------------------------\n"^
-    " | Time: "^(MonoTime.to_string (s.time()))^
+    " | Time: "^(MonoTime.to_string s.time)^
     " | All Nodes: "^(List.to_string ~f:IntID.to_string s.allNodes)^
     " | Leader: "^(print_leader s.leader)^"\n"^
     " | Workload: "^(List.to_string s.workload ~f:Mach.cmd_to_string )^

@@ -104,7 +104,7 @@ let run json =
     let cons = json |> member "modifications" |> member "conservative" |> to_bool
   end : PARAMETERS) in 
    
-  let module DES =  Simulator.RaftSim(Clock.FakeTime)(Statemach.KeyValStr)(Par) in 
+  let module DES =  Simulator.RaftSim(Statemach.KeyValStr)(Par) in 
   printf "%s\n" (Summary.to_string (DES.start ()))
 
 let () =  run (from_file "lib/config.json")

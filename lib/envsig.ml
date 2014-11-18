@@ -1,11 +1,11 @@
 open Core.Std
 open Common
+open MonoTime
 
 
 (** [Env] contains modules for handling state including PrueState and StateList
  * *)
 module type STATEHANDLER =
-  functor (MonoTime : Clock.TIME) ->
     functor (Mach : Statemach.MACHINE) ->
       sig
 
@@ -30,7 +30,7 @@ module State :
           matchIndex : (IntID.t * Index.t) list;
           (** Simulation specfic state, need removing/altering for real
            * implementation *)
-          time : unit -> MonoTime.t;
+          time : MonoTime.t;
           timer : int; 
           (** this flag is used to indicate if event of a timer
           has happened since last checked, a better method for this should be

@@ -77,7 +77,7 @@ let run (min,max) fig =
   end : PARAMETERS) in 
    
   let module DES =  
-    Simulator.RaftSim(Clock.FakeTime)(Statemach.KeyValStr)(Par) in 
+    Simulator.RaftSim(Statemach.KeyValStr)(Par) in 
   DES.start()
 
 let run_and_extract fig (min,max) =
