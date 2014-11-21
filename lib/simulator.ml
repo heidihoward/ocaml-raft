@@ -1,6 +1,5 @@
 open Core.Std
 open Common
-open Eventlst 
 open Summary
 open Yojson.Basic
 module Mach = Statemach.KeyValStr
@@ -14,20 +13,12 @@ module RaftSim =
 
 (*Setting up the StateList and State, which hold the state for the nodes *)
 module StateList = Env
-
 module Client = Client.ClientHandler
 
 open Event (*needed to quickly access the event constructors like RaftEvent and SimulationEvent *)
 
-module EventItem = struct
-  type t = (MonoTime.t,IntID.t,State.t,Client.t) Event.t
-  let compare = Event.compare
-end
-
-module EventList = (LinkedList(EventItem) : EVENTLIST with type item = EventItem.t)
-
-  type eventsig = State.t -> (State.t * EventList.item list)
-  type clientsig = Client.t -> (Client.t * EventList.item list)
+type eventsig = State.t -> (State.t * EventList.item list)
+type clientsig = Client.t -> (Client.t * EventList.item list)
 
 let json_breaker st sp str = 
   if not(st) then String.set str 0 ' ' else ();
@@ -73,6 +64,8 @@ let incr_pkts() =
   | false,_ | true,None -> data.pkts <- data.pkts +1
   | _ -> ()
 
+let incr_client() = data.client_pkts <- data.client_pkts + 1
+
 let election_timer_start id start_time =
     data.election_time <- (List.Assoc.add data.election_time id start_time)
 
@@ -108,11 +101,11 @@ let client_latency opt =
       debug ("Stopping Client Latency Timer at "^MonoTime.to_string stop_time);
       data.full_latency <- ( None, time_diff::rest ) )
 
-module type COMMS = sig
-    val unicast_replica: IntID.t -> MonoTime.t -> eventsig -> EventList.item
-    val unicast_client: MonoTime.t -> clientsig -> EventList.item
-    val broadcast: IntID.t list -> MonoTime.t -> eventsig -> EventList.item list
-  end
+module Comms = struct 
+  let unicast_replica = Cast.unicast_replica (P.loss, P.pkt_delay, incr_pkts)
+  let unicast_client = Cast.unicast_client (P.loss, P.pkt_delay, incr_client)
+  let broadcast = Cast.broadcast (P.loss, P.pkt_delay, incr_pkts)
+end
 
 module type RAFT = sig
 
@@ -143,45 +136,7 @@ module type RAFT = sig
 
 end
 
-module RaftImpl : RAFT = struct
-
-module Comms : COMMS = struct 
-
-let unicast_replica (dist: IntID.t) (t:MonoTime.t) (e) = 
-  (*TODO: modify these to allow the user to specify some deley
-   * distribution/bound *)
- if (NumberGen.to_drop P.loss) then 
-  (debug "packet dropped"; Ignore t)
- else 
-  (
-  let delay = MonoTime.span_of_float (P.pkt_delay()) in
-  let arriv = MonoTime.add t delay in
-  debug ("dispatching msg to "^(IntID.to_string dist) ^ " to arrive at "^
-  (MonoTime.to_string arriv));
-  json ~start:false (`Assoc [
-    ("arrives", `Int (MonoTime.to_int arriv));
-    ("sent", `Int (MonoTime.to_int t));
-    ("dest", `Int (IntID.to_int dist))
-  ]);
-  incr_pkts();
-  RaftEvent (arriv, dist, e) 
-  )
-
-let unicast_client (t:MonoTime.t) (e) =
-  if (NumberGen.to_drop P.loss) then 
-  (debug "packet dropped"; Ignore t)
- else (
-  let delay = MonoTime.span_of_float (P.pkt_delay()) in
-  let arriv = MonoTime.add t delay in
-  debug ("dispatching msg to client to arrive at "^
-  (MonoTime.to_string arriv));
-  data.client_pkts <- data.client_pkts + 1;
-  ClientEvent (arriv, e))
-
-let broadcast (dests:IntID.t list) (t:MonoTime.t) e  = 
-  List.map dests ~f:(fun dst -> unicast_replica(dst) t e) 
-
-end 
+module RaftImpl : RAFT = struct 
 
 
 let checkElection (s:State.t) = 
