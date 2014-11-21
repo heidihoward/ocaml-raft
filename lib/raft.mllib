@@ -1,11 +1,10 @@
 # OASIS_START
-# DO NOT EDIT (digest: c63daed41584b9d6f62275253c2c405e)
+# DO NOT EDIT (digest: df7da230092a6b9063f07755f39b5312)
 Client
 Cmdstart
 Common
 Config
 Env
-Envsig
 Jparser
 Log
 MonoTime
@@ -13,6 +12,7 @@ Parser
 Rpcs
 Simulator
 Splaytree
+State
 Statemach
 Summary
 # OASIS_STOP

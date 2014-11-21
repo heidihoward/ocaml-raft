@@ -13,8 +13,7 @@ module RaftSim =
   functor (P: PARAMETERS) -> struct    
 
 (*Setting up the StateList and State, which hold the state for the nodes *)
-module StateList = Env.StateHandlerHist
-module State = StateList.State
+module StateList = Env
 
 module Client = Client.ClientHandler
 
