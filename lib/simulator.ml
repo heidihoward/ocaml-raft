@@ -42,12 +42,12 @@ let json ?start:(st=true) ?stop:(sp=true) x =
 (* TODO: consider spliting this up into 3 functions*)
 let timeout (s:State.t) = 
   match s.mode with
-  | Follower | Leader -> MonoTime.span_of_float (P.timeout () s.mode)
+  | Follower | Leader -> MonoTime.span_of_int (P.timeout () s.mode)
   | Candidate ->
     if P.backoff then
-     MonoTime.span_of_float ((P.timeout () Candidate)*.((Float.of_int 2)**(Float.of_int s.backoff)))
+     MonoTime.span_of_int ((P.timeout () Candidate)*.( 2 ** s.backoff))
     else
-      MonoTime.span_of_float (P.timeout () Candidate)
+      MonoTime.span_of_int (P.timeout () Candidate)
 
 type datacollection = {
   mutable pkts: int; 
