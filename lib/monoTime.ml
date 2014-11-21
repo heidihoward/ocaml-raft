@@ -9,6 +9,7 @@ let add a b = a + b
 let diff a b = a - b
 (*  let t_of_int t = t *)
 let span_of_int s = s
+let span_of_float = Float.to_int
 let span_to_string = string_of_int
 let to_string t = string_of_int t
 let to_int t = t

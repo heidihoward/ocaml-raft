@@ -7,6 +7,7 @@ of using Core's with compare *)
 val add : t -> span -> t
 val diff : t -> t -> span
 val span_of_int : int -> span
+val span_of_float : float -> span
 val span_to_string: span -> string
 val to_string: t -> string
 val to_int: t -> int
