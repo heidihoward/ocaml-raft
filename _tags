@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: e1a09a7a48fcc4fd8069626c37fa8916)
+# DO NOT EDIT (digest: 67e24590b0820a6d8c54dd214fd674ac)
 # Ignore VCS directories, you can use the same kind of rule outside
 # OASIS_START/STOP if you want to exclude directories that contains
 # useless stuff for the build process
@@ -20,7 +20,7 @@ true: annot, bin_annot
 <spl/*.ml{,i,y}>: pkg_bin_prot.syntax
 <spl/*.ml{,i,y}>: pkg_camlp4
 <spl/*.ml{,i,y}>: pkg_comparelib.syntax
-<spl/*.ml{,i,y}>: pkg_core
+<spl/*.ml{,i,y}>: pkg_core_kernel
 <spl/*.ml{,i,y}>: pkg_fieldslib.syntax
 <spl/*.ml{,i,y}>: pkg_sexplib.syntax
 <spl/*.ml{,i,y}>: pkg_threads
@@ -35,17 +35,19 @@ true: annot, bin_annot
 "lib/cmdstart.byte": pkg_camlp4
 "lib/cmdstart.byte": pkg_comparelib.syntax
 "lib/cmdstart.byte": pkg_core
+"lib/cmdstart.byte": pkg_core_kernel
 "lib/cmdstart.byte": pkg_fieldslib.syntax
 "lib/cmdstart.byte": pkg_sexplib.syntax
 "lib/cmdstart.byte": pkg_threads
 "lib/cmdstart.byte": pkg_variantslib.syntax
 "lib/cmdstart.byte": pkg_yojson
+<lib/*.ml{,i,y}>: pkg_core
 # Executable configstart
 "lib/config.byte": pkg_async
 "lib/config.byte": pkg_bin_prot.syntax
 "lib/config.byte": pkg_camlp4
 "lib/config.byte": pkg_comparelib.syntax
-"lib/config.byte": pkg_core
+"lib/config.byte": pkg_core_kernel
 "lib/config.byte": pkg_fieldslib.syntax
 "lib/config.byte": pkg_sexplib.syntax
 "lib/config.byte": pkg_threads
@@ -56,7 +58,7 @@ true: annot, bin_annot
 "lib/jparser.byte": pkg_bin_prot.syntax
 "lib/jparser.byte": pkg_camlp4
 "lib/jparser.byte": pkg_comparelib.syntax
-"lib/jparser.byte": pkg_core
+"lib/jparser.byte": pkg_core_kernel
 "lib/jparser.byte": pkg_fieldslib.syntax
 "lib/jparser.byte": pkg_sexplib.syntax
 "lib/jparser.byte": pkg_threads
@@ -66,7 +68,7 @@ true: annot, bin_annot
 <lib/*.ml{,i,y}>: pkg_bin_prot.syntax
 <lib/*.ml{,i,y}>: pkg_camlp4
 <lib/*.ml{,i,y}>: pkg_comparelib.syntax
-<lib/*.ml{,i,y}>: pkg_core
+<lib/*.ml{,i,y}>: pkg_core_kernel
 <lib/*.ml{,i,y}>: pkg_fieldslib.syntax
 <lib/*.ml{,i,y}>: pkg_sexplib.syntax
 <lib/*.ml{,i,y}>: pkg_threads

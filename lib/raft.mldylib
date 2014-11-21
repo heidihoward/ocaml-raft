@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 229ef3bc5f6a692e058607a759715086)
+# DO NOT EDIT (digest: 61a43c890b74efcd12e09c332428f4bd)
 Cast
 Client
 Cmdstart
@@ -16,4 +16,5 @@ Simulator
 State
 Statemach
 Summary
+Output
 # OASIS_STOP
