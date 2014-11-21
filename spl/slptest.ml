@@ -1,4 +1,4 @@
-open Core.Std
+open Core_kernel.Std
 open Raftconsensus
 
 let apply x y = tick y x

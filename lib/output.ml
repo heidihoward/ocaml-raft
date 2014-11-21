@@ -1,5 +1,5 @@
 open Yojson.Basic
-open Core.Std
+open Core_kernel.Std
 
 let debug_mode = true
 let json_mode = true

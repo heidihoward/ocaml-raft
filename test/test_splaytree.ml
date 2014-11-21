@@ -1,4 +1,4 @@
-open Core.Std
+open Core_kernel.Std
 open OUnit
 
 module TestingList = (Splaytree.SplayTree(Int) : Eventlst.EVENTLIST with type item = int)

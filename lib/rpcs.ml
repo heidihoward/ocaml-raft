@@ -1,4 +1,4 @@
-open Core.Std
+open Core_kernel.Std
 open Common
 
 (** This module specifics the arguments and results of RPC's *)

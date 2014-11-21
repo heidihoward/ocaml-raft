@@ -1,4 +1,4 @@
-open Core.Std
+open Core_kernel.Std
 (*open Async.Std*)
 (* This module contains basic functions and modules used through, with no
  * external dependances on any other modules *)

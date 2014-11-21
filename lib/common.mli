@@ -1,4 +1,4 @@
-open Core.Std
+open Core_kernel.Std
 
 (** Common is the basic module at the foundation of OCaml-Raft, it uses no other
  * ocaml-raft modules and contains much of the basic functionality used throught

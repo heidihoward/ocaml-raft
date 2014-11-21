@@ -1,7 +1,8 @@
-open Core.Std
+open Core_kernel.Std
 open Common
 open Summary
 open Yojson.Basic
+open Output
 module Mach = Statemach.KeyValStr
 
 (* [RaftSim] is a main body of the implementation, it handles the simulation, the
@@ -19,15 +20,6 @@ open Event (*needed to quickly access the event constructors like RaftEvent and 
 
 type eventsig = State.t -> (State.t * EventList.item list)
 type clientsig = Client.t -> (Client.t * EventList.item list)
-
-let json_breaker st sp str = 
-  if not(st) then String.set str 0 ' ' else ();
-  if not(sp) then String.set str ((String.length str)-1) ',' else ();
-  str
-
-let debug x = if (P.debug_mode) then (printf " %s  \n" x) else ()
-let json ?start:(st=true) ?stop:(sp=true) x = 
-  if (P.json_mode) then (printf " %s \n" (json_breaker st sp (to_string x))) else ()
 
 (* TODO: consider spliting this up into 3 functions*)
 let timeout (s:State.t) = 

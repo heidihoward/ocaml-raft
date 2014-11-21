@@ -1,4 +1,4 @@
-open Core.Std
+open Core_kernel.Std
 open Common
 
   (*highest element is always at head *)
