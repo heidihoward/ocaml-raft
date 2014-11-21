@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 67e24590b0820a6d8c54dd214fd674ac)
+# DO NOT EDIT (digest: 708eedf252c07b56708555d880151dad)
 # Ignore VCS directories, you can use the same kind of rule outside
 # OASIS_START/STOP if you want to exclude directories that contains
 # useless stuff for the build process
@@ -16,7 +16,6 @@ true: annot, bin_annot
 "_darcs": not_hygienic
 # Library raft_spl
 "spl/raft_spl.cmxs": use_raft_spl
-<spl/*.ml{,i,y}>: pkg_async
 <spl/*.ml{,i,y}>: pkg_bin_prot.syntax
 <spl/*.ml{,i,y}>: pkg_camlp4
 <spl/*.ml{,i,y}>: pkg_comparelib.syntax
@@ -30,7 +29,6 @@ true: annot, bin_annot
 "lib/raft.cmxs": use_raft
 <lib/*.ml{,i,y}>: use_raft_spl
 # Executable cmdstart
-"lib/cmdstart.byte": pkg_async
 "lib/cmdstart.byte": pkg_bin_prot.syntax
 "lib/cmdstart.byte": pkg_camlp4
 "lib/cmdstart.byte": pkg_comparelib.syntax
@@ -43,7 +41,6 @@ true: annot, bin_annot
 "lib/cmdstart.byte": pkg_yojson
 <lib/*.ml{,i,y}>: pkg_core
 # Executable configstart
-"lib/config.byte": pkg_async
 "lib/config.byte": pkg_bin_prot.syntax
 "lib/config.byte": pkg_camlp4
 "lib/config.byte": pkg_comparelib.syntax
@@ -54,7 +51,6 @@ true: annot, bin_annot
 "lib/config.byte": pkg_variantslib.syntax
 "lib/config.byte": pkg_yojson
 # Executable jsonstart
-"lib/jparser.byte": pkg_async
 "lib/jparser.byte": pkg_bin_prot.syntax
 "lib/jparser.byte": pkg_camlp4
 "lib/jparser.byte": pkg_comparelib.syntax
@@ -64,7 +60,6 @@ true: annot, bin_annot
 "lib/jparser.byte": pkg_threads
 "lib/jparser.byte": pkg_variantslib.syntax
 "lib/jparser.byte": pkg_yojson
-<lib/*.ml{,i,y}>: pkg_async
 <lib/*.ml{,i,y}>: pkg_bin_prot.syntax
 <lib/*.ml{,i,y}>: pkg_camlp4
 <lib/*.ml{,i,y}>: pkg_comparelib.syntax
