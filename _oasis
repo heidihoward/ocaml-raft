@@ -19,7 +19,7 @@ Library raft
   Path:          lib
   Findlibname:   raft
   Pack:          false
-  Modules:       Cast, Client, Cmdstart, Common, Config, Env, EventList, Jparser, Log, MonoTime, Parser, Rpcs, Simulator,  State,					   Statemach, Summary, Output
+  Modules:       Cast, Client, Common, Config, Env, EventList, Jparser, Log, MonoTime, Rpcs, Simulator,  State,					   Statemach, Summary, Output
   BuildDepends:  raft_spl
 
 Executable cmdstart
