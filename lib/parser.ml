@@ -44,9 +44,9 @@ let run ~time ~nodes ~eligible ~term ~debug_enabled ~json_enabled ~iter ~data ~f
   | Discrete ->
   begin
   let module DES =  
-    Simulator.RaftSim(Statemach.KeyValStr)(Par) in repeat iter DES.start
+    Simulator.RaftSim(Par) in repeat iter DES.start
    end 
   | Real -> 
   begin
   let module DES =  
-    Simulator.RaftSim(Statemach.KeyValStr)(Par) in repeat iter DES.start end
+    Simulator.RaftSim(Par) in repeat iter DES.start end

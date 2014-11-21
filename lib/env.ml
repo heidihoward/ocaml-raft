@@ -2,9 +2,9 @@ open Core.Std
 open Common
 open MonoTime
 module RaftMonitor = RaftMonitorWrapper
+module Mach = Statemach.KeyValStr
 
-module PureState  = 
-  functor (Mach: Statemach.MACHINE) -> struct
+module PureState = struct
 
   (* Split this record down into sections, seperating general statem *)
         type t = {
@@ -286,10 +286,9 @@ module PureState  =
 
 end
 
-module StateHandlerHist =
-  functor (Mach: Statemach.MACHINE ) -> struct
+module StateHandlerHist = struct
 
-module State = PureState(Mach)
+module State = PureState
   
   let hist = ref false
 

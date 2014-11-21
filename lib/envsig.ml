@@ -1,13 +1,12 @@
 open Core.Std
 open Common
 open MonoTime
+module Mach = Statemach.KeyValStr
 
 
 (** [Env] contains modules for handling state including PrueState and StateList
  * *)
-module type STATEHANDLER =
-    functor (Mach : Statemach.MACHINE) ->
-      sig
+module type STATEHANDLER = sig
 
 (** [State] holds the state of one of the nodes in the Raft simulation, the
  * state is accessable via type t with is a private record, its only modifiable

@@ -3,20 +3,20 @@ open Common
 open Eventlst 
 open Summary
 open Yojson.Basic
+module Mach = Statemach.KeyValStr
 
 (* [RaftSim] is a main body of the implementation, it handles the simulation, the
  * core protcol implementation and communication. This aspects need to be
  * divided up but everything depend on the State module with a functor *)
 
 module RaftSim = 
-  functor (Mach: Statemach.MACHINE) ->
   functor (P: PARAMETERS) -> struct    
 
 (*Setting up the StateList and State, which hold the state for the nodes *)
-module StateList = Env.StateHandlerHist(Mach)
+module StateList = Env.StateHandlerHist
 module State = StateList.State
 
-module Client = Client.ClientHandler(Mach)
+module Client = Client.ClientHandler
 
 open Event (*needed to quickly access the event constructors like RaftEvent and SimulationEvent *)
 

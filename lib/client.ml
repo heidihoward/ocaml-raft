@@ -1,9 +1,9 @@
 open Core.Std
 open Common
 open MonoTime
+module Mach = Statemach.KeyValStr
 
-module ClientHandler = 
-  functor (Mach: Statemach.MACHINE) -> struct
+module ClientHandler =  struct
 
   (* for now we only have one client *)
   type cluster_leader = Leader of IntID.t | TryAsking of IntID.t list 
