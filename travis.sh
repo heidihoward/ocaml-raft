@@ -18,7 +18,7 @@ sudo apt-get install -qq ocaml ocaml-native-compilers camlp4-extra opam
 
 export OPAMYES=1
 opam init
-opam install core ounit yojson
+opam install core ounit yojson js_of_ocaml
 eval `opam config env`
 
 git clone https://github.com/heidi-ann/ocaml-raft-data.git ../ocaml-raft-data
@@ -39,6 +39,10 @@ make
 ./cmdstart.byte -nodes 30  -follower Uniform-150-155 -candidate Uniform-11-22 -leader Fixed-75 -delay Fixed-7 -termOnTimeout 50000 -termOnElec -cmds 0 -backoff -d > output.log
 ./cmdstart.byte -termOnClient -nodes 5 -follower Uniform-150-300 -candidate Uniform-150-300 -leader Fixed-75 -delay Normal-7-3 -d > output.log
 
+# testing js
+cd js
+./setup.sh
+./build.sh
 
 
 # unit testing

@@ -18,3 +18,4 @@ setup.bin
 *_testing
 output.log
 *.data
+js/core_kernel_js
