@@ -1,8 +1,8 @@
 open Yojson.Basic
 open Core_kernel.Std
 
-let debug_mode = true
-let json_mode = true
+let debug_mode = false
+let json_mode = false
 
 let json_breaker st sp str = 
   (if not(st) then String.set str 0 ' ' else ());
