@@ -41,7 +41,7 @@ make
 
 # testing js
 cd js
-./setup.sh
+./get_core_kernel_js.sh
 ./build.sh
 
 
